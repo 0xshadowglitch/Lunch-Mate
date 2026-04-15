@@ -2,10 +2,13 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { getAuthorizedOrgId } from "./org-actions"
 
 export type LunchUser = {
   id: string
   name: string
+  org_id: string
+  linked_user_id: string | null  // UUID of the auth.users account
   created_at: string
 }
 
@@ -13,6 +16,7 @@ export type LunchEntry = {
   id: string
   date: string
   total_expense: number
+  org_id: string
   created_at: string
 }
 
@@ -21,6 +25,7 @@ export type LunchShare = {
   entry_id: string
   user_id: string
   share_amount: number
+  org_id: string
 }
 
 export type LunchPayment = {
@@ -28,6 +33,7 @@ export type LunchPayment = {
   entry_id: string
   user_id: string
   paid_amount: number
+  org_id: string
 }
 
 export type UserBalance = {
@@ -47,12 +53,15 @@ export type EntryWithDetails = {
   payments: { user_id: string; user_name: string; paid_amount: number }[]
 }
 
-// Fetch all users
+// Fetch all users for the current org
 export async function getUsers(): Promise<LunchUser[]> {
+  const { orgId } = await getAuthorizedOrgId()
   const supabase = await createClient()
+  
   const { data, error } = await supabase
     .from("lunch_users")
     .select("*")
+    .eq("org_id", orgId)
     .order("name")
 
   if (error) {
@@ -62,41 +71,96 @@ export async function getUsers(): Promise<LunchUser[]> {
   return data || []
 }
 
-// Add a new user
-export async function addUser(name: string): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createClient()
-  const { error } = await supabase.from("lunch_users").insert({ name })
+// Add a member of this org to lunch tracking (they must have an account)
+// linked_user_id = their auth.users UUID; name = display label
+export async function addUser(
+  name: string,
+  linkedUserId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { orgId, role } = await getAuthorizedOrgId()
+    if (role !== 'admin') return { success: false, error: "Only admins can add users" }
 
-  if (error) {
-    console.error("Error adding user:", error)
-    return { success: false, error: error.message }
+    const supabase = await createClient()
+
+    // Verify this user is actually a member of this org
+    const { data: isMember } = await supabase
+      .from("organization_members")
+      .select("id")
+      .eq("org_id", orgId)
+      .eq("user_id", linkedUserId)
+      .single()
+
+    if (!isMember) {
+      return { success: false, error: "This user doesn't belong to your team. Invite them first." }
+    }
+
+    // Check if already added to lunch tracking
+    const { data: alreadyAdded } = await supabase
+      .from("lunch_users")
+      .select("id")
+      .eq("org_id", orgId)
+      .eq("linked_user_id", linkedUserId)
+      .single()
+
+    if (alreadyAdded) {
+      return { success: false, error: "This member is already being tracked." }
+    }
+
+    const { error } = await supabase
+      .from("lunch_users")
+      .insert({ name, org_id: orgId, linked_user_id: linkedUserId })
+
+    if (error) {
+      console.error("Error adding user:", error)
+      return { success: false, error: error.message }
+    }
+
+    revalidatePath("/admin")
+    revalidatePath("/admin/users")
+    return { success: true }
+  } catch (e: any) {
+    return { success: false, error: e.message }
   }
-
-  revalidatePath("/admin")
-  revalidatePath("/admin/users")
-  return { success: true }
 }
 
 // Delete a user (and cascade delete their shares/payments)
 export async function deleteUser(userId: string): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createClient()
-  const { error } = await supabase.from("lunch_users").delete().eq("id", userId)
+  try {
+    const { orgId, role } = await getAuthorizedOrgId()
+    if (role !== 'admin') return { success: false, error: "Only admins can delete users" }
 
-  if (error) {
-    console.error("Error deleting user:", error)
-    return { success: false, error: error.message }
+    const supabase = await createClient()
+    const { error } = await supabase
+      .from("lunch_users")
+      .delete()
+      .eq("id", userId)
+      .eq("org_id", orgId) // Extra safety
+
+    if (error) {
+      console.error("Error deleting user:", error)
+      return { success: false, error: error.message }
+    }
+
+    revalidatePath("/admin")
+    revalidatePath("/admin/users")
+    revalidatePath("/user")
+    return { success: true }
+  } catch (e: any) {
+    return { success: false, error: e.message }
   }
-
-  revalidatePath("/admin")
-  revalidatePath("/admin/users")
-  revalidatePath("/user")
-  return { success: true }
 }
 
-// Fetch all entries with optional month filter
+// Fetch all entries for the current org with optional month filter
 export async function getEntries(month?: string): Promise<LunchEntry[]> {
+  const { orgId } = await getAuthorizedOrgId()
   const supabase = await createClient()
-  let query = supabase.from("lunch_entries").select("*").order("date", { ascending: false })
+  
+  let query = supabase
+    .from("lunch_entries")
+    .select("*")
+    .eq("org_id", orgId)
+    .order("date", { ascending: false })
 
   if (month) {
     const [year, monthNum] = month.split("-")
@@ -113,42 +177,32 @@ export async function getEntries(month?: string): Promise<LunchEntry[]> {
   return data || []
 }
 
-// Fetch user balances
+// Fetch user balances for current org
 export async function getUserBalances(): Promise<UserBalance[]> {
+  const { orgId } = await getAuthorizedOrgId()
   const supabase = await createClient()
 
-  // Get all users
+  // Get all users in org
   const { data: users, error: usersError } = await supabase
     .from("lunch_users")
     .select("*")
+    .eq("org_id", orgId)
     .order("name")
 
-  if (usersError || !users) {
-    console.error("Error fetching users:", usersError)
-    return []
-  }
+  if (usersError || !users) return []
 
-  // Get all shares
-  const { data: shares, error: sharesError } = await supabase
+  // Get all shares in org
+  const { data: shares } = await supabase
     .from("lunch_shares")
     .select("user_id, share_amount")
+    .eq("org_id", orgId)
 
-  if (sharesError) {
-    console.error("Error fetching shares:", sharesError)
-    return []
-  }
-
-  // Get all payments
-  const { data: payments, error: paymentsError } = await supabase
+  // Get all payments in org
+  const { data: payments } = await supabase
     .from("lunch_payments")
     .select("user_id, paid_amount")
+    .eq("org_id", orgId)
 
-  if (paymentsError) {
-    console.error("Error fetching payments:", paymentsError)
-    return []
-  }
-
-  // Calculate balances
   return users.map((user) => {
     const userShares = shares?.filter((s) => s.user_id === user.id) || []
     const userPayments = payments?.filter((p) => p.user_id === user.id) || []
@@ -167,12 +221,16 @@ export async function getUserBalances(): Promise<UserBalance[]> {
   })
 }
 
-// Get entries with full details (shares and payments)
+// Get entries with full details for current org
 export async function getEntriesWithDetails(month?: string): Promise<EntryWithDetails[]> {
+  const { orgId } = await getAuthorizedOrgId()
   const supabase = await createClient()
 
-  // Get entries
-  let entriesQuery = supabase.from("lunch_entries").select("*").order("date", { ascending: false })
+  let entriesQuery = supabase
+    .from("lunch_entries")
+    .select("*")
+    .eq("org_id", orgId)
+    .order("date", { ascending: false })
 
   if (month) {
     const [year, monthNum] = month.split("-")
@@ -181,142 +239,117 @@ export async function getEntriesWithDetails(month?: string): Promise<EntryWithDe
     entriesQuery = entriesQuery.gte("date", startDate).lte("date", endDate)
   }
 
-  const { data: entries, error: entriesError } = await entriesQuery
-  if (entriesError || !entries) {
-    console.error("Error fetching entries:", entriesError)
-    return []
-  }
+  const { data: entries } = await entriesQuery
+  if (!entries) return []
 
-  // Get users
-  const { data: users } = await supabase.from("lunch_users").select("id, name")
+  const { data: users } = await supabase.from("lunch_users").select("id, name").eq("org_id", orgId)
   const userMap = new Map(users?.map((u) => [u.id, u.name]) || [])
 
-  // Get shares for these entries
   const entryIds = entries.map((e) => e.id)
-  const { data: shares } = await supabase
-    .from("lunch_shares")
-    .select("*")
-    .in("entry_id", entryIds)
-
-  const { data: payments } = await supabase
-    .from("lunch_payments")
-    .select("*")
-    .in("entry_id", entryIds)
+  const { data: shares } = await supabase.from("lunch_shares").select("*").in("entry_id", entryIds).eq("org_id", orgId)
+  const { data: payments } = await supabase.from("lunch_payments").select("*").in("entry_id", entryIds).eq("org_id", orgId)
 
   return entries.map((entry) => ({
     id: entry.id,
     date: entry.date,
     total_expense: Number(entry.total_expense),
-    shares:
-      shares
-        ?.filter((s) => s.entry_id === entry.id)
-        .map((s) => ({
-          user_id: s.user_id,
-          user_name: userMap.get(s.user_id) || "Unknown",
-          share_amount: Number(s.share_amount),
-        })) || [],
-    payments:
-      payments
-        ?.filter((p) => p.entry_id === entry.id)
-        .map((p) => ({
-          user_id: p.user_id,
-          user_name: userMap.get(p.user_id) || "Unknown",
-          paid_amount: Number(p.paid_amount),
-        })) || [],
+    shares: shares?.filter((s) => s.entry_id === entry.id).map((s) => ({
+      user_id: s.user_id,
+      user_name: userMap.get(s.user_id) || "Unknown",
+      share_amount: Number(s.share_amount),
+    })) || [],
+    payments: payments?.filter((p) => p.entry_id === entry.id).map((p) => ({
+      user_id: p.user_id,
+      user_name: userMap.get(p.user_id) || "Unknown",
+      paid_amount: Number(p.paid_amount),
+    })) || [],
   }))
 }
 
-// Add a new lunch entry
+// Add a new lunch entry to current org
 export async function addEntry(data: {
   date: string
   totalExpense: number
   shares: { userId: string; amount: number }[]
   payments: { userId: string; amount: number }[]
 }): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createClient()
+  try {
+    const { orgId, role } = await getAuthorizedOrgId()
+    if (role !== 'admin') return { success: false, error: "Only admins can add entries" }
 
-  // Insert entry
-  const { data: entry, error: entryError } = await supabase
-    .from("lunch_entries")
-    .insert({ date: data.date, total_expense: data.totalExpense })
-    .select()
-    .single()
+    const supabase = await createClient()
 
-  if (entryError || !entry) {
-    console.error("Error adding entry:", entryError)
-    return { success: false, error: entryError?.message }
-  }
+    const { data: entry, error: entryError } = await supabase
+      .from("lunch_entries")
+      .insert({ date: data.date, total_expense: data.totalExpense, org_id: orgId })
+      .select()
+      .single()
 
-  // Insert shares
-  if (data.shares.length > 0) {
-    const { error: sharesError } = await supabase.from("lunch_shares").insert(
-      data.shares.map((s) => ({
-        entry_id: entry.id,
-        user_id: s.userId,
-        share_amount: s.amount,
-      }))
-    )
-    if (sharesError) {
-      console.error("Error adding shares:", sharesError)
-      return { success: false, error: sharesError.message }
+    if (entryError || !entry) return { success: false, error: entryError?.message }
+
+    if (data.shares.length > 0) {
+      await supabase.from("lunch_shares").insert(
+        data.shares.map((s) => ({ entry_id: entry.id, user_id: s.userId, share_amount: s.amount, org_id: orgId }))
+      )
     }
-  }
 
-  // Insert payments
-  if (data.payments.length > 0) {
-    const { error: paymentsError } = await supabase.from("lunch_payments").insert(
-      data.payments.map((p) => ({
-        entry_id: entry.id,
-        user_id: p.userId,
-        paid_amount: p.amount,
-      }))
-    )
-    if (paymentsError) {
-      console.error("Error adding payments:", paymentsError)
-      return { success: false, error: paymentsError.message }
+    if (data.payments.length > 0) {
+      await supabase.from("lunch_payments").insert(
+        data.payments.map((p) => ({ entry_id: entry.id, user_id: p.userId, paid_amount: p.amount, org_id: orgId }))
+      )
     }
-  }
 
-  revalidatePath("/admin")
-  revalidatePath("/user")
-  return { success: true }
+    revalidatePath("/admin")
+    revalidatePath("/user")
+    return { success: true }
+  } catch (e: any) {
+    return { success: false, error: e.message }
+  }
 }
 
 // Delete an entry
 export async function deleteEntry(entryId: string): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createClient()
-  const { error } = await supabase.from("lunch_entries").delete().eq("id", entryId)
+  try {
+    const { orgId, role } = await getAuthorizedOrgId()
+    if (role !== 'admin') return { success: false, error: "Only admins can delete entries" }
 
-  if (error) {
-    console.error("Error deleting entry:", error)
-    return { success: false, error: error.message }
+    const supabase = await createClient()
+    const { error } = await supabase
+      .from("lunch_entries")
+      .delete()
+      .eq("id", entryId)
+      .eq("org_id", orgId)
+
+    if (error) return { success: false, error: error.message }
+
+    revalidatePath("/admin")
+    revalidatePath("/user")
+    return { success: true }
+  } catch (e: any) {
+    return { success: false, error: e.message }
   }
-
-  revalidatePath("/admin")
-  revalidatePath("/user")
-  return { success: true }
 }
 
-// Get summary statistics
+// Get summary statistics for current org
 export async function getStats() {
+  const { orgId } = await getAuthorizedOrgId()
   const supabase = await createClient()
 
-  const { data: entries } = await supabase.from("lunch_entries").select("total_expense")
-  const { data: payments } = await supabase.from("lunch_payments").select("paid_amount")
+  const { data: entries } = await supabase.from("lunch_entries").select("total_expense").eq("org_id", orgId)
+  const { data: payments } = await supabase.from("lunch_payments").select("paid_amount").eq("org_id", orgId)
 
   const totalExpense = entries?.reduce((sum, e) => sum + Number(e.total_expense), 0) || 0
   const totalPaid = payments?.reduce((sum, p) => sum + Number(p.paid_amount), 0) || 0
-  const totalEntries = entries?.length || 0
 
   return {
     totalExpense,
     totalPaid,
     netBalance: totalPaid - totalExpense,
-    totalEntries,
+    totalEntries: entries?.length || 0,
   }
 }
 
-// Get spending trend data
+// Get spending trend data for current org
 export async function getSpendingTrend(month?: string) {
   const entries = await getEntries(month)
   return entries
@@ -327,7 +360,7 @@ export async function getSpendingTrend(month?: string) {
     }))
 }
 
-// Get contribution data (paid vs shares per user)
+// Get contribution data for current org
 export async function getContributionData() {
   const balances = await getUserBalances()
   return balances.map((b) => ({
@@ -337,29 +370,18 @@ export async function getContributionData() {
   }))
 }
 
-// Get weekly summary data
+// Get weekly summary data for current org
 export async function getWeeklySummary() {
+  const { orgId } = await getAuthorizedOrgId()
   const supabase = await createClient()
 
-  // Get all entries
-  const { data: entries } = await supabase
-    .from("lunch_entries")
-    .select("*")
-    .order("date", { ascending: true })
-
-  // Get all users
-  const { data: users } = await supabase
-    .from("lunch_users")
-    .select("id, name")
-    .order("name")
-
-  // Get all shares and payments
-  const { data: shares } = await supabase.from("lunch_shares").select("*")
-  const { data: payments } = await supabase.from("lunch_payments").select("*")
+  const { data: entries } = await supabase.from("lunch_entries").select("*").eq("org_id", orgId).order("date", { ascending: true })
+  const { data: users } = await supabase.from("lunch_users").select("id, name").eq("org_id", orgId).order("name")
+  const { data: shares } = await supabase.from("lunch_shares").select("*").eq("org_id", orgId)
+  const { data: payments } = await supabase.from("lunch_payments").select("*").eq("org_id", orgId)
 
   if (!entries || !users) return { weeks: [], users: [], overallBalances: [] }
 
-  // Helper to get week start (Monday)
   const getWeekStart = (dateStr: string) => {
     const date = new Date(dateStr)
     const day = date.getDay()
@@ -368,28 +390,26 @@ export async function getWeeklySummary() {
     return weekStart.toISOString().split("T")[0]
   }
 
-  // Group entries by week
-  const weekMap = new Map<string, {
-    weekStart: string
-    totalExpense: number
-    entries: any[]
-  }>()
+  const weekMap = new Map<string, any>()
 
   entries.forEach((entry) => {
     const weekStart = getWeekStart(entry.date)
     if (!weekMap.has(weekStart)) {
       weekMap.set(weekStart, { weekStart, totalExpense: 0, entries: [] })
     }
-    const week = weekMap.get(weekStart)!
+    const week = weekMap.get(weekStart)
     week.totalExpense += Number(entry.total_expense)
     week.entries.push(entry)
   })
 
-  // Calculate per-user data for each week
   const weeks = Array.from(weekMap.values()).map((week) => {
+    const entryIds = week.entries.map((e: any) => e.id)
+    const weekShares = shares?.filter((s) => entryIds.includes(s.entry_id)) || []
+    const weekPayments = payments?.filter((p) => entryIds.includes(p.entry_id)) || []
+
     const userStats = users.map((user) => {
-      const userShares = shares?.filter((s) => s.entry_id === week.entries.map(e => e.id).includes(s.entry_id) && s.user_id === user.id) || []
-      const userPayments = payments?.filter((p) => week.entries.map(e => e.id).includes(p.entry_id) && p.user_id === user.id) || []
+      const userShares = weekShares.filter((s) => s.user_id === user.id)
+      const userPayments = weekPayments.filter((p) => p.user_id === user.id)
       const totalShares = userShares.reduce((sum, s) => sum + Number(s.share_amount), 0)
       const totalPaid = userPayments.reduce((sum, p) => sum + Number(p.paid_amount), 0)
 
@@ -406,107 +426,55 @@ export async function getWeeklySummary() {
       weekStart: week.weekStart,
       totalExpense: week.totalExpense,
       userStats,
-      entries: week.entries.map(entry => {
-        const entryShares = shares?.filter(s => s.entry_id === entry.id) || []
-        const entryPayments = payments?.filter(p => p.entry_id === entry.id) || []
-        return {
-          id: entry.id,
-          date: entry.date,
-          totalExpense: Number(entry.total_expense),
-          userDetails: users.map(user => {
-            const share = entryShares.find(s => s.user_id === user.id)
-            const payment = entryPayments.find(p => p.user_id === user.id)
-            return {
-              userId: user.id,
-              userName: user.name,
-              isPresent: !!share && Number(share.share_amount) > 0,
-              share: share ? Number(share.share_amount) : 0,
-              paid: payment ? Number(payment.paid_amount) : 0
-            }
-          })
-        }
-      })
     }
   }).sort((a, b) => new Date(b.weekStart).getTime() - new Date(a.weekStart).getTime())
 
-  // Calculate overall balances
   const overallBalances = users.map((user) => {
     const userShares = shares?.filter((s) => s.user_id === user.id) || []
     const userPayments = payments?.filter((p) => p.user_id === user.id) || []
-    const totalShares = userShares.reduce((sum, s) => sum + Number(s.share_amount), 0)
-    const totalPaid = userPayments.reduce((sum, p) => sum + Number(p.paid_amount), 0)
-
     return {
       userId: user.id,
       userName: user.name,
-      balance: totalPaid - totalShares,
+      balance: userPayments.reduce((sum, p) => sum + Number(p.paid_amount), 0) - userShares.reduce((sum, s) => sum + Number(s.share_amount), 0),
     }
   })
 
-  return {
-    weeks,
-    users: users.map((u) => ({ id: u.id, name: u.name })),
-    overallBalances,
-  }
+  return { weeks, users: users.map(u => ({ id: u.id, name: u.name })), overallBalances }
 }
 
-// Get monthly summary data
+// Get monthly summary data for current org
 export async function getMonthlySummary() {
+  const { orgId } = await getAuthorizedOrgId()
   const supabase = await createClient()
 
-  // Get all entries
-  const { data: entries } = await supabase
-    .from("lunch_entries")
-    .select("*")
-    .order("date", { ascending: true })
-
-  // Get all users
-  const { data: users } = await supabase
-    .from("lunch_users")
-    .select("id, name")
-    .order("name")
-
-  // Get all shares and payments
-  const { data: shares } = await supabase.from("lunch_shares").select("*")
-  const { data: payments } = await supabase.from("lunch_payments").select("*")
+  const { data: entries } = await supabase.from("lunch_entries").select("*").eq("org_id", orgId).order("date", { ascending: true })
+  const { data: users } = await supabase.from("lunch_users").select("id, name").eq("org_id", orgId).order("name")
+  const { data: shares } = await supabase.from("lunch_shares").select("*").eq("org_id", orgId)
+  const { data: payments } = await supabase.from("lunch_payments").select("*").eq("org_id", orgId)
 
   if (!entries || !users) return { months: [], users: [] }
 
-  // Helper to get month key
   const getMonthKey = (dateStr: string) => {
     const date = new Date(dateStr)
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, "0")
-    return `${year}-${month}`
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`
   }
 
-  // Group entries by month
-  const monthMap = new Map<string, {
-    monthKey: string
-    totalExpense: number
-    entries: typeof entries
-  }>()
-
+  const monthMap = new Map<string, any>()
   entries.forEach((entry) => {
-    const monthKey = getMonthKey(entry.date)
-    if (!monthMap.has(monthKey)) {
-      monthMap.set(monthKey, { monthKey, totalExpense: 0, entries: [] })
-    }
-    const month = monthMap.get(monthKey)!
+    const key = getMonthKey(entry.date)
+    if (!monthMap.has(key)) monthMap.set(key, { monthKey: key, totalExpense: 0, entries: [] })
+    const month = monthMap.get(key)
     month.totalExpense += Number(entry.total_expense)
     month.entries.push(entry)
   })
 
-  // Calculate per-user data for each month
   const months = Array.from(monthMap.values()).map((month) => {
-    const entryIds = month.entries.map((e) => e.id)
-
+    const entryIds = month.entries.map((e: any) => e.id)
     const userStats = users.map((user) => {
       const userShares = shares?.filter((s) => entryIds.includes(s.entry_id) && s.user_id === user.id) || []
       const userPayments = payments?.filter((p) => entryIds.includes(p.entry_id) && p.user_id === user.id) || []
       const totalShares = userShares.reduce((sum, s) => sum + Number(s.share_amount), 0)
       const totalPaid = userPayments.reduce((sum, p) => sum + Number(p.paid_amount), 0)
-
       return {
         userId: user.id,
         userName: user.name,
@@ -515,69 +483,27 @@ export async function getMonthlySummary() {
         balance: totalPaid - totalShares,
       }
     })
-
-    return {
-      monthKey: month.monthKey,
-      totalExpense: month.totalExpense,
-      userStats,
-      entries: month.entries.map(entry => {
-        const entryShares = shares?.filter(s => s.entry_id === entry.id) || []
-        const entryPayments = payments?.filter(p => p.entry_id === entry.id) || []
-        return {
-          id: entry.id,
-          date: entry.date,
-          totalExpense: Number(entry.total_expense),
-          userDetails: users.map(user => {
-            const share = entryShares.find(s => s.user_id === user.id)
-            const payment = entryPayments.find(p => p.user_id === user.id)
-            return {
-              userId: user.id,
-              userName: user.name,
-              isPresent: !!share && Number(share.share_amount) > 0,
-              share: share ? Number(share.share_amount) : 0,
-              paid: payment ? Number(payment.paid_amount) : 0
-            }
-          })
-        }
-      })
-    }
+    return { monthKey: month.monthKey, totalExpense: month.totalExpense, userStats }
   }).sort((a, b) => b.monthKey.localeCompare(a.monthKey))
 
-  return {
-    months,
-    users: users.map((u) => ({ id: u.id, name: u.name })),
-  }
+  return { months, users: users.map(u => ({ id: u.id, name: u.name })) }
 }
 
-// Get daily entries with full details for the lunch tracker view
 export async function getDailyLunchData() {
+  const { orgId } = await getAuthorizedOrgId()
   const supabase = await createClient()
 
-  // Get all entries
-  const { data: entries } = await supabase
-    .from("lunch_entries")
-    .select("*")
-    .order("date", { ascending: false })
-
-  // Get all users
-  const { data: users } = await supabase
-    .from("lunch_users")
-    .select("id, name")
-    .order("name")
-
-  // Get all shares and payments
-  const { data: shares } = await supabase.from("lunch_shares").select("*")
-  const { data: payments } = await supabase.from("lunch_payments").select("*")
+  const { data: entries } = await supabase.from("lunch_entries").select("*").eq("org_id", orgId).order("date", { ascending: false })
+  const { data: users } = await supabase.from("lunch_users").select("id, name").eq("org_id", orgId).order("name")
+  const { data: shares } = await supabase.from("lunch_shares").select("*").eq("org_id", orgId)
+  const { data: payments } = await supabase.from("lunch_payments").select("*").eq("org_id", orgId)
 
   if (!entries || !users) return { entries: [], users: [] }
 
-  // Calculate running balances
-  const sortedEntries = [...entries].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-  )
-
   const runningBalances = new Map<string, number>()
   users.forEach((u) => runningBalances.set(u.id, 0))
+
+  const sortedEntries = [...entries].sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
   const entriesWithDetails = sortedEntries.map((entry) => {
     const entryShares = shares?.filter((s) => s.entry_id === entry.id) || []
@@ -588,34 +514,22 @@ export async function getDailyLunchData() {
       const payment = entryPayments.find((p) => p.user_id === user.id)
       const shareAmount = share ? Number(share.share_amount) : 0
       const paidAmount = payment ? Number(payment.paid_amount) : 0
-      const isPresent = shareAmount > 0
-
-      // Update running balance
-      const prevBalance = runningBalances.get(user.id) || 0
-      const newBalance = prevBalance + paidAmount - shareAmount
-      runningBalances.set(user.id, newBalance)
+      const prev = runningBalances.get(user.id) || 0
+      const next = prev + paidAmount - shareAmount
+      runningBalances.set(user.id, next)
 
       return {
         userId: user.id,
         userName: user.name,
-        isPresent,
+        isPresent: shareAmount > 0,
         share: shareAmount,
         paid: paidAmount,
-        balance: newBalance,
+        balance: next,
       }
     })
 
-    return {
-      id: entry.id,
-      date: entry.date,
-      totalExpense: Number(entry.total_expense),
-      userDetails,
-    }
+    return { id: entry.id, date: entry.date, totalExpense: Number(entry.total_expense), userDetails }
   })
 
-  // Reverse to show newest first
-  return {
-    entries: entriesWithDetails.reverse(),
-    users: users.map((u) => ({ id: u.id, name: u.name })),
-  }
+  return { entries: entriesWithDetails.reverse(), users: users.map(u => ({ id: u.id, name: u.name })) }
 }

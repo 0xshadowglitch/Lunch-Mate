@@ -11,16 +11,15 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { AlertCircle } from "lucide-react"
+import { AlertCircle, CheckCircle } from "lucide-react"
 
 interface AuditEntry {
   id: string
   date: string
   totalExpense: number
-  shares: Record<string, number>
-  paid: Record<string, number>
+  totalShares: number
+  totalPayments: number
   issues: string[]
-  hasIssues: boolean
 }
 
 interface DataAuditTableProps {
@@ -42,20 +41,18 @@ export function DataAuditTable({ entries }: DataAuditTableProps) {
             <TableRow>
               <TableHead>Date</TableHead>
               <TableHead className="text-right">Total Expense</TableHead>
+              <TableHead className="text-right">Total Shares</TableHead>
               <TableHead className="text-right">Total Paid</TableHead>
               <TableHead>Issues</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {entries.map((entry) => {
-              const totalPaid = Object.values(entry.paid).reduce(
-                (a, b) => a + b,
-                0
-              )
+              const hasIssues = entry.issues.length > 0
               return (
                 <TableRow
                   key={entry.id}
-                  className={cn(entry.hasIssues && "bg-destructive/5")}
+                  className={cn(hasIssues && "bg-destructive/5")}
                 >
                   <TableCell>
                     {new Date(entry.date).toLocaleDateString()}
@@ -68,18 +65,21 @@ export function DataAuditTable({ entries }: DataAuditTableProps) {
                   >
                     ₹{entry.totalExpense.toLocaleString()}
                   </TableCell>
+                  <TableCell className="text-right">
+                    ₹{entry.totalShares.toLocaleString()}
+                  </TableCell>
                   <TableCell
                     className={cn(
                       "text-right",
-                      totalPaid === 0 &&
+                      entry.totalPayments === 0 &&
                         entry.totalExpense > 0 &&
                         "text-red-500"
                     )}
                   >
-                    ₹{totalPaid.toLocaleString()}
+                    ₹{entry.totalPayments.toLocaleString()}
                   </TableCell>
                   <TableCell>
-                    {entry.hasIssues ? (
+                    {hasIssues ? (
                       <div className="flex items-center gap-2">
                         <AlertCircle className="h-4 w-4 text-red-500" />
                         <span className="text-sm text-red-500">
@@ -87,14 +87,27 @@ export function DataAuditTable({ entries }: DataAuditTableProps) {
                         </span>
                       </div>
                     ) : (
-                      <span className="text-sm text-muted-foreground">
-                        No issues
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-emerald-500" />
+                        <span className="text-sm text-muted-foreground">
+                          No issues
+                        </span>
+                      </div>
                     )}
                   </TableCell>
                 </TableRow>
               )
             })}
+            {entries.length === 0 && (
+              <TableRow>
+                <TableCell
+                  colSpan={5}
+                  className="text-center text-muted-foreground py-8"
+                >
+                  No entries to audit.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </CardContent>

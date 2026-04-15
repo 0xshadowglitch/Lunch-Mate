@@ -1,19 +1,15 @@
-"use client"
-
-import { useState, useEffect } from "react"
 import { TopNavbar } from "@/components/dashboard/top-navbar"
 import { ContributionChart } from "@/components/dashboard/contribution-chart"
 import { UserBalanceTable } from "@/components/dashboard/user-balance-table"
-import { getContributionData, calculateUserBalances } from "@/lib/store"
+import { getContributionData, getUserBalances } from "@/lib/actions"
 
-export default function AnalysisPage() {
-  const [contributionData, setContributionData] = useState(getContributionData())
-  const [balances, setBalances] = useState(calculateUserBalances())
+export const dynamic = "force-dynamic"
 
-  useEffect(() => {
-    setContributionData(getContributionData())
-    setBalances(calculateUserBalances())
-  }, [])
+export default async function AnalysisPage() {
+  const [contributionData, balances] = await Promise.all([
+    getContributionData(),
+    getUserBalances(),
+  ])
 
   return (
     <div className="flex flex-col h-full">

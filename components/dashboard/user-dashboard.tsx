@@ -29,12 +29,12 @@ import {
   YAxis,
 } from "recharts"
 import { cn } from "@/lib/utils"
-import type { User, UserBalance, LunchEntry } from "@/lib/store"
+import type { LunchUser, UserBalance, EntryWithDetails } from "@/lib/actions"
 
 interface UserDashboardProps {
-  users: User[]
+  users: LunchUser[]
   balances: UserBalance[]
-  entries: LunchEntry[]
+  entries: EntryWithDetails[]
   selectedUserId: string
   onUserChange: (userId: string) => void
 }
@@ -48,18 +48,21 @@ export function UserDashboard({
   selectedUserId,
   onUserChange,
 }: UserDashboardProps) {
-  const selectedBalance = balances.find((b) => b.userId === selectedUserId)
+  const selectedBalance = balances.find((b) => b.id === selectedUserId)
   
   // Get recent activity for selected user
   const recentActivity = entries
-    .slice(-5)
-    .reverse()
-    .map((entry) => ({
-      date: entry.date,
-      totalExpense: entry.totalExpense,
-      share: entry.shares[selectedUserId] || 0,
-      paid: entry.paid[selectedUserId] || 0,
-    }))
+    .slice(0, 5)
+    .map((entry) => {
+      const share = entry.shares.find((s) => s.user_id === selectedUserId)
+      const payment = entry.payments.find((p) => p.user_id === selectedUserId)
+      return {
+        date: entry.date,
+        totalExpense: entry.total_expense,
+        share: share?.share_amount || 0,
+        paid: payment?.paid_amount || 0,
+      }
+    })
 
   // Expense distribution pie data
   const expenseDistribution = balances.map((b) => ({
@@ -70,7 +73,7 @@ export function UserDashboard({
   // Balance bar chart data
   const balanceData = balances.map((b) => ({
     name: b.name,
-    balance: b.currentBalance,
+    balance: b.balance,
   }))
 
   return (
@@ -108,15 +111,15 @@ export function UserDashboard({
             <div
               className={cn(
                 "text-2xl font-bold",
-                (selectedBalance?.currentBalance || 0) > 0
+                (selectedBalance?.balance || 0) > 0
                   ? "text-emerald-500"
-                  : (selectedBalance?.currentBalance || 0) < 0
+                  : (selectedBalance?.balance || 0) < 0
                   ? "text-red-500"
                   : "text-card-foreground"
               )}
             >
-              {(selectedBalance?.currentBalance || 0) >= 0 ? "+" : ""}₹
-              {(selectedBalance?.currentBalance || 0).toLocaleString()}
+              {(selectedBalance?.balance || 0) >= 0 ? "+" : ""}₹
+              {(selectedBalance?.balance || 0).toLocaleString()}
             </div>
           </CardContent>
         </Card>

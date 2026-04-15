@@ -1,28 +1,19 @@
-"use client"
-
-import { useState, useEffect } from "react"
 import { TopNavbar } from "@/components/dashboard/top-navbar"
 import { SpendingTrendChart } from "@/components/dashboard/spending-trend-chart"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { getSpendingTrend, getLunchEntries } from "@/lib/store"
+import { getSpendingTrend } from "@/lib/actions"
 
-export default function TrendsPage() {
-  const [spendingTrend, setSpendingTrend] = useState(getSpendingTrend())
-  const [avgExpense, setAvgExpense] = useState(0)
-  const [maxExpense, setMaxExpense] = useState(0)
-  const [minExpense, setMinExpense] = useState(0)
+export const dynamic = "force-dynamic"
 
-  useEffect(() => {
-    const trend = getSpendingTrend()
-    setSpendingTrend(trend)
+export default async function TrendsPage() {
+  const spendingTrend = await getSpendingTrend()
 
-    if (trend.length > 0) {
-      const expenses = trend.map((t) => t.expense)
-      setAvgExpense(Math.round(expenses.reduce((a, b) => a + b, 0) / expenses.length))
-      setMaxExpense(Math.max(...expenses))
-      setMinExpense(Math.min(...expenses))
-    }
-  }, [])
+  const expenses = spendingTrend.map((t) => t.expense)
+  const avgExpense = expenses.length > 0 
+    ? Math.round(expenses.reduce((a, b) => a + b, 0) / expenses.length) 
+    : 0
+  const maxExpense = expenses.length > 0 ? Math.max(...expenses) : 0
+  const minExpense = expenses.length > 0 ? Math.min(...expenses) : 0
 
   return (
     <div className="flex flex-col h-full">

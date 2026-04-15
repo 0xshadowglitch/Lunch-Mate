@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import {
   Table,
   TableBody,
@@ -33,36 +33,38 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
-import { Trash2, UserPlus } from "lucide-react"
-import type { User, UserBalance } from "@/lib/store"
+import { Trash2, UserPlus, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { addUser, deleteUser, type LunchUser, type UserBalance } from "@/lib/actions"
 
 interface UserManagementProps {
-  users: User[]
+  users: LunchUser[]
   balances: UserBalance[]
-  onAddUser: (name: string) => void
-  onDeleteUser: (id: string) => void
 }
 
-export function UserManagement({
-  users,
-  balances,
-  onAddUser,
-  onDeleteUser,
-}: UserManagementProps) {
+export function UserManagement({ users, balances }: UserManagementProps) {
   const [newUserName, setNewUserName] = useState("")
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isPending, startTransition] = useTransition()
 
   const handleAddUser = () => {
     if (newUserName.trim()) {
-      onAddUser(newUserName.trim())
-      setNewUserName("")
-      setIsDialogOpen(false)
+      startTransition(async () => {
+        await addUser(newUserName.trim())
+        setNewUserName("")
+        setIsDialogOpen(false)
+      })
     }
   }
 
+  const handleDeleteUser = (userId: string) => {
+    startTransition(async () => {
+      await deleteUser(userId)
+    })
+  }
+
   const getBalanceForUser = (userId: string) => {
-    return balances.find((b) => b.userId === userId)
+    return balances.find((b) => b.id === userId)
   }
 
   return (
@@ -92,14 +94,22 @@ export function UserManagement({
                 value={newUserName}
                 onChange={(e) => setNewUserName(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleAddUser()}
+                disabled={isPending}
               />
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isPending}>
                 Cancel
               </Button>
-              <Button onClick={handleAddUser} disabled={!newUserName.trim()}>
-                Add User
+              <Button onClick={handleAddUser} disabled={!newUserName.trim() || isPending}>
+                {isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Adding...
+                  </>
+                ) : (
+                  "Add User"
+                )}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -127,15 +137,15 @@ export function UserManagement({
                   <TableCell
                     className={cn(
                       "text-right font-semibold",
-                      (balance?.currentBalance || 0) > 0
+                      (balance?.balance || 0) > 0
                         ? "text-emerald-500"
-                        : (balance?.currentBalance || 0) < 0
+                        : (balance?.balance || 0) < 0
                         ? "text-red-500"
                         : "text-muted-foreground"
                     )}
                   >
-                    {(balance?.currentBalance || 0) >= 0 ? "+" : ""}₹
-                    {(balance?.currentBalance || 0).toLocaleString()}
+                    {(balance?.balance || 0) >= 0 ? "+" : ""}₹
+                    {(balance?.balance || 0).toLocaleString()}
                   </TableCell>
                   <TableCell className="text-center">
                     <AlertDialog>
@@ -144,6 +154,7 @@ export function UserManagement({
                           variant="ghost"
                           size="icon"
                           className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          disabled={isPending}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -156,10 +167,10 @@ export function UserManagement({
                             <span className="font-semibold">{user.name}</span>?
                             This will remove them from the lunch tracker and all
                             their associated records.
-                            {balance && balance.currentBalance !== 0 && (
+                            {balance && balance.balance !== 0 && (
                               <span className="mt-2 block text-amber-600">
                                 Warning: This user has a balance of ₹
-                                {balance.currentBalance.toLocaleString()}
+                                {balance.balance.toLocaleString()}
                               </span>
                             )}
                           </AlertDialogDescription>
@@ -168,7 +179,7 @@ export function UserManagement({
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
                           <AlertDialogAction
                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                            onClick={() => onDeleteUser(user.id)}
+                            onClick={() => handleDeleteUser(user.id)}
                           >
                             Delete
                           </AlertDialogAction>

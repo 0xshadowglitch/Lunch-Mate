@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
-import type { UserBalance } from "@/lib/store"
+import type { UserBalance } from "@/lib/actions"
 
 interface UserBalanceTableProps {
   balances: UserBalance[]
@@ -34,7 +34,7 @@ export function UserBalanceTable({ balances }: UserBalanceTableProps) {
           </TableHeader>
           <TableBody>
             {balances.map((balance) => (
-              <TableRow key={balance.userId}>
+              <TableRow key={balance.id}>
                 <TableCell className="font-medium">{balance.name}</TableCell>
                 <TableCell className="text-right">
                   ₹{balance.totalPaid.toLocaleString()}
@@ -45,15 +45,15 @@ export function UserBalanceTable({ balances }: UserBalanceTableProps) {
                 <TableCell
                   className={cn(
                     "text-right font-semibold",
-                    balance.currentBalance > 0
+                    balance.balance > 0
                       ? "text-emerald-500"
-                      : balance.currentBalance < 0
+                      : balance.balance < 0
                       ? "text-red-500"
                       : "text-muted-foreground"
                   )}
                 >
-                  {balance.currentBalance >= 0 ? "+" : ""}₹
-                  {balance.currentBalance.toLocaleString()}
+                  {balance.balance >= 0 ? "+" : ""}₹
+                  {balance.balance.toLocaleString()}
                 </TableCell>
               </TableRow>
             ))}

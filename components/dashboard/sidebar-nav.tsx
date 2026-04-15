@@ -6,18 +6,36 @@ import { cn } from "@/lib/utils"
 import {
   LayoutDashboard,
   Users,
-  Settings,
   TrendingUp,
   PieChart,
   FileText,
   User,
+  Calendar,
+  CalendarDays,
+  Utensils,
 } from "lucide-react"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 const adminNavItems = [
   {
     title: "Overview",
     href: "/admin",
     icon: LayoutDashboard,
+  },
+  {
+    title: "Lunch Tracker",
+    href: "/admin/lunch",
+    icon: Utensils,
+  },
+  {
+    title: "Weekly Summary",
+    href: "/admin/weekly",
+    icon: Calendar,
+  },
+  {
+    title: "Monthly Summary",
+    href: "/admin/monthly",
+    icon: CalendarDays,
   },
   {
     title: "Users",
@@ -59,12 +77,13 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
 
   return (
     <div className="flex h-full w-64 flex-col border-r border-border bg-sidebar">
-      <div className="flex h-16 items-center border-b border-sidebar-border px-6">
-        <h1 className="text-xl font-bold text-sidebar-foreground">
+      <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-4">
+        <h1 className="text-lg font-bold text-primary">
           Lunch Tracker
         </h1>
+        <ThemeToggle />
       </div>
-      <nav className="flex-1 space-y-1 p-4">
+      <nav className="flex-1 space-y-1 p-4 overflow-y-auto">
         {navItems.map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href
@@ -75,7 +94,7 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 isActive
-                  ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                  ? "bg-primary text-primary-foreground"
                   : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               )}
             >
@@ -90,7 +109,7 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
           href={isAdmin ? "/user" : "/admin"}
           className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
         >
-          <Settings className="h-4 w-4" />
+          {isAdmin ? <User className="h-4 w-4" /> : <LayoutDashboard className="h-4 w-4" />}
           {isAdmin ? "Switch to User View" : "Switch to Admin View"}
         </Link>
       </div>

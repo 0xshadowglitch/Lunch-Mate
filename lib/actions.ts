@@ -336,3 +336,252 @@ export async function getContributionData() {
     shares: b.totalShares,
   }))
 }
+
+// Get weekly summary data
+export async function getWeeklySummary() {
+  const supabase = await createClient()
+
+  // Get all entries
+  const { data: entries } = await supabase
+    .from("lunch_entries")
+    .select("*")
+    .order("date", { ascending: true })
+
+  // Get all users
+  const { data: users } = await supabase
+    .from("lunch_users")
+    .select("id, name")
+    .order("name")
+
+  // Get all shares and payments
+  const { data: shares } = await supabase.from("lunch_shares").select("*")
+  const { data: payments } = await supabase.from("lunch_payments").select("*")
+
+  if (!entries || !users) return { weeks: [], users: [], overallBalances: [] }
+
+  // Helper to get week start (Monday)
+  const getWeekStart = (dateStr: string) => {
+    const date = new Date(dateStr)
+    const day = date.getDay()
+    const diff = date.getDate() - day + (day === 0 ? -6 : 1)
+    const weekStart = new Date(date.setDate(diff))
+    return weekStart.toISOString().split("T")[0]
+  }
+
+  // Group entries by week
+  const weekMap = new Map<string, {
+    weekStart: string
+    totalExpense: number
+    entries: typeof entries
+  }>()
+
+  entries.forEach((entry) => {
+    const weekStart = getWeekStart(entry.date)
+    if (!weekMap.has(weekStart)) {
+      weekMap.set(weekStart, { weekStart, totalExpense: 0, entries: [] })
+    }
+    const week = weekMap.get(weekStart)!
+    week.totalExpense += Number(entry.total_expense)
+    week.entries.push(entry)
+  })
+
+  // Calculate per-user data for each week
+  const weeks = Array.from(weekMap.values()).map((week) => {
+    const entryIds = week.entries.map((e) => e.id)
+    const weekShares = shares?.filter((s) => entryIds.includes(s.entry_id)) || []
+    const weekPayments = payments?.filter((p) => entryIds.includes(p.entry_id)) || []
+
+    const userStats = users.map((user) => {
+      const userShares = weekShares.filter((s) => s.user_id === user.id)
+      const userPayments = weekPayments.filter((p) => p.user_id === user.id)
+      const totalShares = userShares.reduce((sum, s) => sum + Number(s.share_amount), 0)
+      const totalPaid = userPayments.reduce((sum, p) => sum + Number(p.paid_amount), 0)
+
+      return {
+        userId: user.id,
+        userName: user.name,
+        paid: totalPaid,
+        shares: totalShares,
+        balance: totalPaid - totalShares,
+      }
+    })
+
+    return {
+      weekStart: week.weekStart,
+      totalExpense: week.totalExpense,
+      userStats,
+    }
+  }).sort((a, b) => new Date(b.weekStart).getTime() - new Date(a.weekStart).getTime())
+
+  // Calculate overall balances
+  const overallBalances = users.map((user) => {
+    const userShares = shares?.filter((s) => s.user_id === user.id) || []
+    const userPayments = payments?.filter((p) => p.user_id === user.id) || []
+    const totalShares = userShares.reduce((sum, s) => sum + Number(s.share_amount), 0)
+    const totalPaid = userPayments.reduce((sum, p) => sum + Number(p.paid_amount), 0)
+
+    return {
+      userId: user.id,
+      userName: user.name,
+      balance: totalPaid - totalShares,
+    }
+  })
+
+  return {
+    weeks,
+    users: users.map((u) => ({ id: u.id, name: u.name })),
+    overallBalances,
+  }
+}
+
+// Get monthly summary data
+export async function getMonthlySummary() {
+  const supabase = await createClient()
+
+  // Get all entries
+  const { data: entries } = await supabase
+    .from("lunch_entries")
+    .select("*")
+    .order("date", { ascending: true })
+
+  // Get all users
+  const { data: users } = await supabase
+    .from("lunch_users")
+    .select("id, name")
+    .order("name")
+
+  // Get all shares and payments
+  const { data: shares } = await supabase.from("lunch_shares").select("*")
+  const { data: payments } = await supabase.from("lunch_payments").select("*")
+
+  if (!entries || !users) return { months: [], users: [] }
+
+  // Helper to get month key
+  const getMonthKey = (dateStr: string) => {
+    const date = new Date(dateStr)
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, "0")
+    return `${year}-${month}`
+  }
+
+  // Group entries by month
+  const monthMap = new Map<string, {
+    monthKey: string
+    totalExpense: number
+    entries: typeof entries
+  }>()
+
+  entries.forEach((entry) => {
+    const monthKey = getMonthKey(entry.date)
+    if (!monthMap.has(monthKey)) {
+      monthMap.set(monthKey, { monthKey, totalExpense: 0, entries: [] })
+    }
+    const month = monthMap.get(monthKey)!
+    month.totalExpense += Number(entry.total_expense)
+    month.entries.push(entry)
+  })
+
+  // Calculate per-user data for each month
+  const months = Array.from(monthMap.values()).map((month) => {
+    const entryIds = month.entries.map((e) => e.id)
+    const monthShares = shares?.filter((s) => entryIds.includes(s.entry_id)) || []
+    const monthPayments = payments?.filter((p) => entryIds.includes(p.entry_id)) || []
+
+    const userStats = users.map((user) => {
+      const userShares = monthShares.filter((s) => s.user_id === user.id)
+      const userPayments = monthPayments.filter((p) => p.user_id === user.id)
+      const totalShares = userShares.reduce((sum, s) => sum + Number(s.share_amount), 0)
+      const totalPaid = userPayments.reduce((sum, p) => sum + Number(p.paid_amount), 0)
+
+      return {
+        userId: user.id,
+        userName: user.name,
+        paid: totalPaid,
+        shares: totalShares,
+        balance: totalPaid - totalShares,
+      }
+    })
+
+    return {
+      monthKey: month.monthKey,
+      totalExpense: month.totalExpense,
+      userStats,
+    }
+  }).sort((a, b) => b.monthKey.localeCompare(a.monthKey))
+
+  return {
+    months,
+    users: users.map((u) => ({ id: u.id, name: u.name })),
+  }
+}
+
+// Get daily entries with full details for the lunch tracker view
+export async function getDailyLunchData() {
+  const supabase = await createClient()
+
+  // Get all entries
+  const { data: entries } = await supabase
+    .from("lunch_entries")
+    .select("*")
+    .order("date", { ascending: false })
+
+  // Get all users
+  const { data: users } = await supabase
+    .from("lunch_users")
+    .select("id, name")
+    .order("name")
+
+  // Get all shares and payments
+  const { data: shares } = await supabase.from("lunch_shares").select("*")
+  const { data: payments } = await supabase.from("lunch_payments").select("*")
+
+  if (!entries || !users) return { entries: [], users: [] }
+
+  // Calculate running balances
+  const sortedEntries = [...entries].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  )
+
+  const runningBalances = new Map<string, number>()
+  users.forEach((u) => runningBalances.set(u.id, 0))
+
+  const entriesWithDetails = sortedEntries.map((entry) => {
+    const entryShares = shares?.filter((s) => s.entry_id === entry.id) || []
+    const entryPayments = payments?.filter((p) => p.entry_id === entry.id) || []
+
+    const userDetails = users.map((user) => {
+      const share = entryShares.find((s) => s.user_id === user.id)
+      const payment = entryPayments.find((p) => p.user_id === user.id)
+      const shareAmount = share ? Number(share.share_amount) : 0
+      const paidAmount = payment ? Number(payment.paid_amount) : 0
+      const isPresent = shareAmount > 0
+
+      // Update running balance
+      const prevBalance = runningBalances.get(user.id) || 0
+      const newBalance = prevBalance + paidAmount - shareAmount
+      runningBalances.set(user.id, newBalance)
+
+      return {
+        userId: user.id,
+        userName: user.name,
+        isPresent,
+        share: shareAmount,
+        paid: paidAmount,
+        balance: newBalance,
+      }
+    })
+
+    return {
+      id: entry.id,
+      date: entry.date,
+      totalExpense: Number(entry.total_expense),
+      userDetails,
+    }
+  })
+
+  // Reverse to show newest first
+  return {
+    entries: entriesWithDetails.reverse(),
+    users: users.map((u) => ({ id: u.id, name: u.name })),
+  }
+}

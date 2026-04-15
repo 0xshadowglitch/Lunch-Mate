@@ -25,43 +25,61 @@ export function ContributionChart({ data }: ContributionChartProps) {
       <CardContent>
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+            <BarChart data={data} barGap={8}>
+              <defs>
+                <linearGradient id="colorPaid" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--chart-1)" stopOpacity={0.8} />
+                  <stop offset="95%" stopColor="var(--chart-1)" stopOpacity={1} />
+                </linearGradient>
+                <linearGradient id="colorShares" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--chart-2)" stopOpacity={0.8} />
+                  <stop offset="95%" stopColor="var(--chart-2)" stopOpacity={1} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted/20" />
               <XAxis
                 dataKey="name"
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 12, fill: "var(--color-muted-foreground)", fontWeight: 500 }}
                 tickLine={false}
                 axisLine={false}
-                className="text-muted-foreground"
+                dy={10}
               />
               <YAxis
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 12, fill: "var(--color-muted-foreground)", fontWeight: 500 }}
                 tickLine={false}
                 axisLine={false}
                 tickFormatter={(value) => `₹${value}`}
-                className="text-muted-foreground"
+                dx={-10}
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "hsl(var(--card))",
-                  border: "1px solid hsl(var(--border))",
-                  borderRadius: "8px",
+                  backgroundColor: "var(--color-card)",
+                  backdropFilter: "blur(12px)",
+                  border: "1px solid var(--color-border)",
+                  borderRadius: "12px",
+                  boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
                 }}
-                labelStyle={{ color: "hsl(var(--foreground))" }}
-                formatter={(value: number) => [`₹${value}`]}
+                labelStyle={{ color: "var(--color-foreground)", fontWeight: "bold", marginBottom: "4px" }}
+                cursor={{ fill: "var(--color-muted)", opacity: 0.1 }}
               />
-              <Legend />
+              <Legend
+                wrapperStyle={{ paddingTop: "20px" }}
+                iconType="circle"
+                iconSize={10}
+              />
               <Bar
                 dataKey="paid"
                 name="Total Paid"
-                fill="hsl(var(--chart-1))"
-                radius={[4, 4, 0, 0]}
+                fill="url(#colorPaid)"
+                radius={[6, 6, 0, 0]}
+                barSize={32}
               />
               <Bar
                 dataKey="shares"
                 name="Total Shares"
-                fill="hsl(var(--chart-2))"
-                radius={[4, 4, 0, 0]}
+                fill="url(#colorShares)"
+                radius={[6, 6, 0, 0]}
+                barSize={32}
               />
             </BarChart>
           </ResponsiveContainer>

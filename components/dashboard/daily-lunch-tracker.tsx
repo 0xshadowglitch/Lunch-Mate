@@ -35,16 +35,21 @@ interface DailyLunchTrackerProps {
   users: { id: string; name: string }[]
 }
 
+import { AddEntryDialog } from "./add-entry-dialog"
+
 export function DailyLunchTracker({ entries, users }: DailyLunchTrackerProps) {
   return (
     <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-3 text-lg font-semibold">
-          Daily Lunch Tracker
-          <Badge variant="secondary" className="font-normal">
-            {entries.length} entries
-          </Badge>
-        </CardTitle>
+      <CardHeader className="pb-3 px-6">
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-3 text-lg font-semibold">
+            Daily Lunch Tracker
+            <Badge variant="secondary" className="font-normal">
+              {entries.length} entries
+            </Badge>
+          </CardTitle>
+          <AddEntryDialog users={users} />
+        </div>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">

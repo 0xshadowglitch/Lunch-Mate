@@ -45,39 +45,52 @@ export function KPICards({
   ]
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div suppressHydrationWarning className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {cards.map((card) => {
         const Icon = card.icon
         return (
-          <Card key={card.title}>
+          <Card key={card.title} className="overflow-hidden">
+            <div className={cn(
+              "absolute top-0 left-0 w-1 h-full",
+              card.trend === "positive" ? "bg-emerald-500" : 
+              card.trend === "negative" ? "bg-red-500" : "bg-primary/20"
+            )} />
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
+              <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
                 {card.title}
               </CardTitle>
               <Icon
                 className={cn(
-                  "h-4 w-4",
+                  "h-5 w-5",
                   card.trend === "positive"
                     ? "text-emerald-500"
                     : card.trend === "negative"
                     ? "text-red-500"
-                    : "text-muted-foreground"
+                    : "text-primary"
                 )}
               />
             </CardHeader>
             <CardContent>
               <div
                 className={cn(
-                  "text-2xl font-bold",
+                  "text-3xl font-bold tracking-tight",
                   card.trend === "positive"
                     ? "text-emerald-500"
                     : card.trend === "negative"
                     ? "text-red-500"
-                    : "text-card-foreground"
+                    : "text-foreground"
                 )}
               >
                 {card.value}
               </div>
+              {card.trend && (
+                <p className={cn(
+                  "text-xs mt-1 font-medium",
+                  card.trend === "positive" ? "text-emerald-500/80" : "text-red-500/80"
+                )}>
+                  {card.trend === "positive" ? "↑ Credit" : "↓ Debit"}
+                </p>
+              )}
             </CardContent>
           </Card>
         )

@@ -76,7 +76,7 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
   const navItems = isAdmin ? adminNavItems : userNavItems
 
   return (
-    <div className="flex h-full w-64 flex-col border-r border-border bg-sidebar">
+    <div suppressHydrationWarning className="flex h-full w-64 flex-col border-r border-border bg-sidebar">
       <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-4">
         <h1 className="text-lg font-bold text-primary">
           Lunch Tracker

@@ -372,7 +372,7 @@ export async function getWeeklySummary() {
   const weekMap = new Map<string, {
     weekStart: string
     totalExpense: number
-    entries: typeof entries
+    entries: any[]
   }>()
 
   entries.forEach((entry) => {
@@ -387,13 +387,9 @@ export async function getWeeklySummary() {
 
   // Calculate per-user data for each week
   const weeks = Array.from(weekMap.values()).map((week) => {
-    const entryIds = week.entries.map((e) => e.id)
-    const weekShares = shares?.filter((s) => entryIds.includes(s.entry_id)) || []
-    const weekPayments = payments?.filter((p) => entryIds.includes(p.entry_id)) || []
-
     const userStats = users.map((user) => {
-      const userShares = weekShares.filter((s) => s.user_id === user.id)
-      const userPayments = weekPayments.filter((p) => p.user_id === user.id)
+      const userShares = shares?.filter((s) => s.entry_id === week.entries.map(e => e.id).includes(s.entry_id) && s.user_id === user.id) || []
+      const userPayments = payments?.filter((p) => week.entries.map(e => e.id).includes(p.entry_id) && p.user_id === user.id) || []
       const totalShares = userShares.reduce((sum, s) => sum + Number(s.share_amount), 0)
       const totalPaid = userPayments.reduce((sum, p) => sum + Number(p.paid_amount), 0)
 
@@ -410,6 +406,26 @@ export async function getWeeklySummary() {
       weekStart: week.weekStart,
       totalExpense: week.totalExpense,
       userStats,
+      entries: week.entries.map(entry => {
+        const entryShares = shares?.filter(s => s.entry_id === entry.id) || []
+        const entryPayments = payments?.filter(p => p.entry_id === entry.id) || []
+        return {
+          id: entry.id,
+          date: entry.date,
+          totalExpense: Number(entry.total_expense),
+          userDetails: users.map(user => {
+            const share = entryShares.find(s => s.user_id === user.id)
+            const payment = entryPayments.find(p => p.user_id === user.id)
+            return {
+              userId: user.id,
+              userName: user.name,
+              isPresent: !!share && Number(share.share_amount) > 0,
+              share: share ? Number(share.share_amount) : 0,
+              paid: payment ? Number(payment.paid_amount) : 0
+            }
+          })
+        }
+      })
     }
   }).sort((a, b) => new Date(b.weekStart).getTime() - new Date(a.weekStart).getTime())
 
@@ -484,12 +500,10 @@ export async function getMonthlySummary() {
   // Calculate per-user data for each month
   const months = Array.from(monthMap.values()).map((month) => {
     const entryIds = month.entries.map((e) => e.id)
-    const monthShares = shares?.filter((s) => entryIds.includes(s.entry_id)) || []
-    const monthPayments = payments?.filter((p) => entryIds.includes(p.entry_id)) || []
 
     const userStats = users.map((user) => {
-      const userShares = monthShares.filter((s) => s.user_id === user.id)
-      const userPayments = monthPayments.filter((p) => p.user_id === user.id)
+      const userShares = shares?.filter((s) => entryIds.includes(s.entry_id) && s.user_id === user.id) || []
+      const userPayments = payments?.filter((p) => entryIds.includes(p.entry_id) && p.user_id === user.id) || []
       const totalShares = userShares.reduce((sum, s) => sum + Number(s.share_amount), 0)
       const totalPaid = userPayments.reduce((sum, p) => sum + Number(p.paid_amount), 0)
 
@@ -506,6 +520,26 @@ export async function getMonthlySummary() {
       monthKey: month.monthKey,
       totalExpense: month.totalExpense,
       userStats,
+      entries: month.entries.map(entry => {
+        const entryShares = shares?.filter(s => s.entry_id === entry.id) || []
+        const entryPayments = payments?.filter(p => p.entry_id === entry.id) || []
+        return {
+          id: entry.id,
+          date: entry.date,
+          totalExpense: Number(entry.total_expense),
+          userDetails: users.map(user => {
+            const share = entryShares.find(s => s.user_id === user.id)
+            const payment = entryPayments.find(p => p.user_id === user.id)
+            return {
+              userId: user.id,
+              userName: user.name,
+              isPresent: !!share && Number(share.share_amount) > 0,
+              share: share ? Number(share.share_amount) : 0,
+              paid: payment ? Number(payment.paid_amount) : 0
+            }
+          })
+        }
+      })
     }
   }).sort((a, b) => b.monthKey.localeCompare(a.monthKey))
 

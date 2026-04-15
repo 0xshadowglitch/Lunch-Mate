@@ -4,16 +4,23 @@ import { useState, useEffect } from "react"
 import useSWR from "swr"
 import { TopNavbar } from "@/components/dashboard/top-navbar"
 import { UserDashboard } from "@/components/dashboard/user-dashboard"
-import { getUsers, getUserBalances, getEntriesWithDetails } from "@/lib/actions"
-import type { LunchUser, UserBalance, EntryWithDetails } from "@/lib/actions"
+import { 
+  getUsers, 
+  getUserBalances, 
+  getEntriesWithDetails, 
+  getWeeklySummary, 
+  getMonthlySummary 
+} from "@/lib/actions"
 
 async function fetchData() {
-  const [users, balances, entries] = await Promise.all([
+  const [users, balances, entries, weeklyData, monthlyData] = await Promise.all([
     getUsers(),
     getUserBalances(),
     getEntriesWithDetails(),
+    getWeeklySummary(),
+    getMonthlySummary(),
   ])
-  return { users, balances, entries }
+  return { users, balances, entries, weeklyData, monthlyData }
 }
 
 export default function UserPage() {
@@ -48,6 +55,8 @@ export default function UserPage() {
           users={data.users}
           balances={data.balances}
           entries={data.entries}
+          weeklyData={data.weeklyData}
+          monthlyData={data.monthlyData}
           selectedUserId={selectedUserId}
           onUserChange={setSelectedUserId}
         />

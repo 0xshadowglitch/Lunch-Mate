@@ -118,6 +118,39 @@ export async function createOrganization(formData: FormData) {
   redirect("/admin")
 }
 
+export async function deleteOrganization(orgId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) throw new Error("Unauthorized")
+
+  // Check if owner
+  const { data: org, error: orgError } = await supabase
+    .from("organizations")
+    .select("owner_id")
+    .eq("id", orgId)
+    .single()
+
+  if (orgError || !org) throw new Error("Organization not found")
+  if (org.owner_id !== user.id) throw new Error("Only the owner can delete the team")
+
+  const { error } = await supabase
+    .from("organizations")
+    .delete()
+    .eq("id", orgId)
+
+  if (error) return { error: error.message }
+
+  // Clear cookie if active
+  const cookieStore = await cookies()
+  if (cookieStore.get("active_org_id")?.value === orgId) {
+    cookieStore.delete("active_org_id")
+  }
+
+  revalidatePath("/", "layout")
+  return { success: true }
+}
+
 /**
  * Returns the org_id for the current authenticated user.
  * Throws an error if not authorized or not a member of any org.

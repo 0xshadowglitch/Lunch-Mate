@@ -17,9 +17,12 @@ import {
   LogOut,
   Settings,
   PlusCircle,
+  Trash2,
+  Loader2,
+  AlertTriangle,
 } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { getUserOrg, getUserOrgs, setActiveOrg } from "@/lib/org-actions"
+import { getUserOrg, getUserOrgs, setActiveOrg, deleteOrganization } from "@/lib/org-actions"
 import { signOut } from "@/lib/auth-actions"
 import { useEffect, useState, useTransition } from "react"
 import {
@@ -32,6 +35,16 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import { Check, ChevronDown } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 const adminNavItems = [
   {
@@ -93,6 +106,7 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
   const [org, setOrg] = useState<{ id: string; name: string; role: string } | null>(null)
   const [allOrgs, setAllOrgs] = useState<any[]>([])
   const [isPending, startTransition] = useTransition()
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
 
   useEffect(() => {
     Promise.all([getUserOrg(), getUserOrgs()]).then(([active, all]) => {
@@ -106,6 +120,24 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
     startTransition(async () => {
       await setActiveOrg(orgId)
       window.location.reload()
+    })
+  }
+
+  const handleDeleteTeam = async (e: React.MouseEvent, orgId: string) => {
+    e.stopPropagation()
+    setDeleteConfirmId(orgId)
+  }
+
+  const confirmDelete = async () => {
+    if (!deleteConfirmId) return
+    startTransition(async () => {
+      const result = await deleteOrganization(deleteConfirmId)
+      if (result.success) {
+        window.location.reload()
+      } else {
+        alert(result.error || "Failed to delete team")
+      }
+      setDeleteConfirmId(null)
     })
   }
 
@@ -149,13 +181,29 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
               <DropdownMenuItem
                 key={o.id}
                 onClick={() => handleSwitchTeam(o.id)}
-                className="flex items-center justify-between cursor-pointer py-2.5"
+                className="flex items-center justify-between cursor-pointer py-2.5 px-3 group/item"
               >
-                <div className="flex flex-col">
-                  <span className={cn("font-bold text-sm", o.id === org?.id && "text-primary")}>{o.name}</span>
-                  <span className="text-[10px] text-muted-foreground uppercase">{o.role}</span>
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  {o.id === org?.id ? (
+                    <div className="h-2 w-2 rounded-full bg-primary animate-pulse shrink-0" />
+                  ) : (
+                    <div className="h-2 w-2 rounded-full bg-muted-foreground/20 shrink-0" />
+                  )}
+                  <div className="flex flex-col truncate">
+                    <span className={cn("font-bold text-sm truncate", o.id === org?.id && "text-primary")}>{o.name}</span>
+                    <span className="text-[9px] text-muted-foreground uppercase font-medium">{o.role}</span>
+                  </div>
                 </div>
-                {o.id === org?.id && <Check className="h-4 w-4 text-primary" />}
+                
+                <div className="flex items-center gap-1 shrink-0 ml-2">
+                  <button
+                    onClick={(e) => handleDeleteTeam(e, o.id)}
+                    className="opacity-0 group-hover/item:opacity-100 p-1.5 hover:bg-destructive/10 hover:text-destructive rounded-lg transition-all text-muted-foreground/30"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                  {o.id === org?.id && <Check className="h-4 w-4 text-primary" />}
+                </div>
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
@@ -230,7 +278,30 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
           <LogOut className="h-4 w-4" />
           Logout
         </button>
-      </div>
+      <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
+        <AlertDialogContent className="max-w-[340px] rounded-3xl border-border/40 backdrop-blur-2xl">
+          <AlertDialogHeader>
+            <div className="mx-auto w-12 h-12 bg-destructive/10 rounded-2xl flex items-center justify-center mb-4">
+              <AlertTriangle className="h-6 w-6 text-destructive" />
+            </div>
+            <AlertDialogTitle className="text-center text-xl font-black uppercase tracking-tight">Delete Team?</AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-sm font-medium leading-relaxed">
+              This will permanently delete the team and all its lunch tracking data. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col sm:flex-col gap-2">
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="w-full bg-destructive text-destructive-foreground hover:bg-destructive/90 h-12 rounded-xl font-black uppercase tracking-widest text-xs"
+            >
+              {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Confirm Delete"}
+            </AlertDialogAction>
+            <AlertDialogCancel className="w-full h-12 rounded-xl font-black uppercase tracking-widest text-xs border-2">
+              Cancel
+            </AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

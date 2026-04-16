@@ -14,6 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Building2, Plus, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { MarqueeNews } from "@/components/dashboard/marquee-news"
 
 export const dynamic = "force-dynamic"
 
@@ -67,8 +68,9 @@ export default async function AdminOverviewPage() {
   ])
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       <TopNavbar title="Dashboard Overview" />
+      <MarqueeNews />
       <div className="flex-1 p-6 lg:p-10 space-y-8 overflow-auto">
         <KPICards
           totalExpense={stats.totalExpense}

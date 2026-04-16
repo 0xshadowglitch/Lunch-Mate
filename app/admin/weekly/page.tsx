@@ -2,6 +2,8 @@ import { getWeeklySummary } from "@/lib/actions"
 import { WeeklySummary } from "@/components/dashboard/weekly-summary"
 import { TopNavbar } from "@/components/dashboard/top-navbar"
 
+export const dynamic = "force-dynamic"
+
 export default async function WeeklyPage() {
   const { weeks, users, overallBalances } = await getWeeklySummary()
 

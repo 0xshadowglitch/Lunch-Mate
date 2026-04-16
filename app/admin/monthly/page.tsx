@@ -2,6 +2,8 @@ import { getMonthlySummary } from "@/lib/actions"
 import { MonthlySummary } from "@/components/dashboard/monthly-summary"
 import { TopNavbar } from "@/components/dashboard/top-navbar"
 
+export const dynamic = "force-dynamic"
+
 export default async function MonthlyPage() {
   const { months, users } = await getMonthlySummary()
 

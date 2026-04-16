@@ -2,6 +2,8 @@ import { getDailyLunchData } from "@/lib/actions"
 import { DailyLunchTracker } from "@/components/dashboard/daily-lunch-tracker"
 import { TopNavbar } from "@/components/dashboard/top-navbar"
 
+export const dynamic = "force-dynamic"
+
 export default async function LunchPage() {
   const { entries, users } = await getDailyLunchData()
 

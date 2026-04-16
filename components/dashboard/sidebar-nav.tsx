@@ -30,6 +30,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
+import { Badge } from "@/components/ui/badge"
 import { Check, ChevronDown } from "lucide-react"
 
 const adminNavItems = [

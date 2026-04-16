@@ -13,11 +13,14 @@ export async function getUserOrgs() {
     if (!user) return []
 
     // Try fetching with currency first
-    let { data: memberships, error } = await supabase
+    const firstAttempt = await supabase
       .from("organization_members")
       .select("org_id, role, organizations(name, currency)")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
+
+    let memberships = firstAttempt.data
+    let error = firstAttempt.error
 
     // If currency column is missing, fallback to name only
     if (error && error.message.includes("currency")) {
@@ -27,7 +30,7 @@ export async function getUserOrgs() {
         .select("org_id, role, organizations(name)")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
-      memberships = retry.data
+      memberships = retry.data as any
       error = retry.error
     }
 
@@ -61,11 +64,14 @@ export async function getUserOrg() {
     if (!user) return null
 
     // Try fetching with currency first
-    let { data: memberships, error } = await supabase
+    const firstAttempt = await supabase
       .from("organization_members")
       .select("org_id, role, organizations(name, currency)")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
+
+    let memberships = firstAttempt.data
+    let error = firstAttempt.error
 
     // If currency column is missing, fallback to name only
     if (error && error.message.includes("currency")) {
@@ -75,7 +81,7 @@ export async function getUserOrg() {
         .select("org_id, role, organizations(name)")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
-      memberships = retry.data
+      memberships = retry.data as any
       error = retry.error
     }
 

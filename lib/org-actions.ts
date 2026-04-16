@@ -78,14 +78,10 @@ export async function getAuthorizedOrgId() {
     .order("created_at", { ascending: false })
 
   if (error || !memberships || memberships.length === 0) {
-    throw new Error("No organization membership found")
+    return null
   }
 
   const membership = memberships[0]
-
-  if (error || !membership) {
-    throw new Error("No organization membership found")
-  }
 
   return { 
     orgId: membership.org_id, 

@@ -55,7 +55,9 @@ export type EntryWithDetails = {
 
 // Fetch all users for the current org
 export async function getUsers(): Promise<LunchUser[]> {
-  const { orgId } = await getAuthorizedOrgId()
+  const auth = await getAuthorizedOrgId()
+  if (!auth) return []
+  const { orgId } = auth
   const supabase = await createClient()
   
   const { data, error } = await supabase
@@ -153,7 +155,9 @@ export async function deleteUser(userId: string): Promise<{ success: boolean; er
 
 // Fetch all entries for the current org with optional month filter
 export async function getEntries(month?: string): Promise<LunchEntry[]> {
-  const { orgId } = await getAuthorizedOrgId()
+  const auth = await getAuthorizedOrgId()
+  if (!auth) return []
+  const { orgId } = auth
   const supabase = await createClient()
   
   let query = supabase
@@ -179,7 +183,9 @@ export async function getEntries(month?: string): Promise<LunchEntry[]> {
 
 // Fetch user balances for current org
 export async function getUserBalances(): Promise<UserBalance[]> {
-  const { orgId } = await getAuthorizedOrgId()
+  const auth = await getAuthorizedOrgId()
+  if (!auth) return []
+  const { orgId } = auth
   const supabase = await createClient()
 
   // Get all users in org
@@ -223,7 +229,9 @@ export async function getUserBalances(): Promise<UserBalance[]> {
 
 // Get entries with full details for current org
 export async function getEntriesWithDetails(month?: string): Promise<EntryWithDetails[]> {
-  const { orgId } = await getAuthorizedOrgId()
+  const auth = await getAuthorizedOrgId()
+  if (!auth) return []
+  const { orgId } = auth
   const supabase = await createClient()
 
   let entriesQuery = supabase
@@ -332,7 +340,11 @@ export async function deleteEntry(entryId: string): Promise<{ success: boolean; 
 
 // Get summary statistics for current org
 export async function getStats() {
-  const { orgId } = await getAuthorizedOrgId()
+  const auth = await getAuthorizedOrgId()
+  if (!auth) {
+    return { totalExpense: 0, totalPaid: 0, netBalance: 0, totalEntries: 0 }
+  }
+  const { orgId } = auth
   const supabase = await createClient()
 
   const { data: entries } = await supabase.from("lunch_entries").select("total_expense").eq("org_id", orgId)
@@ -372,7 +384,9 @@ export async function getContributionData() {
 
 // Get weekly summary data for current org
 export async function getWeeklySummary() {
-  const { orgId } = await getAuthorizedOrgId()
+  const auth = await getAuthorizedOrgId()
+  if (!auth) return { weeks: [], users: [], overallBalances: [] }
+  const { orgId } = auth
   const supabase = await createClient()
 
   const { data: entries } = await supabase.from("lunch_entries").select("*").eq("org_id", orgId).order("date", { ascending: true })
@@ -444,7 +458,9 @@ export async function getWeeklySummary() {
 
 // Get monthly summary data for current org
 export async function getMonthlySummary() {
-  const { orgId } = await getAuthorizedOrgId()
+  const auth = await getAuthorizedOrgId()
+  if (!auth) return { months: [], users: [] }
+  const { orgId } = auth
   const supabase = await createClient()
 
   const { data: entries } = await supabase.from("lunch_entries").select("*").eq("org_id", orgId).order("date", { ascending: true })
@@ -490,7 +506,9 @@ export async function getMonthlySummary() {
 }
 
 export async function getDailyLunchData() {
-  const { orgId } = await getAuthorizedOrgId()
+  const auth = await getAuthorizedOrgId()
+  if (!auth) return { entries: [], users: [] }
+  const { orgId } = auth
   const supabase = await createClient()
 
   const { data: entries } = await supabase.from("lunch_entries").select("*").eq("org_id", orgId).order("date", { ascending: false })

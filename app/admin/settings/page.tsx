@@ -168,15 +168,15 @@ export default function TeamSettingsPage() {
   }
 
   const statusBadge = (status: Invite["status"]) => {
-    if (status === "pending") return <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20"><CheckCircle2 className="h-3 w-3 mr-1" />Pending</Badge>
-    if (status === "used") return <Badge variant="secondary"><CheckCheck className="h-3 w-3 mr-1" />Used</Badge>
-    return <Badge variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20"><XCircle className="h-3 w-3 mr-1" />Expired</Badge>
+    if (status === "pending") return <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-[10px] px-2 py-0 h-5 font-bold"><CheckCircle2 className="h-3 w-3 mr-1" />Pending</Badge>
+    if (status === "used") return <Badge variant="secondary" className="text-[10px] px-2 py-0 h-5 font-bold"><CheckCheck className="h-3 w-3 mr-1" />Used</Badge>
+    return <Badge variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20 text-[10px] px-2 py-0 h-5 font-bold"><XCircle className="h-3 w-3 mr-1" />Expired</Badge>
   }
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full p-8">
-        <Loader2 className="animate-spin h-6 w-6 text-muted-foreground" />
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="animate-spin h-5 w-5 text-muted-foreground" />
       </div>
     )
   }
@@ -194,55 +194,54 @@ export default function TeamSettingsPage() {
   const pastInvites = invites.filter((i) => i.status !== "pending")
 
   return (
-    <div className="py-12 px-6 lg:px-10 space-y-10 max-w-4xl mx-auto">
+    <div className="py-6 px-4 md:px-8 space-y-6 max-w-4xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-4xl font-black tracking-tight">Team Settings</h1>
-          <p className="text-muted-foreground text-base mt-2 font-medium">
-            Project configuration and member access control.
+          <h1 className="text-2xl font-black tracking-tight">Team Settings</h1>
+          <p className="text-muted-foreground text-[11px] mt-1 font-medium">
+            Management console for member access and team configuration.
           </p>
         </div>
         {pastInvites.length > 0 && (
           <Button 
-            variant="outline" 
-            size="lg" 
+            variant="ghost" 
+            size="sm" 
             onClick={handleCleanup} 
             disabled={isPending}
-            className="rounded-xl px-6"
+            className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 hover:text-destructive transition-all"
           >
-            {isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
-            Clean Up Expired
+            {isPending ? <Loader2 className="h-3 w-3 animate-spin mr-2" /> : <Trash2 className="h-3 w-3 mr-2" />}
+            Cleanup
           </Button>
         )}
       </div>
 
       {/* Org Info Card */}
-      <Card className="border-primary/20 bg-primary/5 shadow-xl shadow-primary/5">
-        <CardContent className="p-8 lg:p-10">
-          <div className="flex flex-col md:flex-row md:items-center gap-8">
-            <div className="flex items-center gap-6">
-              <div className="p-4 bg-primary shadow-lg shadow-primary/30 rounded-2xl">
-                <Building2 className="h-6 w-6 text-primary-foreground" />
+      <Card className="border-primary/20 bg-primary/5 shadow-sm">
+        <CardContent className="p-4 md:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-2.5 bg-primary shadow-md shadow-primary/20 rounded-xl">
+                <Building2 className="h-4 w-4 text-primary-foreground" />
               </div>
               <div>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-black mb-1">Active Environment</p>
-                <p className="text-3xl font-black">{org?.name}</p>
+                <p className="text-[9px] text-muted-foreground uppercase tracking-[0.2em] font-black">Team Context</p>
+                <p className="text-lg font-black leading-none mt-1">{org?.name}</p>
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-4 md:ml-auto">
-              {/* Currency Selector */}
-              <div className="bg-background/40 p-1.5 rounded-2xl border-2 border-primary/10 flex items-center gap-1">
+            <div className="flex items-center gap-3">
+              <div className="bg-background/40 p-1 rounded-xl border border-primary/10 flex items-center gap-1">
                 {["₹", "PKR", "$", "€", "£"].map((curr) => (
                   <button
                     key={curr}
                     onClick={() => handleUpdateCurrency(curr)}
                     disabled={isCurrencyPending}
                     className={cn(
-                      "min-w-10 h-10 px-3 rounded-xl font-bold transition-all",
+                      "min-w-8 h-8 px-2 rounded-lg text-xs font-bold transition-all",
                       org?.currency === curr
-                        ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105"
+                        ? "bg-primary text-primary-foreground shadow-sm"
                         : "hover:bg-primary/10 text-muted-foreground"
                     )}
                   >
@@ -250,9 +249,7 @@ export default function TeamSettingsPage() {
                   </button>
                 ))}
               </div>
-
-              <Badge variant="default" className="text-sm px-4 py-1.5 rounded-full capitalize">
-                <Shield className="h-3.5 w-3.5 mr-2" />
+              <Badge variant="outline" className="text-[10px] px-2 py-0.5 h-6 rounded-lg uppercase tracking-wider font-black border-primary/20 bg-primary/5 text-primary">
                 {org?.role}
               </Badge>
             </div>
@@ -261,79 +258,58 @@ export default function TeamSettingsPage() {
       </Card>
 
       {/* Generate Invite */}
-      <Card className="shadow-xl">
-        <CardHeader className="p-8 lg:p-10 pb-4">
-          <CardTitle className="flex items-center gap-3 text-2xl">
-            <Sparkles className="h-6 w-6 text-primary" />
-            Generate Invite Link
-          </CardTitle>
-          <CardDescription className="text-base">
-            Create a secure, single-use invite link that expires in 24 hours. Share it with the person you want to invite.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-8 lg:p-10 pt-0 space-y-10">
-          {/* 
-          <div className="space-y-6 pt-2">
-            <Label htmlFor="invite-email" className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/80 ml-1">
-              Recipient Email <span className="text-muted-foreground/50 font-medium normal-case tracking-normal">(Optional — restrict to email)</span>
-            </Label>
-            <div className="relative group">
-              <Mail className="absolute left-5 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground/30 group-focus-within:text-primary transition-colors" />
-              <Input
-                id="invite-email"
-                type="email"
-                placeholder="colleague@company.com"
-                className="pl-14 h-16 bg-background/40 border-2 border-border/40 focus:border-primary/50 transition-all rounded-2xl text-lg"
-                value={newInviteEmail}
-                onChange={(e) => setNewInviteEmail(e.target.value)}
-                disabled={isPending}
-              />
+      <Card className="shadow-sm border-border/40 overflow-hidden">
+        <CardHeader className="p-4 md:p-6 pb-2 border-b border-border/40 bg-muted/30">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <CardTitle className="text-sm font-black uppercase tracking-widest">Generate Invite Link</CardTitle>
             </div>
+            <Badge variant="outline" className="text-[9px] border-emerald-500/20 text-emerald-600 bg-emerald-500/5">Multi-use for public links</Badge>
           </div>
-          */}
-
+        </CardHeader>
+        <CardContent className="p-4 md:p-6 space-y-4">
           <Button
             onClick={handleGenerateInvite}
             disabled={isPending}
-            className="w-full h-16 text-lg font-black uppercase tracking-[0.1em] transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] rounded-2xl shadow-xl hover:shadow-primary/30"
+            className="w-full h-11 text-xs font-black uppercase tracking-widest transition-all duration-300 hover:scale-[1.005] active:scale-[0.995] rounded-xl shadow-md"
           >
             {isPending ? (
               <>
-                <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Generating...
               </>
             ) : (
               <>
-                <LinkIcon className="mr-3 h-6 w-6" />
-                Generate Invite Link
+                <LinkIcon className="mr-2 h-4 w-4" />
+                Generate New Link
               </>
             )}
           </Button>
 
-          {/* Generated Link Display */}
           {generatedLink && (
-            <div className="mt-8 p-6 rounded-2xl border-2 border-primary/30 bg-primary/5 animate-in fade-in slide-in-from-bottom-4 duration-500 shadow-inner">
-              <div className="flex items-start gap-6">
-                <div className="p-2 bg-primary/10 rounded-full shrink-0">
-                  <CheckCircle2 className="h-6 w-6 text-primary" />
-                </div>
+            <div className="p-4 rounded-xl border border-primary/20 bg-primary/5 animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="flex items-center gap-3">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-black uppercase tracking-widest text-primary mb-2">Invite Link</p>
-                  <p className="text-sm text-muted-foreground font-mono break-all bg-background/80 p-4 rounded-xl border-2 border-primary/10 shadow-sm leading-relaxed">
-                    {generatedLink}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-3 flex items-center gap-2 font-medium">
-                    <Clock className="h-4 w-4" /> Expires in 24 hours · Multi-use
-                  </p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-primary mb-1">URL</p>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 bg-background/80 px-3 py-2 rounded-lg border border-primary/10 text-[11px] font-mono truncate shadow-inner">
+                      {generatedLink}
+                    </div>
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      onClick={() => handleCopy(generatedLink)}
+                      className="h-9 w-9 shrink-0 rounded-lg shadow-sm"
+                    >
+                      {copied ? <CheckCheck className="h-4 w-4 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
+                    </Button>
+                  </div>
+                  <div className="flex items-center gap-3 mt-2 text-[9px] text-muted-foreground font-bold uppercase tracking-tight">
+                    <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> Expires in 24h</span>
+                    <span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3" /> Multi-use enabled</span>
+                  </div>
                 </div>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  onClick={() => handleCopy(generatedLink)}
-                  className="shrink-0 h-12 w-12 rounded-xl border-2 hover:border-primary/50"
-                >
-                  {copied ? <CheckCheck className="h-6 w-6 text-emerald-500" /> : <Copy className="h-5 w-5" />}
-                </Button>
               </div>
             </div>
           )}
@@ -342,49 +318,46 @@ export default function TeamSettingsPage() {
 
       {/* Pending Invites */}
       {pendingInvites.length > 0 && (
-        <Card className="shadow-lg">
-          <CardHeader className="p-8 pb-4">
-            <CardTitle className="text-xl font-black uppercase tracking-widest flex items-center justify-between">
-              <span>Active Invites</span>
-              <Badge variant="secondary" className="rounded-full px-3">{pendingInvites.length}</Badge>
-            </CardTitle>
-            <CardDescription className="text-base font-medium">These invite links are still valid and haven't been used.</CardDescription>
+        <Card className="shadow-sm border-border/40">
+          <CardHeader className="p-4 md:p-6 pb-2 border-b border-border/40 bg-muted/30 flex-row items-center justify-between space-y-0">
+            <div className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-primary" />
+              <CardTitle className="text-sm font-black uppercase tracking-widest">Active Invites</CardTitle>
+            </div>
+            <Badge variant="secondary" className="h-5 text-[10px] font-bold px-2 rounded-full">{pendingInvites.length}</Badge>
           </CardHeader>
-          <CardContent className="p-8 pt-2">
+          <CardContent className="p-0">
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Restricted To</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Expires</TableHead>
-                  <TableHead className="text-center">Action</TableHead>
+              <TableHeader className="bg-muted/10">
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="h-10 text-[10px] uppercase font-black tracking-widest px-6">Restricted To</TableHead>
+                  <TableHead className="h-10 text-[10px] uppercase font-black tracking-widest">Status</TableHead>
+                  <TableHead className="h-10 text-[10px] uppercase font-black tracking-widest">Expires</TableHead>
+                  <TableHead className="h-10 text-[10px] uppercase font-black tracking-widest text-right px-6">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {pendingInvites.map((invite) => (
-                  <TableRow key={invite.id}>
-                    <TableCell className="text-sm">
+                  <TableRow key={invite.id} className="group">
+                    <TableCell className="py-3 px-6 text-xs font-medium">
                       {invite.email ? (
-                        <span className="flex items-center gap-1.5">
-                          <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                        <div className="flex items-center gap-2">
+                          <Mail className="h-3 w-3 text-muted-foreground" />
                           {invite.email}
-                        </span>
+                        </div>
                       ) : (
-                        <span className="text-muted-foreground italic">Anyone</span>
+                        <span className="text-muted-foreground italic text-[10px] uppercase tracking-tighter">Public Link</span>
                       )}
                     </TableCell>
-                    <TableCell>{statusBadge(invite.status)}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {formatDistanceToNow(new Date(invite.expires_at), { addSuffix: true })}
-                      </span>
+                    <TableCell className="py-3">{statusBadge(invite.status)}</TableCell>
+                    <TableCell className="py-3 text-[10px] text-muted-foreground font-bold">
+                      {formatDistanceToNow(new Date(invite.expires_at), { addSuffix: true })}
                     </TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="py-3 text-right px-6">
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10">
-                            <Trash2 className="h-4 w-4" />
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10">
+                            <Trash2 className="h-3.5 w-3.5" />
                           </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
@@ -414,38 +387,13 @@ export default function TeamSettingsPage() {
         </Card>
       )}
 
-      {/* Past Invites */}
+      {/* Past Invites Summary */}
       {pastInvites.length > 0 && (
-        <Card className="opacity-70 shadow-sm transition-opacity hover:opacity-100">
-          <CardHeader className="p-8 pb-4">
-            <CardTitle className="text-base font-black uppercase tracking-widest text-muted-foreground">Past Invites</CardTitle>
-            <CardDescription className="font-medium">Used and expired invites.</CardDescription>
-          </CardHeader>
-          <CardContent className="p-8 pt-2">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Restricted To</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Created</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {pastInvites.map((invite) => (
-                  <TableRow key={invite.id}>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {invite.email || <span className="italic">Anyone</span>}
-                    </TableCell>
-                    <TableCell>{statusBadge(invite.status)}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {formatDistanceToNow(new Date(invite.created_at), { addSuffix: true })}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        <div className="flex justify-center pt-2 pb-8">
+          <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-[0.2em] italic">
+            — {pastInvites.length} past invitation records in history —
+          </p>
+        </div>
       )}
     </div>
   )

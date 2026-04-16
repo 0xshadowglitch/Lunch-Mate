@@ -9,6 +9,7 @@ interface KPICardsProps {
   totalPaid: number
   netBalance: number
   totalEntries: number
+  currency?: string
 }
 
 export function KPICards({
@@ -16,23 +17,24 @@ export function KPICards({
   totalPaid,
   netBalance,
   totalEntries,
+  currency = "₹",
 }: KPICardsProps) {
   const cards = [
     {
       title: "Total Expense",
-      value: `₹${totalExpense.toLocaleString()}`,
+      value: `${currency}${totalExpense.toLocaleString()}`,
       icon: Receipt,
       trend: null,
     },
     {
       title: "Total Paid",
-      value: `₹${totalPaid.toLocaleString()}`,
+      value: `${currency}${totalPaid.toLocaleString()}`,
       icon: DollarSign,
       trend: null,
     },
     {
       title: "Net Balance",
-      value: `₹${Math.abs(netBalance).toLocaleString()}`,
+      value: `${currency}${Math.abs(netBalance).toLocaleString()}`,
       icon: netBalance >= 0 ? TrendingUp : TrendingDown,
       trend: netBalance >= 0 ? "positive" : "negative",
     },

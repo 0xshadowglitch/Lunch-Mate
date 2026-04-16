@@ -14,14 +14,15 @@ import {
 } from "@/lib/actions"
 
 async function fetchData() {
-  const [users, balances, entries, weeklyData, monthlyData] = await Promise.all([
+  const [users, balances, entries, weeklyData, monthlyData, org] = await Promise.all([
     getUsers(),
     getUserBalances(),
     getEntriesWithDetails(),
     getWeeklySummary(),
     getMonthlySummary(),
+    getUserOrg(),
   ])
-  return { users, balances, entries, weeklyData, monthlyData }
+  return { users, balances, entries, weeklyData, monthlyData, org }
 }
 
 export default function UserPage() {
@@ -60,6 +61,7 @@ export default function UserPage() {
           monthlyData={data.monthlyData}
           selectedUserId={selectedUserId}
           onUserChange={setSelectedUserId}
+          currency={data.org?.currency || "₹"}
         />
       </div>
     </div>

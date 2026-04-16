@@ -13,7 +13,7 @@ export async function getUserOrgs() {
 
   const { data: memberships, error } = await supabase
     .from("organization_members")
-    .select("org_id, role, organizations(name)")
+    .select("org_id, role, organizations(name, currency)")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
 
@@ -22,7 +22,8 @@ export async function getUserOrgs() {
   return memberships.map(m => ({
     id: m.org_id,
     role: m.role,
-    name: (m.organizations as any).name
+    name: (m.organizations as any).name,
+    currency: (m.organizations as any).currency || "₹"
   }))
 }
 
@@ -38,7 +39,7 @@ export async function getUserOrg() {
 
   let query = supabase
     .from("organization_members")
-    .select("org_id, role, organizations(name)")
+    .select("org_id, role, organizations(name, currency)")
     .eq("user_id", user.id)
 
   if (activeOrgId) {
@@ -54,7 +55,7 @@ export async function getUserOrg() {
     if (activeOrgId) {
        const fallback = await supabase
          .from("organization_members")
-         .select("org_id, role, organizations(name)")
+         .select("org_id, role, organizations(name, currency)")
          .eq("user_id", user.id)
          .order("created_at", { ascending: false })
          .limit(1)
@@ -63,7 +64,8 @@ export async function getUserOrg() {
          return {
            id: fallback.data.org_id,
            role: fallback.data.role,
-           name: (fallback.data.organizations as any).name
+           name: (fallback.data.organizations as any).name,
+           currency: (fallback.data.organizations as any).currency || "₹"
          }
        }
     }
@@ -75,7 +77,8 @@ export async function getUserOrg() {
   return {
     id: membership.org_id,
     role: membership.role,
-    name: (membership.organizations as any).name
+    name: (membership.organizations as any).name,
+    currency: (membership.organizations as any).currency || "₹"
   }
 }
 
@@ -146,6 +149,24 @@ export async function deleteOrganization(orgId: string) {
   if (cookieStore.get("active_org_id")?.value === orgId) {
     cookieStore.delete("active_org_id")
   }
+
+  revalidatePath("/", "layout")
+  return { success: true }
+}
+
+export async function updateOrganizationCurrency(orgId: string, currency: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) throw new Error("Unauthorized")
+
+  // Verify admin/owner (policy will handle it, but we can check here too)
+  const { error } = await supabase
+    .from("organizations")
+    .update({ currency })
+    .eq("id", orgId)
+
+  if (error) return { error: error.message }
 
   revalidatePath("/", "layout")
   return { success: true }

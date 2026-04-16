@@ -33,11 +33,12 @@ type EntryData = {
 interface DailyLunchTrackerProps {
   entries: EntryData[]
   users: { id: string; name: string }[]
+  currency?: string
 }
 
 import { AddEntryDialog } from "./add-entry-dialog"
 
-export function DailyLunchTracker({ entries, users }: DailyLunchTrackerProps) {
+export function DailyLunchTracker({ entries, users, currency = "₹" }: DailyLunchTrackerProps) {
   return (
     <Card>
       <CardHeader className="pb-3 px-6">
@@ -48,7 +49,7 @@ export function DailyLunchTracker({ entries, users }: DailyLunchTrackerProps) {
               {entries.length} entries
             </Badge>
           </CardTitle>
-          <AddEntryDialog users={users} />
+          <AddEntryDialog users={users} currency={currency} />
         </div>
       </CardHeader>
       <CardContent>
@@ -115,7 +116,7 @@ export function DailyLunchTracker({ entries, users }: DailyLunchTrackerProps) {
                       {getDayName(entry.date)}
                     </TableCell>
                     <TableCell className="text-right tabular-nums font-medium">
-                      {entry.totalExpense.toLocaleString("en-IN", {
+                      {currency}{entry.totalExpense.toLocaleString("en-IN", {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
@@ -144,7 +145,7 @@ export function DailyLunchTracker({ entries, users }: DailyLunchTrackerProps) {
                           key={`${entry.id}-${user.id}-share`}
                           className="text-right tabular-nums"
                         >
-                          {(detail?.share || 0).toLocaleString("en-IN", {
+                          {currency}{(detail?.share || 0).toLocaleString("en-IN", {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
                           })}
@@ -158,7 +159,7 @@ export function DailyLunchTracker({ entries, users }: DailyLunchTrackerProps) {
                           key={`${entry.id}-${user.id}-paid`}
                           className="text-right tabular-nums"
                         >
-                          {(detail?.paid || 0).toLocaleString("en-IN", {
+                          {currency}{(detail?.paid || 0).toLocaleString("en-IN", {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
                           })}
@@ -180,7 +181,7 @@ export function DailyLunchTracker({ entries, users }: DailyLunchTrackerProps) {
                               : "text-muted-foreground"
                           )}
                         >
-                          {balance.toLocaleString("en-IN", {
+                          {currency}{Math.abs(balance).toLocaleString("en-IN", {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
                           })}

@@ -52,9 +52,15 @@ interface WeeklySummaryProps {
   weeks: WeekData[]
   users: { id: string; name: string }[]
   overallBalances: OverallBalance[]
+  currency?: string
 }
 
-export function WeeklySummary({ weeks, users, overallBalances }: WeeklySummaryProps) {
+export function WeeklySummary({ 
+  weeks, 
+  users, 
+  overallBalances, 
+  currency = "₹" 
+}: WeeklySummaryProps) {
   const [expandedWeeks, setExpandedWeeks] = useState<Set<string>>(new Set())
 
   const toggleWeek = (weekStart: string) => {
@@ -94,7 +100,7 @@ export function WeeklySummary({ weeks, users, overallBalances }: WeeklySummaryPr
                       : "text-muted-foreground"
                   )}
                 >
-                  {balance.balance.toLocaleString("en-IN", {
+                  {currency}{Math.abs(balance.balance).toLocaleString("en-IN", {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   })}
@@ -167,7 +173,7 @@ export function WeeklySummary({ weeks, users, overallBalances }: WeeklySummaryPr
                           {formatDate(week.weekStart)}
                         </TableCell>
                         <TableCell className="text-right tabular-nums font-bold py-4">
-                          ₹{week.totalExpense.toLocaleString("en-IN", {
+                          {currency}{week.totalExpense.toLocaleString("en-IN", {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
                           })}
@@ -179,7 +185,7 @@ export function WeeklySummary({ weeks, users, overallBalances }: WeeklySummaryPr
                               key={`${week.weekStart}-${user.id}-paid`}
                               className="text-right tabular-nums py-4"
                             >
-                              ₹{(stat?.paid || 0).toLocaleString("en-IN", {
+                              {currency}{(stat?.paid || 0).toLocaleString("en-IN", {
                                 minimumFractionDigits: 2,
                                 maximumFractionDigits: 2,
                               })}
@@ -201,7 +207,7 @@ export function WeeklySummary({ weeks, users, overallBalances }: WeeklySummaryPr
                                   : "text-muted-foreground"
                               )}
                             >
-                              {balance.toLocaleString("en-IN", {
+                              {currency}{Math.abs(balance).toLocaleString("en-IN", {
                                 minimumFractionDigits: 2,
                                 maximumFractionDigits: 2,
                               })}
@@ -232,7 +238,7 @@ export function WeeklySummary({ weeks, users, overallBalances }: WeeklySummaryPr
                                     {week.entries.map(entry => (
                                       <TableRow key={entry.id} className="hover:bg-primary/5 border-b border-border/20 last:border-none">
                                         <TableCell className="py-3 px-4 text-sm font-medium">{formatDate(entry.date)}</TableCell>
-                                        <TableCell className="py-3 px-4 text-right tabular-nums text-sm font-bold">₹{entry.totalExpense.toLocaleString()}</TableCell>
+                                        <TableCell className="py-3 px-4 text-right tabular-nums text-sm font-bold">{currency}{entry.totalExpense.toLocaleString()}</TableCell>
                                         {users.map(user => {
                                           const detail = entry.userDetails.find(d => d.userId === user.id)
                                           return (

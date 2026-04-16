@@ -76,6 +76,7 @@ export default async function AdminOverviewPage() {
           totalPaid={stats.totalPaid}
           netBalance={stats.netBalance}
           totalEntries={stats.totalEntries}
+          currency={org.currency}
         />
         <UserBalanceTable balances={balances} />
         <div className="grid gap-8 lg:grid-cols-2">

@@ -27,9 +27,10 @@ import { cn } from "@/lib/utils"
 
 interface AddEntryDialogProps {
   users: { id: string; name: string }[]
+  currency?: string
 }
 
-export function AddEntryDialog({ users }: AddEntryDialogProps) {
+export function AddEntryDialog({ users, currency = "₹" }: AddEntryDialogProps) {
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   
@@ -125,7 +126,7 @@ export function AddEntryDialog({ users }: AddEntryDialogProps) {
             </div>
             
             <div className="grid gap-2.5">
-              <Label htmlFor="total" className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1 text-primary">Total Expense (₹)</Label>
+              <Label htmlFor="total" className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1 text-primary">Total Expense ({currency})</Label>
               <Input
                 id="total"
                 type="number"
@@ -199,12 +200,12 @@ export function AddEntryDialog({ users }: AddEntryDialogProps) {
               <span className="flex items-center gap-1.5">
                 Calculation Breakdown
               </span>
-              <span>₹{total.toLocaleString()} ÷ {presentCount}</span>
+              <span>{currency}{total.toLocaleString()} ÷ {presentCount}</span>
             </div>
             <div className="flex justify-between items-end pt-1">
               <span className="text-xs font-black uppercase tracking-widest opacity-80">Share / Person</span>
               <span className="text-3xl font-black text-primary tracking-tighter">
-                ₹{sharePerPerson.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                {currency}{sharePerPerson.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
           </div>

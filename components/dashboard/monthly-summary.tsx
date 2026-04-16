@@ -45,9 +45,10 @@ type MonthData = {
 interface MonthlySummaryProps {
   months: MonthData[]
   users: { id: string; name: string }[]
+  currency?: string
 }
 
-export function MonthlySummary({ months, users }: MonthlySummaryProps) {
+export function MonthlySummary({ months, users, currency = "₹" }: MonthlySummaryProps) {
   const [expandedMonths, setExpandedMonths] = useState<Set<string>>(new Set())
 
   const toggleMonth = (monthKey: string) => {
@@ -128,7 +129,7 @@ export function MonthlySummary({ months, users }: MonthlySummaryProps) {
                         {formatMonthLabel(month.monthKey)}
                       </TableCell>
                       <TableCell className="text-right tabular-nums font-bold py-4">
-                        ₹{month.totalExpense.toLocaleString("en-IN", {
+                        {currency}{month.totalExpense.toLocaleString("en-IN", {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
                         })}
@@ -140,7 +141,7 @@ export function MonthlySummary({ months, users }: MonthlySummaryProps) {
                             key={`${month.monthKey}-${user.id}-paid`}
                             className="text-right tabular-nums py-4"
                           >
-                            ₹{(stat?.paid || 0).toLocaleString("en-IN", {
+                            {currency}{(stat?.paid || 0).toLocaleString("en-IN", {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,
                             })}
@@ -162,7 +163,7 @@ export function MonthlySummary({ months, users }: MonthlySummaryProps) {
                                 : "text-muted-foreground"
                             )}
                           >
-                            {balance.toLocaleString("en-IN", {
+                            {currency}{Math.abs(balance).toLocaleString("en-IN", {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,
                             })}
@@ -193,7 +194,7 @@ export function MonthlySummary({ months, users }: MonthlySummaryProps) {
                                   {month.entries.map(entry => (
                                     <TableRow key={entry.id} className="hover:bg-primary/5 border-b border-border/20 last:border-none">
                                       <TableCell className="py-3 px-4 text-sm font-medium">{formatDate(entry.date)}</TableCell>
-                                      <TableCell className="py-3 px-4 text-right tabular-nums text-sm font-bold">₹{entry.totalExpense.toLocaleString()}</TableCell>
+                                      <TableCell className="py-3 px-4 text-right tabular-nums text-sm font-bold">{currency}{entry.totalExpense.toLocaleString()}</TableCell>
                                       {users.map(user => {
                                         const detail = entry.userDetails.find(d => d.userId === user.id)
                                         return (

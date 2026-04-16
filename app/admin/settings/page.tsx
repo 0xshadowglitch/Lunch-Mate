@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useTransition } from "react"
-import { getUserOrg } from "@/lib/org-actions"
+import { getUserOrg, updateOrganizationCurrency } from "@/lib/org-actions"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -56,6 +56,7 @@ interface OrgInfo {
   id: string
   name: string
   role: string
+  currency: string
 }
 
 export default function TeamSettingsPage() {
@@ -63,6 +64,7 @@ export default function TeamSettingsPage() {
   const [invites, setInvites] = useState<Invite[]>([])
   const [loading, setLoading] = useState(true)
   const [isPending, startTransition] = useTransition()
+  const [isCurrencyPending, setIsCurrencyPending] = useState(false)
   const [newInviteEmail, setNewInviteEmail] = useState("")
   const [generatedLink, setGeneratedLink] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
@@ -146,6 +148,24 @@ export default function TeamSettingsPage() {
     })
   }
 
+  const handleUpdateCurrency = async (currency: string) => {
+    if (!org) return
+    setIsCurrencyPending(true)
+    try {
+      const result = await updateOrganizationCurrency(org.id, currency)
+      if (result.success) {
+        setOrg({ ...org, currency })
+        toast.success("Currency updated!")
+      } else {
+        toast.error("Failed to update currency")
+      }
+    } catch (err) {
+      toast.error("Something went wrong")
+    } finally {
+      setIsCurrencyPending(false)
+    }
+  }
+
   const statusBadge = (status: Invite["status"]) => {
     if (status === "pending") return <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20"><CheckCircle2 className="h-3 w-3 mr-1" />Pending</Badge>
     if (status === "used") return <Badge variant="secondary"><CheckCheck className="h-3 w-3 mr-1" />Used</Badge>
@@ -199,15 +219,37 @@ export default function TeamSettingsPage() {
       {/* Org Info Card */}
       <Card className="border-primary/20 bg-primary/5 shadow-xl shadow-primary/5">
         <CardContent className="p-8 lg:p-10">
-          <div className="flex items-center gap-6">
-            <div className="p-4 bg-primary shadow-lg shadow-primary/30 rounded-2xl">
-              <Building2 className="h-6 w-6 text-primary-foreground" />
+          <div className="flex flex-col md:flex-row md:items-center gap-8">
+            <div className="flex items-center gap-6">
+              <div className="p-4 bg-primary shadow-lg shadow-primary/30 rounded-2xl">
+                <Building2 className="h-6 w-6 text-primary-foreground" />
+              </div>
+              <div>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-black mb-1">Active Environment</p>
+                <p className="text-3xl font-black">{org?.name}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-black mb-1">Active Environment</p>
-              <p className="text-3xl font-black">{org?.name}</p>
-            </div>
-            <div className="ml-auto">
+
+            <div className="flex flex-wrap items-center gap-4 md:ml-auto">
+              {/* Currency Selector */}
+              <div className="bg-background/40 p-1.5 rounded-2xl border-2 border-primary/10 flex items-center gap-1">
+                {["₹", "$", "€", "£"].map((curr) => (
+                  <button
+                    key={curr}
+                    onClick={() => handleUpdateCurrency(curr)}
+                    disabled={isCurrencyPending}
+                    className={cn(
+                      "w-10 h-10 rounded-xl font-bold transition-all",
+                      org?.currency === curr
+                        ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105"
+                        : "hover:bg-primary/10 text-muted-foreground"
+                    )}
+                  >
+                    {curr}
+                  </button>
+                ))}
+              </div>
+
               <Badge variant="default" className="text-sm px-4 py-1.5 rounded-full capitalize">
                 <Shield className="h-3.5 w-3.5 mr-2" />
                 {org?.role}

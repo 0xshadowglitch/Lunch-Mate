@@ -23,7 +23,7 @@ export default async function AdminOverviewPage() {
   return (
     <div className="flex flex-col h-full">
       <TopNavbar title="Dashboard Overview" />
-      <div className="flex-1 p-4 lg:p-6 space-y-6 overflow-auto">
+      <div className="flex-1 p-6 lg:p-10 space-y-8 overflow-auto">
         <KPICards
           totalExpense={stats.totalExpense}
           totalPaid={stats.totalPaid}
@@ -31,7 +31,7 @@ export default async function AdminOverviewPage() {
           totalEntries={stats.totalEntries}
         />
         <UserBalanceTable balances={balances} />
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-8 lg:grid-cols-2">
           <SpendingTrendChart data={spendingTrend} />
           <ContributionChart data={contributionData} />
         </div>

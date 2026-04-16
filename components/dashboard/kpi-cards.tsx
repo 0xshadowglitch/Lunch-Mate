@@ -46,55 +46,57 @@ export function KPICards({
 
   return (
     <div suppressHydrationWarning className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {cards.map((card) => {
-        const Icon = card.icon
-        return (
-          <Card key={card.title} className="overflow-hidden">
-            <div className={cn(
-              "absolute top-0 left-0 w-1 h-full",
-              card.trend === "positive" ? "bg-emerald-500" : 
-              card.trend === "negative" ? "bg-red-500" : "bg-primary/20"
-            )} />
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-                {card.title}
-              </CardTitle>
-              <Icon
-                className={cn(
-                  "h-5 w-5",
-                  card.trend === "positive"
-                    ? "text-emerald-500"
-                    : card.trend === "negative"
-                    ? "text-red-500"
-                    : "text-primary"
-                )}
-              />
-            </CardHeader>
-            <CardContent>
-              <div
-                className={cn(
-                  "text-3xl font-bold tracking-tight",
-                  card.trend === "positive"
-                    ? "text-emerald-500"
-                    : card.trend === "negative"
-                    ? "text-red-500"
-                    : "text-foreground"
-                )}
-              >
-                {card.value}
-              </div>
-              {card.trend && (
-                <p className={cn(
-                  "text-xs mt-1 font-medium",
-                  card.trend === "positive" ? "text-emerald-500/80" : "text-red-500/80"
+        {cards.map((card) => {
+          const Icon = card.icon
+          return (
+            <Card key={card.title} className="relative group overflow-hidden border-white/[0.03]">
+              {/* Corner Glow */}
+              <div className={cn(
+                "absolute -top-12 -right-12 w-24 h-24 blur-3xl rounded-full transition-opacity group-hover:opacity-100 opacity-50",
+                card.trend === "positive" ? "bg-emerald-500/20" : 
+                card.trend === "negative" ? "bg-red-500/10" : "bg-primary/10"
+              )} />
+
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+                <CardTitle className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">
+                  {card.title}
+                </CardTitle>
+                <div className={cn(
+                  "p-2 rounded-xl bg-white/[0.03] border border-white/[0.05]",
+                  card.trend === "positive" ? "text-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.1)]" : 
+                  card.trend === "negative" ? "text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.1)]" : "text-primary"
                 )}>
-                  {card.trend === "positive" ? "↑ Credit" : "↓ Debit"}
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        )
-      })}
+                  <Icon className="h-4 w-4" />
+                </div>
+              </CardHeader>
+              <CardContent className="relative z-10">
+                <div
+                  className={cn(
+                    "text-3xl font-bold tracking-tight bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent",
+                    card.trend === "positive" && "from-emerald-400 to-emerald-600",
+                    card.trend === "negative" && "from-red-400 to-red-600"
+                  )}
+                >
+                  {card.value}
+                </div>
+                {card.trend && (
+                  <div className="flex items-center gap-1.5 mt-2">
+                    <div className={cn(
+                      "h-1.5 w-1.5 rounded-full animate-pulse",
+                      card.trend === "positive" ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"
+                    )} />
+                    <p className={cn(
+                      "text-[10px] font-bold uppercase tracking-wider",
+                      card.trend === "positive" ? "text-emerald-500/90" : "text-red-500/90"
+                    )}>
+                      {card.trend === "positive" ? "Healthy Credit" : "Needs Payment"}
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )
+        })}
     </div>
   )
 }

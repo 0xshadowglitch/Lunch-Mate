@@ -18,12 +18,12 @@ interface ContributionChartProps {
 
 export function ContributionChart({ data }: ContributionChartProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Contribution Analysis</CardTitle>
+    <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+      <CardHeader className="pt-8 px-8 pb-4">
+        <CardTitle className="text-lg font-black tracking-tight uppercase">Contribution Analysis</CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="h-72">
+      <CardContent className="px-8 pb-8">
+        <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} barGap={8}>
               <defs>
@@ -53,14 +53,15 @@ export function ContributionChart({ data }: ContributionChartProps) {
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "var(--color-card)",
-                  backdropFilter: "blur(12px)",
-                  border: "1px solid var(--color-border)",
-                  borderRadius: "12px",
-                  boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+                  backgroundColor: "rgba(18, 24, 33, 0.8)",
+                  backdropFilter: "blur(16px)",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  borderRadius: "16px",
+                  boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.5)",
+                  padding: "12px",
                 }}
-                labelStyle={{ color: "var(--color-foreground)", fontWeight: "bold", marginBottom: "4px" }}
-                cursor={{ fill: "var(--color-muted)", opacity: 0.1 }}
+                labelStyle={{ color: "rgba(255,255,255,0.7)", fontWeight: "bold", marginBottom: "4px", fontSize: "12px", textTransform: "uppercase" }}
+                cursor={{ fill: "rgba(255, 255, 255, 0.05)", radius: 10 }}
               />
               <Legend
                 wrapperStyle={{ paddingTop: "20px" }}

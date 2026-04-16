@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import {
@@ -87,17 +88,28 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
   const navItems = isAdmin ? adminNavItems : userNavItems
 
   return (
-    <div suppressHydrationWarning className="flex h-full w-64 flex-col border-r border-border bg-sidebar">
-      <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-4">
-        <div className="flex flex-col">
-          <h1 className="text-lg font-bold text-primary leading-tight">
-            Lunch Tracker
-          </h1>
-          {org && (
-            <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
-              {org.name}
-            </span>
-          )}
+    <div suppressHydrationWarning className="flex h-full w-64 flex-col border-r border-border/50 bg-sidebar/50 backdrop-blur-2xl">
+      <div className="flex h-20 items-center justify-between border-b border-border/50 px-6 bg-foreground/[0.02]">
+        <div className="flex items-center gap-3">
+          <div className="flex-shrink-0 bg-primary/20 p-2.5 rounded-2xl border border-primary/30 shadow-[0_0_20px_var(--glow-emerald)] transition-all hover:scale-105">
+            <Image
+              src="/logo.png"
+              alt="Logo"
+              width={32}
+              height={32}
+              className="object-contain hover:rotate-6 transition-transform duration-300"
+            />
+          </div>
+          <div className="flex flex-col">
+            <h1 className="text-sm font-black text-foreground leading-tight tracking-wider uppercase">
+              Lunch Mate
+            </h1>
+            {org && (
+              <span className="text-[10px] text-primary/80 uppercase tracking-widest font-bold">
+                {org.name}
+              </span>
+            )}
+          </div>
         </div>
         <ThemeToggle />
       </div>

@@ -12,7 +12,10 @@ export default function UserLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="relative flex h-screen bg-background text-foreground overflow-hidden">
+      {/* Background Decorative Glows */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] -z-10 animate-pulse" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-blue-500/5 rounded-full blur-[100px] -z-10 animate-pulse delay-1000" />
       {/* Desktop Sidebar */}
       <div className="hidden lg:block">
         <SidebarNav isAdmin={false} />

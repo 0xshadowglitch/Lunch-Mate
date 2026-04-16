@@ -92,24 +92,24 @@ export function UserDashboard({
   }))
 
   return (
-    <div suppressHydrationWarning className="space-y-6">
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="bg-card/50 backdrop-blur-md border border-border/50 p-1 h-12 rounded-2xl">
-          <TabsTrigger value="overview" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2">
+    <div suppressHydrationWarning className="space-y-8">
+      <Tabs defaultValue="overview" className="space-y-8">
+        <TabsList className="bg-card/50 backdrop-blur-md border border-border/50 p-1.5 h-14 rounded-2xl shadow-lg">
+          <TabsTrigger value="overview" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-3 px-6 transition-all">
             <LayoutDashboard className="h-4 w-4" />
             Overview
           </TabsTrigger>
-          <TabsTrigger value="weekly" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2">
+          <TabsTrigger value="weekly" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-3 px-6 transition-all">
             <CalendarDays className="h-4 w-4" />
             Weekly Summary
           </TabsTrigger>
-          <TabsTrigger value="monthly" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2">
+          <TabsTrigger value="monthly" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-3 px-6 transition-all">
             <CalendarRange className="h-4 w-4" />
             Monthly Summary
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-6 animate-in fade-in duration-500">
+        <TabsContent value="overview" className="space-y-8 animate-in fade-in duration-500">
           {/* User Selector */}
           <Card className="bg-card/50 backdrop-blur-sm border-border/50">
             <CardHeader>
@@ -135,18 +135,18 @@ export function UserDashboard({
           </Card>
 
           {/* My Balance */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             <Card className="bg-card/50 backdrop-blur-sm border-border/50 overflow-hidden relative group">
               <div className="absolute inset-x-0 bottom-0 h-1 bg-primary/20" />
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+              <CardHeader className="pb-3 pt-6 px-6">
+                <CardTitle className="text-sm font-black text-muted-foreground uppercase tracking-widest">
                   Current Balance
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-6 pb-6">
                 <div
                   className={cn(
-                    "text-2xl font-black tabular-nums",
+                    "text-3xl font-black tabular-nums",
                     (selectedBalance?.balance || 0) > 0
                       ? "text-emerald-500"
                       : (selectedBalance?.balance || 0) < 0
@@ -160,37 +160,37 @@ export function UserDashboard({
               </CardContent>
             </Card>
             <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+              <CardHeader className="pb-3 pt-6 px-6">
+                <CardTitle className="text-sm font-black text-muted-foreground uppercase tracking-widest">
                   Total Paid
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-black tabular-nums text-card-foreground">
+              <CardContent className="px-6 pb-6">
+                <div className="text-3xl font-black tabular-nums text-card-foreground">
                   ₹{(selectedBalance?.totalPaid || 0).toLocaleString()}
                 </div>
               </CardContent>
             </Card>
             <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+              <CardHeader className="pb-3 pt-6 px-6">
+                <CardTitle className="text-sm font-black text-muted-foreground uppercase tracking-widest">
                   Total Shares
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-black tabular-nums text-card-foreground">
+              <CardContent className="px-6 pb-6">
+                <div className="text-3xl font-black tabular-nums text-card-foreground">
                   ₹{(selectedBalance?.totalShares || 0).toLocaleString()}
                 </div>
               </CardContent>
             </Card>
             <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+              <CardHeader className="pb-3 pt-6 px-6">
+                <CardTitle className="text-sm font-black text-muted-foreground uppercase tracking-widest">
                   Days Present
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-black tabular-nums text-card-foreground">
+              <CardContent className="px-6 pb-6">
+                <div className="text-3xl font-black tabular-nums text-card-foreground">
                   {selectedBalance?.daysPresent || 0}
                 </div>
               </CardContent>
@@ -198,7 +198,7 @@ export function UserDashboard({
           </div>
 
           {/* Charts Row */}
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid gap-8 lg:grid-cols-2">
             {/* Balance Bar Chart */}
             <Card className="bg-card/50 backdrop-blur-sm border-border/50">
               <CardHeader>

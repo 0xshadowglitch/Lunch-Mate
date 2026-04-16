@@ -41,7 +41,7 @@ export default function UserPage() {
     return (
       <div className="flex flex-col h-full">
         <TopNavbar title="My Dashboard" />
-        <div className="flex-1 p-4 lg:p-6 overflow-auto">
+        <div className="flex-1 p-6 lg:p-10 overflow-auto">
           <UserDashboardSkeleton />
         </div>
       </div>
@@ -51,7 +51,7 @@ export default function UserPage() {
   return (
     <div className="flex flex-col h-full">
       <TopNavbar title="My Dashboard" />
-      <div className="flex-1 p-4 lg:p-6 overflow-auto">
+      <div className="flex-1 p-6 lg:p-10 overflow-auto">
         <UserDashboard
           users={data.users}
           balances={data.balances}

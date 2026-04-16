@@ -168,35 +168,35 @@ export default function TeamSettingsPage() {
   const pastInvites = invites.filter((i) => i.status !== "pending")
 
   return (
-    <div className="p-6 space-y-6 max-w-4xl mx-auto">
+    <div className="py-12 px-6 lg:px-10 space-y-10 max-w-4xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Team Settings</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Manage your environment and invite members.
+          <h1 className="text-4xl font-black tracking-tight">Team Settings</h1>
+          <p className="text-muted-foreground text-base mt-2 font-medium">
+            Project configuration and member access control.
           </p>
         </div>
-        <Button variant="outline" size="sm" onClick={handleCleanup}>
+        <Button variant="outline" size="lg" onClick={handleCleanup} className="rounded-xl px-6">
           <Trash2 className="h-4 w-4 mr-2" />
           Clean Up Expired
         </Button>
       </div>
 
       {/* Org Info Card */}
-      <Card className="border-primary/20 bg-primary/5">
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-primary rounded-xl">
-              <Building2 className="h-5 w-5 text-primary-foreground" />
+      <Card className="border-primary/20 bg-primary/5 shadow-xl shadow-primary/5">
+        <CardContent className="p-8 lg:p-10">
+          <div className="flex items-center gap-6">
+            <div className="p-4 bg-primary shadow-lg shadow-primary/30 rounded-2xl">
+              <Building2 className="h-6 w-6 text-primary-foreground" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Active Environment</p>
-              <p className="text-2xl font-bold">{org?.name}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-black mb-1">Active Environment</p>
+              <p className="text-3xl font-black">{org?.name}</p>
             </div>
             <div className="ml-auto">
-              <Badge variant="default" className="capitalize">
-                <Shield className="h-3 w-3 mr-1" />
+              <Badge variant="default" className="text-sm px-4 py-1.5 rounded-full capitalize">
+                <Shield className="h-3.5 w-3.5 mr-2" />
                 {org?.role}
               </Badge>
             </div>
@@ -205,28 +205,28 @@ export default function TeamSettingsPage() {
       </Card>
 
       {/* Generate Invite */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
+      <Card className="shadow-xl">
+        <CardHeader className="p-8 lg:p-10 pb-4">
+          <CardTitle className="flex items-center gap-3 text-2xl">
+            <Sparkles className="h-6 w-6 text-primary" />
             Generate Invite Link
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-base">
             Create a secure, single-use invite link that expires in 24 hours. Share it with the person you want to invite.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-4">
-            <Label htmlFor="invite-email" className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">
-              Email Address <span className="text-muted-foreground/50 font-medium normal-case tracking-normal">(Optional — restrict to email)</span>
+        <CardContent className="p-8 lg:p-10 pt-0 space-y-10">
+          <div className="space-y-6 pt-2">
+            <Label htmlFor="invite-email" className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/80 ml-1">
+              Recipient Email <span className="text-muted-foreground/50 font-medium normal-case tracking-normal">(Optional — restrict to email)</span>
             </Label>
-            <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/40" />
+            <div className="relative group">
+              <Mail className="absolute left-5 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground/30 group-focus-within:text-primary transition-colors" />
               <Input
                 id="invite-email"
                 type="email"
                 placeholder="colleague@company.com"
-                className="pl-12 h-14 bg-background/40 border-border/40 hover:border-primary/50 transition-colors rounded-xl"
+                className="pl-14 h-16 bg-background/40 border-2 border-border/40 focus:border-primary/50 transition-all rounded-2xl text-lg"
                 value={newInviteEmail}
                 onChange={(e) => setNewInviteEmail(e.target.value)}
                 disabled={isPending}
@@ -237,16 +237,16 @@ export default function TeamSettingsPage() {
           <Button
             onClick={handleGenerateInvite}
             disabled={isPending}
-            className="w-full h-14 text-base font-black uppercase tracking-widest transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] rounded-xl shadow-lg hover:shadow-primary/20"
+            className="w-full h-16 text-lg font-black uppercase tracking-[0.1em] transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] rounded-2xl shadow-xl hover:shadow-primary/30"
           >
             {isPending ? (
               <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                <Loader2 className="mr-3 h-6 w-6 animate-spin" />
                 Generating...
               </>
             ) : (
               <>
-                <LinkIcon className="mr-2 h-5 w-5" />
+                <LinkIcon className="mr-3 h-6 w-6" />
                 Generate Invite Link
               </>
             )}
@@ -254,25 +254,27 @@ export default function TeamSettingsPage() {
 
           {/* Generated Link Display */}
           {generatedLink && (
-            <div className="mt-4 p-4 rounded-lg border-2 border-primary/30 bg-primary/5 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+            <div className="mt-8 p-6 rounded-2xl border-2 border-primary/30 bg-primary/5 animate-in fade-in slide-in-from-bottom-4 duration-500 shadow-inner">
+              <div className="flex items-start gap-6">
+                <div className="p-2 bg-primary/10 rounded-full shrink-0">
+                  <CheckCircle2 className="h-6 w-6 text-primary" />
+                </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-primary mb-1">Invite Link (copy now — shown once only)</p>
-                  <p className="text-xs text-muted-foreground font-mono break-all bg-background/80 p-2 rounded border">
+                  <p className="text-sm font-black uppercase tracking-widest text-primary mb-2">Invite Link</p>
+                  <p className="text-sm text-muted-foreground font-mono break-all bg-background/80 p-4 rounded-xl border-2 border-primary/10 shadow-sm leading-relaxed">
                     {generatedLink}
                   </p>
-                  <p className="text-[10px] text-muted-foreground mt-1 flex items-center gap-1">
-                    <Clock className="h-3 w-3" /> Expires in 24 hours · Single-use
+                  <p className="text-xs text-muted-foreground mt-3 flex items-center gap-2 font-medium">
+                    <Clock className="h-4 w-4" /> Expires in 24 hours · Single-use
                   </p>
                 </div>
                 <Button
-                  size="sm"
+                  size="icon"
                   variant="outline"
                   onClick={() => handleCopy(generatedLink)}
-                  className="shrink-0"
+                  className="shrink-0 h-12 w-12 rounded-xl border-2 hover:border-primary/50"
                 >
-                  {copied ? <CheckCheck className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+                  {copied ? <CheckCheck className="h-6 w-6 text-emerald-500" /> : <Copy className="h-5 w-5" />}
                 </Button>
               </div>
             </div>
@@ -282,15 +284,15 @@ export default function TeamSettingsPage() {
 
       {/* Pending Invites */}
       {pendingInvites.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">
-              Active Invites
-              <Badge variant="secondary" className="ml-2">{pendingInvites.length}</Badge>
+        <Card className="shadow-lg">
+          <CardHeader className="p-8 pb-4">
+            <CardTitle className="text-xl font-black uppercase tracking-widest flex items-center justify-between">
+              <span>Active Invites</span>
+              <Badge variant="secondary" className="rounded-full px-3">{pendingInvites.length}</Badge>
             </CardTitle>
-            <CardDescription>These invite links are still valid and haven't been used.</CardDescription>
+            <CardDescription className="text-base font-medium">These invite links are still valid and haven't been used.</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-8 pt-2">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -356,12 +358,12 @@ export default function TeamSettingsPage() {
 
       {/* Past Invites */}
       {pastInvites.length > 0 && (
-        <Card className="opacity-80">
-          <CardHeader>
-            <CardTitle className="text-base text-muted-foreground">Past Invites</CardTitle>
-            <CardDescription>Used and expired invites.</CardDescription>
+        <Card className="opacity-70 shadow-sm transition-opacity hover:opacity-100">
+          <CardHeader className="p-8 pb-4">
+            <CardTitle className="text-base font-black uppercase tracking-widest text-muted-foreground">Past Invites</CardTitle>
+            <CardDescription className="font-medium">Used and expired invites.</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-8 pt-2">
             <Table>
               <TableHeader>
                 <TableRow>

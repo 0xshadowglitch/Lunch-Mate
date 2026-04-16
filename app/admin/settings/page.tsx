@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useTransition } from "react"
+import { cn } from "@/lib/utils"
 import { getUserOrg, updateOrganizationCurrency } from "@/lib/org-actions"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"

@@ -10,11 +10,15 @@ export async function getUserOrg() {
 
   if (!user) return null
 
-  const { data: membership, error } = await supabase
+  const { data: memberships, error } = await supabase
     .from("organization_members")
     .select("org_id, role, organizations(name)")
     .eq("user_id", user.id)
-    .single()
+    .order("created_at", { ascending: false })
+
+  if (error || !memberships || memberships.length === 0) return null
+
+  const membership = memberships[0]
 
   if (error || !membership) return null
 
@@ -67,11 +71,17 @@ export async function getAuthorizedOrgId() {
 
   if (!user) throw new Error("Unauthorized")
 
-  const { data: membership, error } = await supabase
+  const { data: memberships, error } = await supabase
     .from("organization_members")
     .select("org_id, role")
     .eq("user_id", user.id)
-    .single()
+    .order("created_at", { ascending: false })
+
+  if (error || !memberships || memberships.length === 0) {
+    throw new Error("No organization membership found")
+  }
+
+  const membership = memberships[0]
 
   if (error || !membership) {
     throw new Error("No organization membership found")

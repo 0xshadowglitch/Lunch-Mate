@@ -81,6 +81,17 @@ export default function OnboardingPage() {
                 </>
               )}
             </Button>
+
+            <div className="pt-2">
+              <Button 
+                variant="ghost" 
+                className="w-full h-12 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 hover:text-primary transition-colors"
+                onClick={() => window.location.href = "/admin"}
+                type="button"
+              >
+                Skip for now — set up later
+              </Button>
+            </div>
           </form>
         </CardContent>
         <CardFooter className="text-center text-[10px] font-bold text-muted-foreground uppercase tracking-wider justify-center py-6">

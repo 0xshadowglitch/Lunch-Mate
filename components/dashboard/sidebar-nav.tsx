@@ -181,27 +181,37 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
               <DropdownMenuItem
                 key={o.id}
                 onClick={() => handleSwitchTeam(o.id)}
-                className="flex items-center justify-between cursor-pointer py-2.5 px-3 group/item"
+                className="flex items-center gap-3 cursor-pointer py-3 px-3 group/item overflow-hidden"
               >
-                <div className="flex items-center gap-2 flex-1 min-w-0">
+                <button
+                  onClick={(e) => handleDeleteTeam(e, o.id)}
+                  className="shrink-0 p-1.5 hover:bg-destructive/20 hover:text-destructive rounded-lg transition-all text-muted-foreground/40 group-hover/item:text-destructive/60"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+
+                <div className="flex items-center gap-2 flex-1 min-w-0 overflow-hidden">
                   {o.id === org?.id ? (
                     <div className="h-2 w-2 rounded-full bg-primary animate-pulse shrink-0" />
                   ) : (
                     <div className="h-2 w-2 rounded-full bg-muted-foreground/20 shrink-0" />
                   )}
-                  <div className="flex flex-col truncate">
-                    <span className={cn("font-bold text-sm truncate", o.id === org?.id && "text-primary")}>{o.name}</span>
-                    <span className="text-[9px] text-muted-foreground uppercase font-medium">{o.role}</span>
+                  <div className="flex flex-col flex-1 min-w-0 overflow-hidden relative">
+                    <div className="overflow-hidden whitespace-nowrap">
+                      <span className={cn(
+                        "inline-block font-black text-xs uppercase tracking-wider transition-all",
+                        o.id === org?.id ? "text-primary" : "text-foreground/90",
+                        o.name.length > 20 && "animate-marquee-slow hover:pause"
+                      )}>
+                        {o.name}
+                        {o.name.length > 20 && <span className="ml-8">{o.name}</span>}
+                      </span>
+                    </div>
+                    <span className="text-[8px] text-muted-foreground/60 uppercase font-black tracking-[0.1em]">{o.role}</span>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-1 shrink-0 ml-2">
-                  <button
-                    onClick={(e) => handleDeleteTeam(e, o.id)}
-                    className="opacity-0 group-hover/item:opacity-100 p-1.5 hover:bg-destructive/10 hover:text-destructive rounded-lg transition-all text-muted-foreground/30"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
+                <div className="shrink-0 ml-auto">
                   {o.id === org?.id && <Check className="h-4 w-4 text-primary" />}
                 </div>
               </DropdownMenuItem>

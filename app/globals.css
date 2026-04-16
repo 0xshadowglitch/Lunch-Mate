@@ -153,3 +153,16 @@
 .animate-marquee2 {
   animation: marquee2 40s linear infinite;
 }
+
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee-slow {
+  animation: marquee-scroll 15s linear infinite;
+}
+
+.pause {
+  animation-play-state: paused;
+}

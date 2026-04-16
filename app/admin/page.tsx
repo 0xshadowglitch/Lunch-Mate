@@ -68,10 +68,9 @@ export default async function AdminOverviewPage() {
   ])
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="flex flex-col h-full overflow-hidden bg-background/50">
       <TopNavbar title="Dashboard Overview" />
-      <MarqueeNews />
-      <div className="flex-1 p-6 lg:p-10 space-y-8 overflow-auto">
+      <div className="flex-1 p-6 lg:p-10 pb-24 space-y-8 overflow-auto">
         <KPICards
           totalExpense={stats.totalExpense}
           totalPaid={stats.totalPaid}

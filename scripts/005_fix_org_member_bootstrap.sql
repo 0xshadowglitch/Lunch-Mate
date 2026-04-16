@@ -5,6 +5,7 @@
 -- it only allowed existing admins to add members.
 
 DROP POLICY IF EXISTS "Org admins can add members" ON public.organization_members;
+DROP POLICY IF EXISTS "Allow members creation" ON public.organization_members;
 
 CREATE POLICY "Allow members creation"
 ON public.organization_members

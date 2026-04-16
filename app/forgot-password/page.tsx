@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import Image from "next/image"
 import { Mail, Loader2, AlertCircle, ArrowLeft, CheckCircle2 } from "lucide-react"
 
 export default function ForgotPasswordPage() {
@@ -35,12 +36,18 @@ export default function ForgotPasswordPage() {
 
       <Card className="w-full max-w-md border-border/50 bg-background/80 backdrop-blur-xl shadow-2xl">
         <CardHeader className="space-y-1">
-          <Link 
-            href="/login" 
-            className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1 mb-4 transition-colors"
-          >
-            <ArrowLeft className="h-3 w-3" /> Back to Login
-          </Link>
+          <div className="flex items-center justify-between mb-2">
+            <Link 
+              href="/login" 
+              className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors"
+            >
+              <ArrowLeft className="h-3 w-3" /> Back
+            </Link>
+            <div className="flex items-center gap-2">
+              <Image src="/logo.png" alt="Logo" width={24} height={24} className="object-contain" />
+              <span className="text-sm font-bold bg-primary/20 px-2 py-0.5 rounded text-primary">Lunch Mate</span>
+            </div>
+          </div>
           <CardTitle className="text-2xl font-bold tracking-tight">Reset Password</CardTitle>
           <CardDescription>
             Enter your email address and we'll send you a link to reset your password.

@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import {
@@ -89,15 +90,26 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
   return (
     <div suppressHydrationWarning className="flex h-full w-64 flex-col border-r border-border bg-sidebar">
       <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-4">
-        <div className="flex flex-col">
-          <h1 className="text-lg font-bold text-primary leading-tight">
-            Lunch Tracker
-          </h1>
-          {org && (
-            <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
-              {org.name}
-            </span>
-          )}
+        <div className="flex items-center gap-3">
+          <div className="flex-shrink-0 bg-primary/10 p-1.5 rounded-lg border border-primary/20">
+            <Image
+              src="/logo.png"
+              alt="Logo"
+              width={28}
+              height={28}
+              className="object-contain hover:scale-110 transition-transform duration-300"
+            />
+          </div>
+          <div className="flex flex-col">
+            <h1 className="text-sm font-bold text-foreground leading-tight tracking-tight">
+              Lunch Mate
+            </h1>
+            {org && (
+              <span className="text-[9px] text-muted-foreground uppercase tracking-wider font-bold">
+                {org.name}
+              </span>
+            )}
+          </div>
         </div>
         <ThemeToggle />
       </div>

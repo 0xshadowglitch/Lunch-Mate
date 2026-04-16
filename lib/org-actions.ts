@@ -17,14 +17,23 @@ export async function getUserOrgs() {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
 
-  if (error || !memberships) return []
+  if (error) {
+    console.error("Error fetching memberships:", error)
+    return []
+  }
 
-  return memberships.map(m => ({
-    id: m.org_id,
-    role: m.role,
-    name: (m.organizations as any).name,
-    currency: (m.organizations as any).currency || "₹"
-  }))
+  if (!memberships) return []
+
+  return memberships.map(m => {
+    // Handle both array and object responses for the join
+    const orgData = Array.isArray(m.organizations) ? m.organizations[0] : m.organizations;
+    return {
+      id: m.org_id,
+      role: m.role,
+      name: (orgData as any)?.name || "Unknown Team",
+      currency: (orgData as any)?.currency || "₹"
+    }
+  })
 }
 
 export async function getUserOrg() {
@@ -50,22 +59,28 @@ export async function getUserOrg() {
 
   const { data: memberships, error } = await query
 
-  if (error || !memberships || memberships.length === 0) {
+  if (error) {
+    console.error("Error in getUserOrg:", error)
+  }
+
+  if (!memberships || memberships.length === 0) {
     // If cookie was set but not found, fallback to most recent
     if (activeOrgId) {
-       const fallback = await supabase
+       const { data: fallback, error: fallbackError } = await supabase
          .from("organization_members")
          .select("org_id, role, organizations(name, currency)")
          .eq("user_id", user.id)
          .order("created_at", { ascending: false })
          .limit(1)
          .single()
-       if (fallback.data) {
+       
+       if (fallback) {
+         const orgData = Array.isArray(fallback.organizations) ? fallback.organizations[0] : fallback.organizations;
          return {
-           id: fallback.data.org_id,
-           role: fallback.data.role,
-           name: (fallback.data.organizations as any).name,
-           currency: (fallback.data.organizations as any).currency || "₹"
+           id: fallback.org_id,
+           role: fallback.role,
+           name: (orgData as any)?.name || "Unknown Team",
+           currency: (orgData as any)?.currency || "₹"
          }
        }
     }
@@ -73,12 +88,13 @@ export async function getUserOrg() {
   }
 
   const membership = memberships[0]
+  const orgData = Array.isArray(membership.organizations) ? membership.organizations[0] : membership.organizations;
 
   return {
     id: membership.org_id,
     role: membership.role,
-    name: (membership.organizations as any).name,
-    currency: (membership.organizations as any).currency || "₹"
+    name: (orgData as any)?.name || "Unknown Team",
+    currency: (orgData as any)?.currency || "₹"
   }
 }
 

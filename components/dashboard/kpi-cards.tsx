@@ -69,7 +69,7 @@ export function KPICards({
                   <Icon className="h-4 w-4" />
                 </div>
               </CardHeader>
-              <CardContent className="relative z-10">
+              <CardContent className="relative z-10 pb-8">
                 <div
                   className={cn(
                     "text-3xl font-bold tracking-tight bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent",

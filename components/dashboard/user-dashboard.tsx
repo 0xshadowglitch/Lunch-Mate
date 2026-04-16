@@ -120,7 +120,7 @@ export function UserDashboard({
                 Select User Profile
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pb-8">
               <Select value={selectedUserId} onValueChange={onUserChange}>
                 <SelectTrigger className="w-full max-w-xs bg-background/50">
                   <SelectValue placeholder="Select a user" />
@@ -145,7 +145,7 @@ export function UserDashboard({
                   Current Balance
                 </CardTitle>
               </CardHeader>
-              <CardContent className="px-6 pb-6">
+              <CardContent className="px-6 pb-8">
                 <div
                   className={cn(
                     "text-3xl font-black tabular-nums",
@@ -167,7 +167,7 @@ export function UserDashboard({
                   Total Paid
                 </CardTitle>
               </CardHeader>
-              <CardContent className="px-6 pb-6">
+              <CardContent className="px-6 pb-8">
                 <div className="text-3xl font-black tabular-nums text-card-foreground">
                   {currency}{(selectedBalance?.totalPaid || 0).toLocaleString()}
                 </div>
@@ -179,7 +179,7 @@ export function UserDashboard({
                   Total Shares
                 </CardTitle>
               </CardHeader>
-              <CardContent className="px-6 pb-6">
+              <CardContent className="px-6 pb-8">
                 <div className="text-3xl font-black tabular-nums text-card-foreground">
                   {currency}{(selectedBalance?.totalShares || 0).toLocaleString()}
                 </div>
@@ -191,7 +191,7 @@ export function UserDashboard({
                   Days Present
                 </CardTitle>
               </CardHeader>
-              <CardContent className="px-6 pb-6">
+              <CardContent className="px-6 pb-8">
                 <div className="text-3xl font-black tabular-nums text-card-foreground">
                   {selectedBalance?.daysPresent || 0}
                 </div>

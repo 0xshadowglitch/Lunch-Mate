@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import useSWR from "swr"
 import { TopNavbar } from "@/components/dashboard/top-navbar"
 import { UserDashboard } from "@/components/dashboard/user-dashboard"
+import { UserDashboardSkeleton } from "@/components/dashboard/skeletons"
 import { 
   getUsers, 
   getUserBalances, 
@@ -40,8 +41,8 @@ export default function UserPage() {
     return (
       <div className="flex flex-col h-full">
         <TopNavbar title="My Dashboard" />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-muted-foreground">Loading...</div>
+        <div className="flex-1 p-4 lg:p-6 overflow-auto">
+          <UserDashboardSkeleton />
         </div>
       </div>
     )

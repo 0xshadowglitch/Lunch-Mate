@@ -258,7 +258,11 @@ export function UserManagement({ users, balances }: UserManagementProps) {
                           className="text-destructive hover:text-destructive hover:bg-destructive/10"
                           disabled={isPending}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          {isPending ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>

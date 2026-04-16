@@ -40,20 +40,38 @@ function SignupForm() {
   if (success) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
+        <div className="absolute inset-0 overflow-hidden -z-10">
+          <div className="absolute top-[20%] right-[10%] w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-[20%] left-[10%] w-80 h-80 bg-primary/5 rounded-full blur-3xl animate-pulse delay-1000" />
+        </div>
+        
         <Card className="w-full max-w-md border-border/50 bg-background/80 backdrop-blur-xl shadow-2xl text-center">
           <CardHeader>
-            <div className="flex justify-center mb-4">
-              <div className="p-3 bg-green-500/10 rounded-full">
-                <CheckCircle2 className="h-12 w-12 text-green-500" />
+            <div className="flex justify-center mb-6">
+              <div className="p-4 bg-emerald-500/10 rounded-full ring-8 ring-emerald-500/5">
+                <Mail className="h-10 w-10 text-emerald-500 animate-bounce" />
               </div>
             </div>
-            <CardTitle className="text-2xl font-bold">Check your email</CardTitle>
-            <CardDescription>
-              We've sent you a verification link to confirm your account.
+            <CardTitle className="text-2xl font-bold tracking-tight">Account Created Successfully!</CardTitle>
+            <CardDescription className="text-base pt-2">
+              We've sent a verification link to your email.
             </CardDescription>
           </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="p-4 rounded-xl bg-primary/5 border border-primary/10 text-sm text-muted-foreground text-left">
+              <p className="font-semibold text-foreground mb-1">What's next?</p>
+              <ul className="list-disc list-inside space-y-1">
+                <li>Open your email inbox</li>
+                <li>Click the verification link</li>
+                <li>Start tracking your team lunches!</li>
+              </ul>
+            </div>
+            <p className="text-xs text-muted-foreground italic">
+              Don't see it? Check your spam folder or wait a few minutes.
+            </p>
+          </CardContent>
           <CardFooter>
-            <Button variant="outline" className="w-full" asChild>
+            <Button variant="outline" className="w-full font-semibold" asChild>
               <Link href="/login">Back to Login</Link>
             </Button>
           </CardFooter>

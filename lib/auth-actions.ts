@@ -31,7 +31,13 @@ export async function signup(formData: FormData) {
     password: formData.get("password") as string,
   }
 
-  const { error } = await supabase.auth.signUp(data)
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+  const { error } = await supabase.auth.signUp({
+    ...data,
+    options: {
+      emailRedirectTo: `${baseUrl.endsWith("/") ? baseUrl : baseUrl + "/"}auth/callback`,
+    },
+  })
 
   if (error) {
     return { error: error.message }
@@ -52,4 +58,36 @@ export async function signOut() {
 
   revalidatePath("/", "layout")
   redirect("/login")
+}
+
+export async function requestPasswordReset(formData: FormData) {
+  const supabase = await createClient()
+  const email = formData.get("email") as string
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${baseUrl.endsWith("/") ? baseUrl : baseUrl + "/"}auth/callback?next=/reset-password`,
+  })
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  return { success: true }
+}
+
+export async function updatePassword(formData: FormData) {
+  const supabase = await createClient()
+  const password = formData.get("password") as string
+
+  const { error } = await supabase.auth.updateUser({
+    password: password,
+  })
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  revalidatePath("/", "layout")
+  redirect("/login?message=Password updated successfully")
 }

@@ -234,13 +234,13 @@ export default function TeamSettingsPage() {
             <div className="flex flex-wrap items-center gap-4 md:ml-auto">
               {/* Currency Selector */}
               <div className="bg-background/40 p-1.5 rounded-2xl border-2 border-primary/10 flex items-center gap-1">
-                {["₹", "$", "€", "£"].map((curr) => (
+                {["₹", "PKR", "$", "€", "£"].map((curr) => (
                   <button
                     key={curr}
                     onClick={() => handleUpdateCurrency(curr)}
                     disabled={isCurrencyPending}
                     className={cn(
-                      "w-10 h-10 rounded-xl font-bold transition-all",
+                      "min-w-10 h-10 px-3 rounded-xl font-bold transition-all",
                       org?.currency === curr
                         ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105"
                         : "hover:bg-primary/10 text-muted-foreground"

@@ -12,11 +12,24 @@ export async function getUserOrgs() {
 
     if (!user) return []
 
-    const { data: memberships, error } = await supabase
+    // Try fetching with currency first
+    let { data: memberships, error } = await supabase
       .from("organization_members")
       .select("org_id, role, organizations(name, currency)")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
+
+    // If currency column is missing, fallback to name only
+    if (error && error.message.includes("currency")) {
+      console.warn("Currency column missing, falling back...")
+      const retry = await supabase
+        .from("organization_members")
+        .select("org_id, role, organizations(name)")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+      memberships = retry.data
+      error = retry.error
+    }
 
     if (error) {
       console.error("DEBUG ERROR getUserOrgs:", JSON.stringify(error))
@@ -47,12 +60,24 @@ export async function getUserOrg() {
 
     if (!user) return null
 
-    // Simple fetch: get all memberships and take the one matching active_org_id OR the first one
-    const { data: memberships, error } = await supabase
+    // Try fetching with currency first
+    let { data: memberships, error } = await supabase
       .from("organization_members")
       .select("org_id, role, organizations(name, currency)")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
+
+    // If currency column is missing, fallback to name only
+    if (error && error.message.includes("currency")) {
+      console.warn("Currency column missing in getUserOrg, falling back...")
+      const retry = await supabase
+        .from("organization_members")
+        .select("org_id, role, organizations(name)")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+      memberships = retry.data
+      error = retry.error
+    }
 
     if (error) {
        console.error("DEBUG ERROR getUserOrg:", JSON.stringify(error))
@@ -162,10 +187,13 @@ export async function updateOrganizationCurrency(orgId: string, currency: string
 export async function getAuthorizedOrgId() {
   const org = await getUserOrg()
   if (!org) return null
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  
   return { 
     orgId: org.id, 
     role: org.role,
-    userId: (await (await createClient()).auth.getUser()).data.user?.id
+    userId: user?.id
   }
 }
 

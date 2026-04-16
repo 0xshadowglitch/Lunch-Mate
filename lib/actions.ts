@@ -80,7 +80,9 @@ export async function addUser(
   linkedUserId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const { orgId, role } = await getAuthorizedOrgId()
+    const auth = await getAuthorizedOrgId()
+    if (!auth) return { success: false, error: "No organization found" }
+    const { orgId, role } = auth
     if (role !== 'admin') return { success: false, error: "Only admins can add users" }
 
     const supabase = await createClient()
@@ -129,7 +131,9 @@ export async function addUser(
 // Delete a user (and cascade delete their shares/payments)
 export async function deleteUser(userId: string): Promise<{ success: boolean; error?: string }> {
   try {
-    const { orgId, role } = await getAuthorizedOrgId()
+    const auth = await getAuthorizedOrgId()
+    if (!auth) return { success: false, error: "No organization found" }
+    const { orgId, role } = auth
     if (role !== 'admin') return { success: false, error: "Only admins can delete users" }
 
     const supabase = await createClient()
@@ -282,7 +286,9 @@ export async function addEntry(data: {
   payments: { userId: string; amount: number }[]
 }): Promise<{ success: boolean; error?: string }> {
   try {
-    const { orgId, role } = await getAuthorizedOrgId()
+    const auth = await getAuthorizedOrgId()
+    if (!auth) return { success: false, error: "No organization found" }
+    const { orgId, role } = auth
     if (role !== 'admin') return { success: false, error: "Only admins can add entries" }
 
     const supabase = await createClient()
@@ -318,7 +324,9 @@ export async function addEntry(data: {
 // Delete an entry
 export async function deleteEntry(entryId: string): Promise<{ success: boolean; error?: string }> {
   try {
-    const { orgId, role } = await getAuthorizedOrgId()
+    const auth = await getAuthorizedOrgId()
+    if (!auth) return { success: false, error: "No organization found" }
+    const { orgId, role } = auth
     if (role !== 'admin') return { success: false, error: "Only admins can delete entries" }
 
     const supabase = await createClient()

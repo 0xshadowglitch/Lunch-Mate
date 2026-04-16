@@ -98,8 +98,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: memberError.message }, { status: 500 })
     }
 
-    // 9. Mark invite as USED (one-time use enforcement)
-    await supabase.from("invites").update({ used: true }).eq("id", invite.id)
+    // 9. Mark invite as USED ONLY IF it was restricted to a specific email
+    // Public links (no email) are now MULTI-USE by default
+    if (invite.email) {
+      await supabase.from("invites").update({ used: true }).eq("id", invite.id)
+    }
 
     // 10. Return the org info so frontend can redirect
     const { data: org } = await supabase

@@ -215,7 +215,7 @@ function InviteContent() {
           {renderContent()}
         </CardContent>
         <CardFooter className="text-center text-[10px] font-bold text-muted-foreground uppercase tracking-wider justify-center py-6">
-          Invite links expire after 24 hours and are single-use.
+          Invite links expire after 24 hours. Public links are multi-use.
         </CardFooter>
       </Card>
     </div>

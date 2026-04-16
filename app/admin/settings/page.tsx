@@ -216,6 +216,7 @@ export default function TeamSettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="p-8 lg:p-10 pt-0 space-y-10">
+          {/* 
           <div className="space-y-6 pt-2">
             <Label htmlFor="invite-email" className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/80 ml-1">
               Recipient Email <span className="text-muted-foreground/50 font-medium normal-case tracking-normal">(Optional — restrict to email)</span>
@@ -233,6 +234,7 @@ export default function TeamSettingsPage() {
               />
             </div>
           </div>
+          */}
 
           <Button
             onClick={handleGenerateInvite}

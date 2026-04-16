@@ -138,14 +138,21 @@ export function UserManagement({ users, balances }: UserManagementProps) {
                   <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                 </div>
               ) : availableMembers.length === 0 ? (
-                <div className="flex flex-col items-center gap-3 py-6 text-center text-muted-foreground">
-                  <User className="h-8 w-8 text-muted-foreground/50" />
-                  <div>
-                    <p className="text-sm font-medium">No members available</p>
-                    <p className="text-xs mt-1">
+                <div className="flex flex-col items-center gap-4 py-8 text-center text-muted-foreground animate-in fade-in duration-500">
+                  <div className="p-4 bg-muted/50 rounded-full">
+                    <UserPlus className="h-10 w-10 text-muted-foreground/30" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-base font-black uppercase tracking-tight">No members available</p>
+                    <p className="text-sm max-w-[240px] leading-relaxed">
                       All team members are already being tracked, or you need to invite more people first.
                     </p>
                   </div>
+                  <Button variant="outline" className="mt-4 rounded-xl border-2 hover:border-primary/50 font-bold h-12 px-6" asChild>
+                    <a href="/admin/settings">
+                      Generate Invite Link
+                    </a>
+                  </Button>
                 </div>
               ) : (
                 <div className="space-y-2 max-h-64 overflow-y-auto">

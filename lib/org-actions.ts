@@ -4,11 +4,11 @@ import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
-export async function getUserOrg() {
+export async function getUserOrgs() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) return null
+  if (!user) return []
 
   const { data: memberships, error } = await supabase
     .from("organization_members")
@@ -16,17 +16,73 @@ export async function getUserOrg() {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
 
-  if (error || !memberships || memberships.length === 0) return null
+  if (error || !memberships) return []
+
+  return memberships.map(m => ({
+    id: m.org_id,
+    role: m.role,
+    name: (m.organizations as any).name
+  }))
+}
+
+export async function getUserOrg() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return null
+
+  // If we have an active_org cookie, use that. Otherwise use the most recent.
+  const cookieStore = await cookies()
+  const activeOrgId = cookieStore.get("active_org_id")?.value
+
+  let query = supabase
+    .from("organization_members")
+    .select("org_id, role, organizations(name)")
+    .eq("user_id", user.id)
+
+  if (activeOrgId) {
+    query = query.eq("org_id", activeOrgId)
+  } else {
+    query = query.order("created_at", { ascending: false })
+  }
+
+  const { data: memberships, error } = await query
+
+  if (error || !memberships || memberships.length === 0) {
+    // If cookie was set but not found, fallback to most recent
+    if (activeOrgId) {
+       const fallback = await supabase
+         .from("organization_members")
+         .select("org_id, role, organizations(name)")
+         .eq("user_id", user.id)
+         .order("created_at", { ascending: false })
+         .limit(1)
+         .single()
+       if (fallback.data) {
+         return {
+           id: fallback.data.org_id,
+           role: fallback.data.role,
+           name: (fallback.data.organizations as any).name
+         }
+       }
+    }
+    return null
+  }
 
   const membership = memberships[0]
-
-  if (error || !membership) return null
 
   return {
     id: membership.org_id,
     role: membership.role,
     name: (membership.organizations as any).name
   }
+}
+
+export async function setActiveOrg(orgId: string) {
+  const cookieStore = await cookies()
+  cookieStore.set("active_org_id", orgId, { path: "/" })
+  revalidatePath("/", "layout")
+  return { success: true }
 }
 
 export async function createOrganization(formData: FormData) {
@@ -71,13 +127,39 @@ export async function getAuthorizedOrgId() {
 
   if (!user) throw new Error("Unauthorized")
 
-  const { data: memberships, error } = await supabase
+  const cookieStore = await cookies()
+  const activeOrgId = cookieStore.get("active_org_id")?.value
+
+  let query = supabase
     .from("organization_members")
     .select("org_id, role")
     .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
+
+  if (activeOrgId) {
+    query = query.eq("org_id", activeOrgId)
+  } else {
+    query = query.order("created_at", { ascending: false })
+  }
+
+  const { data: memberships, error } = await query
 
   if (error || !memberships || memberships.length === 0) {
+    if (activeOrgId) {
+      const fallback = await supabase
+        .from("organization_members")
+        .select("org_id, role")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single()
+      if (fallback.data) {
+        return { 
+          orgId: fallback.data.org_id, 
+          role: fallback.data.role,
+          userId: user.id
+        }
+      }
+    }
     return null
   }
 

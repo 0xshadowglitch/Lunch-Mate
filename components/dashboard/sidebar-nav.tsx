@@ -19,9 +19,18 @@ import {
   PlusCircle,
 } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { getUserOrg } from "@/lib/org-actions"
+import { getUserOrg, getUserOrgs, setActiveOrg } from "@/lib/org-actions"
 import { signOut } from "@/lib/auth-actions"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useTransition } from "react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu"
+import { Check, ChevronDown } from "lucide-react"
 
 const adminNavItems = [
   {
@@ -80,39 +89,81 @@ interface SidebarNavProps {
 
 export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
   const pathname = usePathname()
-  const [org, setOrg] = useState<{ name: string; role: string } | null>(null)
+  const [org, setOrg] = useState<{ id: string; name: string; role: string } | null>(null)
+  const [allOrgs, setAllOrgs] = useState<any[]>([])
+  const [isPending, startTransition] = useTransition()
 
   useEffect(() => {
-    getUserOrg().then(setOrg)
+    Promise.all([getUserOrg(), getUserOrgs()]).then(([active, all]) => {
+      setOrg(active as any)
+      setAllOrgs(all)
+    })
   }, [])
+
+  const handleSwitchTeam = async (orgId: string) => {
+    if (orgId === org?.id) return
+    startTransition(async () => {
+      await setActiveOrg(orgId)
+      window.location.reload()
+    })
+  }
 
   const navItems = isAdmin ? adminNavItems : userNavItems
 
   return (
     <div suppressHydrationWarning className="flex h-full w-64 flex-col border-r border-border/50 bg-sidebar/50 backdrop-blur-2xl">
-      <div className="flex h-20 items-center justify-between border-b border-border/50 px-6 bg-foreground/[0.02]">
-        <div className="flex items-center gap-3">
-          <div className="flex-shrink-0 bg-primary/20 p-2.5 rounded-2xl border border-primary/30 shadow-[0_0_20px_var(--glow-emerald)] transition-all hover:scale-105">
-            <Image
-              src="/logo.png"
-              alt="Logo"
-              width={32}
-              height={32}
-              className="object-contain hover:rotate-6 transition-transform duration-300"
-            />
-          </div>
-          <div className="flex flex-col">
-            <h1 className="text-sm font-black text-foreground leading-tight tracking-wider uppercase">
-              Lunch Mate
-            </h1>
-            {org && (
-              <span className="text-[10px] text-primary/80 uppercase tracking-widest font-bold">
-                {org.name}
-              </span>
-            )}
-          </div>
+      <div className="flex h-20 items-center justify-between border-b border-border/50 px-4 bg-foreground/[0.02]">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="flex items-center gap-2 group hover:bg-foreground/[0.03] p-1.5 rounded-xl transition-all flex-1 min-w-0">
+              <div className="flex-shrink-0 bg-primary/20 p-2 rounded-xl border border-primary/30 shadow-[0_0_15px_var(--glow-emerald)] group-hover:scale-105 transition-all">
+                <Image
+                  src="/logo.png"
+                  alt="Logo"
+                  width={28}
+                  height={28}
+                  className="object-contain"
+                />
+              </div>
+              <div className="flex flex-col text-left truncate flex-1 pr-1">
+                <h1 className="text-[11px] font-black text-foreground leading-none tracking-wider uppercase truncate">
+                  {org?.name || "Lunch Mate"}
+                </h1>
+                <span className="text-[9px] text-primary/80 uppercase tracking-widest font-bold mt-1">
+                  Active Team
+                </span>
+              </div>
+              <ChevronDown className="h-4 w-4 text-muted-foreground/50 group-hover:text-primary transition-colors shrink-0" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56" align="start">
+            <DropdownMenuLabel className="text-[10px] uppercase tracking-widest text-muted-foreground">My Teams</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {allOrgs.map((o) => (
+              <DropdownMenuItem
+                key={o.id}
+                onClick={() => handleSwitchTeam(o.id)}
+                className="flex items-center justify-between cursor-pointer py-2.5"
+              >
+                <div className="flex flex-col">
+                  <span className={cn("font-bold text-sm", o.id === org?.id && "text-primary")}>{o.name}</span>
+                  <span className="text-[10px] text-muted-foreground uppercase">{o.role}</span>
+                </div>
+                {o.id === org?.id && <Check className="h-4 w-4 text-primary" />}
+              </DropdownMenuItem>
+            ))}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/onboarding" className="flex items-center gap-2 text-primary focus:text-primary cursor-pointer py-2.5">
+                <PlusCircle className="h-4 w-4" />
+                <span className="font-bold text-xs uppercase tracking-tight">Create New Team</span>
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <div className="flex-shrink-0">
+          <ThemeToggle />
         </div>
-        <ThemeToggle />
       </div>
       <nav className="flex-1 space-y-1 p-4 overflow-y-auto">
         {navItems.map((item) => {

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Utensils, Lock, Mail, Loader2, AlertCircle } from "lucide-react"
+import { Utensils, Lock, Mail, Loader2, AlertCircle, CheckCircle2 } from "lucide-react"
 
 export default function LoginPage() {
   return (
@@ -23,6 +23,7 @@ function LoginForm() {
   const [loading, setLoading] = useState(false)
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get("redirect") || "/admin"
+  const message = searchParams.get("message")
 
   async function handleSubmit(formData: FormData) {
     setLoading(true)
@@ -57,6 +58,12 @@ function LoginForm() {
           <form action={handleSubmit} className="space-y-4">
             {/* Pass redirect URL as hidden input */}
             <input type="hidden" name="redirectTo" value={redirectTo} />
+            {message && (
+              <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-3 text-sm text-emerald-500 animate-in fade-in zoom-in-95 duration-200">
+                <CheckCircle2 className="h-4 w-4 shrink-0" />
+                <p>{message}</p>
+              </div>
+            )}
             {error && (
               <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 flex items-center gap-3 text-sm text-destructive animate-in fade-in zoom-in-95 duration-200">
                 <AlertCircle className="h-4 w-4 shrink-0" />
@@ -82,6 +89,12 @@ function LoginForm() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
+                <Link
+                  href="/forgot-password"
+                  className="text-xs text-primary hover:underline font-medium"
+                >
+                  Forgot Password?
+                </Link>
               </div>
               <div className="relative">
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />

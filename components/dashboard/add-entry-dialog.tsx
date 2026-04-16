@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Users, Calculator, Receipt } from "lucide-react"
+import { Plus, Users, Calculator, Receipt, Loader2 } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -213,7 +213,14 @@ export function AddEntryDialog({ users }: AddEntryDialogProps) {
               className="w-full h-11 text-base font-bold shadow-xl shadow-primary/20"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Saving..." : "Create Lunch Entry"}
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Create Lunch Entry"
+              )}
             </Button>
           </DialogFooter>
         </form>

@@ -1,0 +1,19 @@
+import { KPICardsSkeleton, TableSkeleton, ChartSkeleton } from "@/components/dashboard/skeletons"
+
+export default function AdminLoading() {
+  return (
+    <div className="flex flex-col h-full">
+      <div className="flex items-center h-16 border-b px-4 lg:px-6">
+        <div className="h-6 w-48 bg-muted animate-pulse rounded" />
+      </div>
+      <div className="flex-1 p-4 lg:p-6 space-y-6 overflow-auto">
+        <KPICardsSkeleton />
+        <TableSkeleton rows={5} />
+        <div className="grid gap-6 lg:grid-cols-2">
+          <ChartSkeleton />
+          <ChartSkeleton />
+        </div>
+      </div>
+    </div>
+  )
+}

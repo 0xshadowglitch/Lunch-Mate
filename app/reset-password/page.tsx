@@ -75,7 +75,7 @@ export default function ResetPasswordPage() {
             )}
             
             <div className="space-y-2.5">
-              <Label htmlFor="password" name="Password" className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">New Password</Label>
+              <Label htmlFor="password" className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">New Password</Label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/40" />
                 <Input
@@ -90,7 +90,7 @@ export default function ResetPasswordPage() {
             </div>
 
             <div className="space-y-2.5">
-              <Label htmlFor="confirmPassword" name="ConfirmPassword" className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Confirm Password</Label>
+              <Label htmlFor="confirmPassword" className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Confirm Password</Label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/40" />
                 <Input

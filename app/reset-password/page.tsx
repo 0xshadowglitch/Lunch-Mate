@@ -12,7 +12,7 @@ import { Lock, Loader2, AlertCircle, ArrowLeft } from "lucide-react"
 
 export default function ResetPasswordPage() {
   const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [isPending, startTransition] = useTransition()
 
   async function handleSubmit(formData: FormData) {
     const password = formData.get("password") as string
@@ -28,13 +28,13 @@ export default function ResetPasswordPage() {
       return
     }
 
-    setLoading(true)
     setError(null)
-    const result = await updatePassword(formData)
-    if (result?.error) {
-      setError(result.error)
-      setLoading(false)
-    }
+    startTransition(async () => {
+      const result = await updatePassword(formData)
+      if (result?.error) {
+        setError(result.error)
+      }
+    })
   }
 
   return (
@@ -105,8 +105,8 @@ export default function ResetPasswordPage() {
             </div>
 
             <div className="pt-2">
-              <Button type="submit" className="w-full h-14 text-base font-black uppercase tracking-widest transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] rounded-xl shadow-lg hover:shadow-primary/20" disabled={loading}>
-                {loading ? (
+              <Button type="submit" className="w-full h-14 text-base font-black uppercase tracking-widest transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] rounded-xl shadow-lg hover:shadow-primary/20" disabled={isPending}>
+                {isPending ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     Updating security...

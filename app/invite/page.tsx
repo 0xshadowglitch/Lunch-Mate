@@ -92,16 +92,16 @@ function InviteContent() {
 
       case "success":
         return (
-          <div className="flex flex-col items-center gap-4 py-8 text-center">
-            <div className="p-3 bg-emerald-500/10 rounded-full">
+          <div className="flex flex-col items-center gap-6 py-8 text-center animate-in fade-in zoom-in-95 duration-500">
+            <div className="p-4 bg-emerald-500/10 rounded-2xl ring-8 ring-emerald-500/5">
               <CheckCircle2 className="h-12 w-12 text-emerald-500" />
             </div>
-            <div>
-              <h2 className="text-xl font-bold">You're in!</h2>
-              <p className="text-muted-foreground text-sm mt-1">
-                Welcome to <span className="font-semibold text-foreground">{state.orgName}</span>.
+            <div className="space-y-2">
+              <h2 className="text-2xl font-black uppercase tracking-tight">You're in!</h2>
+              <p className="text-muted-foreground text-sm font-medium">
+                Welcome to <span className="font-bold text-primary">{state.orgName}</span>.
               </p>
-              <p className="text-muted-foreground text-xs mt-2">Redirecting to your dashboard...</p>
+              <p className="text-muted-foreground text-[10px] uppercase font-black tracking-widest mt-4 opacity-50">Redirecting to dashboard...</p>
             </div>
           </div>
         )
@@ -110,19 +110,19 @@ function InviteContent() {
         const isExpired = state.errorMessage?.includes("expired")
         const isUsed = state.errorMessage?.includes("already been used")
         const Icon = isExpired ? Clock : isUsed ? XCircle : XCircle
-
+        
         return (
-          <div className="flex flex-col items-center gap-4 py-8 text-center">
-            <div className="p-3 bg-destructive/10 rounded-full">
+          <div className="flex flex-col items-center gap-6 py-8 text-center animate-in fade-in zoom-in-95 duration-500">
+            <div className="p-4 bg-destructive/10 rounded-2xl ring-8 ring-destructive/5">
               <Icon className="h-12 w-12 text-destructive" />
             </div>
-            <div>
-              <h2 className="text-xl font-bold text-destructive">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-black uppercase tracking-tight text-destructive">
                 {isExpired ? "Invite Expired" : isUsed ? "Already Used" : "Invalid Invite"}
               </h2>
-              <p className="text-muted-foreground text-sm mt-1 max-w-xs">{state.errorMessage}</p>
+              <p className="text-muted-foreground text-sm font-medium max-w-xs">{state.errorMessage}</p>
             </div>
-            <Button variant="outline" asChild>
+            <Button variant="outline" className="h-12 px-8 rounded-xl font-bold mt-4" asChild>
               <Link href="/login">Go to Login</Link>
             </Button>
           </div>
@@ -131,57 +131,55 @@ function InviteContent() {
       case "ready":
       case "joining":
         return (
-          <div className="flex flex-col items-center gap-6 py-4 text-center">
-            <div className="p-3 bg-primary/10 rounded-full">
-              <Users className="h-10 w-10 text-primary" />
+          <div className="flex flex-col items-center gap-6 py-6 text-center animate-in fade-in duration-500">
+            <div className="p-4 bg-primary/10 rounded-2xl ring-8 ring-primary/5">
+              <Users className="h-12 w-12 text-primary" />
             </div>
 
-            <div>
-              <h2 className="text-xl font-bold">You've been invited!</h2>
-              <p className="text-muted-foreground text-sm mt-1">
-                Accept this invite to join a Lunch Tracker team.
+            <div className="space-y-1">
+              <h2 className="text-2xl font-black uppercase tracking-tight">You've been invited!</h2>
+              <p className="text-muted-foreground text-sm font-medium">
+                Accept this invite to join your team.
               </p>
             </div>
 
             {!user ? (
-              <div className="w-full space-y-3">
-                <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-sm text-amber-600">
-                  You must be logged in to accept this invite.
+              <div className="w-full space-y-4 pt-4">
+                <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-600 font-bold uppercase tracking-tight">
+                  You must be logged in to join
                 </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" className="flex-1" asChild>
+                <div className="grid grid-cols-2 gap-3">
+                  <Button variant="outline" className="h-12 rounded-xl font-bold" asChild>
                     <Link href={`/login?redirect=/invite?token=${token}`}>
-                      <LogIn className="mr-2 h-4 w-4" />
                       Log In
                     </Link>
                   </Button>
-                  <Button className="flex-1" asChild>
+                  <Button className="h-12 rounded-xl font-bold shadow-lg shadow-primary/20" asChild>
                     <Link href={`/signup?redirect=/invite?token=${token}`}>
                       Sign Up
-                      <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
                 </div>
               </div>
             ) : (
-              <div className="w-full space-y-3">
-                <div className="p-3 rounded-lg bg-muted text-sm text-muted-foreground">
-                  Logged in as: <span className="font-semibold text-foreground">{user.email}</span>
+              <div className="w-full space-y-4 pt-4">
+                <div className="p-4 rounded-xl bg-primary/5 border border-primary/10 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                  Logged in as <span className="text-foreground">{user.email}</span>
                 </div>
                 <Button
-                  className="w-full font-semibold"
+                  className="w-full h-14 text-base font-black uppercase tracking-widest transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] rounded-xl shadow-lg hover:shadow-primary/20"
                   onClick={handleAccept}
                   disabled={state.status === "joining"}
                 >
                   {state.status === "joining" ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                       Joining Team...
                     </>
                   ) : (
                     <>
                       Accept Invite
-                      <ArrowRight className="ml-2 h-4 w-4" />
+                      <ArrowRight className="ml-2 h-5 w-5" />
                     </>
                   )}
                 </Button>
@@ -193,26 +191,30 @@ function InviteContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
-      <div className="absolute inset-0 overflow-hidden -z-10">
-        <div className="absolute top-[15%] left-[15%] w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-[15%] right-[15%] w-80 h-80 bg-primary/5 rounded-full blur-3xl animate-pulse delay-700" />
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden transition-colors duration-500">
+      {/* Premium Background Effects */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/15 rounded-full blur-[120px] -z-10 animate-pulse" />
+      <div className="absolute top-[10%] left-[15%] w-96 h-96 bg-blue-500/10 rounded-full blur-[100px] -z-10" />
+      <div className="absolute bottom-[20%] right-[10%] w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-[140px] -z-10" />
+      
+      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] dark:opacity-20 pointer-events-none -z-10 transition-opacity" />
 
-      <Card className="w-full max-w-md border-border/50 bg-background/80 backdrop-blur-xl shadow-2xl">
-        <CardHeader className="text-center border-b border-border/50 pb-4">
-          <div className="flex justify-center mb-3">
-            <div className="p-2 bg-primary rounded-xl shadow-lg">
-              <Utensils className="h-6 w-6 text-primary-foreground" />
+      <Card className="w-full max-w-md border-border/50 bg-background/80 backdrop-blur-xl shadow-2xl p-2 md:p-4">
+        <CardHeader className="text-center pt-8 pb-4 space-y-4">
+          <div className="flex justify-center mb-2 transition-transform hover:scale-110 duration-500">
+            <div className="p-4 bg-primary rounded-2xl shadow-xl shadow-primary/20 ring-4 ring-primary/10">
+              <Utensils className="h-10 w-10 text-primary-foreground" />
             </div>
           </div>
-          <CardTitle className="text-lg">Lunch Tracker</CardTitle>
-          <CardDescription>Team Invitation</CardDescription>
+          <div className="space-y-1">
+            <CardTitle className="text-3xl font-extrabold tracking-tight bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent uppercase">Lunch Mate</CardTitle>
+            <CardDescription className="text-sm font-black tracking-widest uppercase opacity-70">Team Invitation</CardDescription>
+          </div>
         </CardHeader>
-        <CardContent className="pt-2">
+        <CardContent className="py-2">
           {renderContent()}
         </CardContent>
-        <CardFooter className="text-center text-xs text-muted-foreground border-t border-border/50 pt-4">
+        <CardFooter className="text-center text-[10px] font-bold text-muted-foreground uppercase tracking-wider justify-center py-6">
           Invite links expire after 24 hours and are single-use.
         </CardFooter>
       </Card>

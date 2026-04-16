@@ -111,21 +111,21 @@ export function AddEntryDialog({ users }: AddEntryDialogProps) {
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-6 pt-4">
-          <div className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="date">Date</Label>
+          <div className="grid gap-5">
+            <div className="grid gap-2.5">
+              <Label htmlFor="date" className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Lunch Date</Label>
               <Input
                 id="date"
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 required
-                className="bg-background/50"
+                className="h-12 bg-background/50 border-border/40 rounded-xl px-4"
               />
             </div>
             
-            <div className="grid gap-2">
-              <Label htmlFor="total">Total Expense (₹)</Label>
+            <div className="grid gap-2.5">
+              <Label htmlFor="total" className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1 text-primary">Total Expense (₹)</Label>
               <Input
                 id="total"
                 type="number"
@@ -134,19 +134,19 @@ export function AddEntryDialog({ users }: AddEntryDialogProps) {
                 onChange={(e) => setTotalExpense(e.target.value)}
                 required
                 step="0.01"
-                className="bg-background/50 text-lg font-semibold"
+                className="h-14 bg-background/50 border-primary/20 hover:border-primary/50 text-xl font-black rounded-xl px-4 shadow-inner"
               />
             </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="paidBy">Who Paid?</Label>
+            <div className="grid gap-2.5">
+              <Label htmlFor="paidBy" className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Who Paid?</Label>
               <Select value={paidBy} onValueChange={setPaidBy}>
-                <SelectTrigger className="bg-background/50">
+                <SelectTrigger className="h-12 bg-background/50 border-border/40 rounded-xl px-4">
                   <SelectValue placeholder="Select a user" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="rounded-xl border-border/50 backdrop-blur-xl">
                   {users.map((user) => (
-                    <SelectItem key={user.id} value={user.id}>
+                    <SelectItem key={user.id} value={user.id} className="rounded-lg">
                       {user.name}
                     </SelectItem>
                   ))}
@@ -156,33 +156,33 @@ export function AddEntryDialog({ users }: AddEntryDialogProps) {
           </div>
 
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Users className="h-4 w-4" />
-                Who was present? ({presentCount})
+            <div className="flex items-center justify-between px-1">
+              <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+                Attendance ({presentCount})
               </Label>
               <Button 
                 type="button" 
                 variant="ghost" 
                 size="sm" 
-                className="h-7 text-xs px-2"
+                className="h-6 text-[10px] font-black uppercase tracking-tighter px-2 hover:bg-primary/10 hover:text-primary transition-colors"
                 onClick={() => setPresentUserIds(new Set(users.map(u => u.id)))}
               >
-                Select All
+                SELECT ALL
               </Button>
             </div>
             
-            <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-background/30 border border-border/30 max-h-[160px] overflow-y-auto">
+            <div className="grid grid-cols-2 gap-3 p-4 rounded-2xl bg-background/20 border border-border/30 max-h-[160px] overflow-y-auto shadow-inner custom-scrollbar">
               {users.map((user) => (
-                <div key={user.id} className="flex items-center space-x-2 p-1.5 rounded-lg hover:bg-primary/5 transition-colors">
+                <div key={user.id} className="flex items-center space-x-3 p-2 rounded-xl hover:bg-primary/5 transition-colors border border-transparent hover:border-primary/10">
                   <Checkbox
                     id={`user-${user.id}`}
                     checked={presentUserIds.has(user.id)}
                     onCheckedChange={() => toggleUser(user.id)}
+                    className="h-5 w-5 rounded-md border-primary/30"
                   />
                   <label
                     htmlFor={`user-${user.id}`}
-                    className="text-sm font-medium leading-none cursor-pointer select-none"
+                    className="text-sm font-bold leading-none cursor-pointer select-none opacity-80"
                   >
                     {user.name}
                   </label>
@@ -191,35 +191,37 @@ export function AddEntryDialog({ users }: AddEntryDialogProps) {
             </div>
           </div>
 
-          <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 space-y-2">
-            <div className="flex justify-between items-center text-sm text-muted-foreground">
-              <span className="flex items-center gap-1.5 italic">
-                <Calculator className="h-3.5 w-3.5" />
-                Calculation Hint
-              </span>
-              <span>₹{total.toLocaleString()} / {presentCount} people</span>
+          <div className="p-5 rounded-3xl bg-primary/5 border border-primary/10 space-y-3 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+              <Calculator className="h-12 w-12 text-primary" />
             </div>
-            <div className="flex justify-between items-end">
-              <span className="text-sm font-medium">Share per Person</span>
-              <span className="text-2xl font-black text-primary">
+            <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
+              <span className="flex items-center gap-1.5">
+                Calculation Breakdown
+              </span>
+              <span>₹{total.toLocaleString()} ÷ {presentCount}</span>
+            </div>
+            <div className="flex justify-between items-end pt-1">
+              <span className="text-xs font-black uppercase tracking-widest opacity-80">Share / Person</span>
+              <span className="text-3xl font-black text-primary tracking-tighter">
                 ₹{sharePerPerson.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="pt-2">
             <Button
               type="submit"
-              className="w-full h-11 text-base font-bold shadow-xl shadow-primary/20"
+              className="w-full h-14 text-base font-black uppercase tracking-widest transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] rounded-xl shadow-xl shadow-primary/20"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                   Saving...
                 </>
               ) : (
-                "Create Lunch Entry"
+                "Record Entry"
               )}
             </Button>
           </DialogFooter>

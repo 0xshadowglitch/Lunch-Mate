@@ -62,7 +62,7 @@ export default function TeamSettingsPage() {
   const [org, setOrg] = useState<OrgInfo | null>(null)
   const [invites, setInvites] = useState<Invite[]>([])
   const [loading, setLoading] = useState(true)
-  const [generating, setGenerating] = useState(false)
+  const [isPending, startTransition] = useTransition()
   const [newInviteEmail, setNewInviteEmail] = useState("")
   const [generatedLink, setGeneratedLink] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
@@ -89,29 +89,30 @@ export default function TeamSettingsPage() {
 
   const handleGenerateInvite = async () => {
     if (!org) return
-    setGenerating(true)
     setGeneratedLink(null)
 
-    try {
-      const res = await fetch("/api/invite", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orgId: org.id, email: newInviteEmail || undefined }),
-      })
+    startTransition(async () => {
+      try {
+        const res = await fetch("/api/invite", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orgId: org.id, email: newInviteEmail || undefined }),
+        })
 
-      const data = await res.json()
+        const data = await res.json()
 
-      if (!res.ok) {
-        toast.error(data.error || "Failed to generate invite")
-      } else {
-        setGeneratedLink(data.link)
-        setNewInviteEmail("")
-        await loadInvites(org.id)
-        toast.success("Invite link generated! Copy it before leaving this page.")
+        if (!res.ok) {
+          toast.error(data.error || "Failed to generate invite")
+        } else {
+          setGeneratedLink(data.link)
+          setNewInviteEmail("")
+          await loadInvites(org.id)
+          toast.success("Invite link generated!")
+        }
+      } catch (err) {
+        toast.error("An unexpected error occurred")
       }
-    } finally {
-      setGenerating(false)
-    }
+    })
   }
 
   const handleCopy = async (link: string) => {
@@ -215,37 +216,37 @@ export default function TeamSettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="invite-email">
-              Email Address <span className="text-muted-foreground font-normal">(Optional — restricts invite to this email only)</span>
+          <div className="space-y-4">
+            <Label htmlFor="invite-email" className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">
+              Email Address <span className="text-muted-foreground/50 font-medium normal-case tracking-normal">(Optional — restrict to email)</span>
             </Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/40" />
               <Input
                 id="invite-email"
                 type="email"
                 placeholder="colleague@company.com"
-                className="pl-10"
+                className="pl-12 h-14 bg-background/40 border-border/40 hover:border-primary/50 transition-colors rounded-xl"
                 value={newInviteEmail}
                 onChange={(e) => setNewInviteEmail(e.target.value)}
-                disabled={generating}
+                disabled={isPending}
               />
             </div>
           </div>
 
           <Button
             onClick={handleGenerateInvite}
-            disabled={generating}
-            className="w-full font-semibold"
+            disabled={isPending}
+            className="w-full h-14 text-base font-black uppercase tracking-widest transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] rounded-xl shadow-lg hover:shadow-primary/20"
           >
-            {generating ? (
+            {isPending ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generating Secure Token...
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                Generating...
               </>
             ) : (
               <>
-                <LinkIcon className="mr-2 h-4 w-4" />
+                <LinkIcon className="mr-2 h-5 w-5" />
                 Generate Invite Link
               </>
             )}

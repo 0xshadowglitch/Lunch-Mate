@@ -39,9 +39,9 @@ export default function UserPage() {
 
   if (isLoading || !data) {
     return (
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full bg-background/50">
         <TopNavbar title="My Dashboard" />
-        <div className="flex-1 p-6 lg:p-10 overflow-auto">
+        <div className="flex-1 p-6 lg:p-10 pb-24 overflow-auto">
           <UserDashboardSkeleton />
         </div>
       </div>
@@ -49,9 +49,9 @@ export default function UserPage() {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-background/50">
       <TopNavbar title="My Dashboard" />
-      <div className="flex-1 p-6 lg:p-10 overflow-auto">
+      <div className="flex-1 p-6 lg:p-10 pb-24 overflow-auto">
         <UserDashboard
           users={data.users}
           balances={data.balances}

@@ -66,54 +66,56 @@ export default function ResetPasswordPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form action={handleSubmit} className="space-y-4">
+          <form action={handleSubmit} className="space-y-5">
             {error && (
-              <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 flex items-center gap-3 text-sm text-destructive animate-in fade-in zoom-in-95 duration-200">
+              <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center gap-3 text-sm text-destructive animate-in fade-in zoom-in-95 duration-300">
                 <AlertCircle className="h-4 w-4 shrink-0" />
-                <p>{error}</p>
+                <p className="font-medium">{error}</p>
               </div>
             )}
             
-            <div className="space-y-2">
-              <Label htmlFor="password">New Password</Label>
+            <div className="space-y-2.5">
+              <Label htmlFor="password" name="Password" className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">New Password</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/40" />
                 <Input
                   id="password"
                   name="password"
                   type="password"
                   placeholder="••••••••"
-                  className="pl-10"
+                  className="pl-12 h-14 bg-background/40 border-border/40 hover:border-primary/50 transition-colors rounded-xl"
                   required
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <div className="space-y-2.5">
+              <Label htmlFor="confirmPassword" name="ConfirmPassword" className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Confirm Password</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/40" />
                 <Input
                   id="confirmPassword"
                   name="confirmPassword"
                   type="password"
                   placeholder="••••••••"
-                  className="pl-10"
+                  className="pl-12 h-14 bg-background/40 border-border/40 hover:border-primary/50 transition-colors rounded-xl"
                   required
                 />
               </div>
             </div>
 
-            <Button type="submit" className="w-full font-semibold" disabled={loading}>
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Updating password...
-                </>
-              ) : (
-                "Update Password"
-              )}
-            </Button>
+            <div className="pt-2">
+              <Button type="submit" className="w-full h-14 text-base font-black uppercase tracking-widest transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] rounded-xl shadow-lg hover:shadow-primary/20" disabled={loading}>
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Updating security...
+                  </>
+                ) : (
+                  "Update Password"
+                )}
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>

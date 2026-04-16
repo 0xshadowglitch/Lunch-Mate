@@ -68,66 +68,66 @@ function LoginForm() {
           </CardDescription>
         </CardHeader>
         <CardContent className="py-2">
-          <form action={handleSubmit} className="space-y-6">
+          <form action={handleSubmit} className="space-y-5">
             {/* Pass redirect URL as hidden input */}
             <input type="hidden" name="redirectTo" value={redirectTo} />
             {message && (
-              <div className="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-3 text-sm text-emerald-500 animate-in fade-in zoom-in-95 duration-200">
+              <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-3 text-sm text-emerald-500 animate-in fade-in zoom-in-95 duration-200">
                 <CheckCircle2 className="h-4 w-4 shrink-0" />
-                <p>{message}</p>
+                <p className="font-medium">{message}</p>
               </div>
             )}
             {error && (
-              <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20 flex items-center gap-3 text-sm text-destructive animate-in fade-in zoom-in-95 duration-200">
+              <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center gap-3 text-sm text-destructive animate-in fade-in zoom-in-95 duration-200">
                 <AlertCircle className="h-4 w-4 shrink-0" />
-                <p>{error}</p>
+                <p className="font-medium">{error}</p>
               </div>
             )}
             
-            <div className="space-y-3">
-              <Label htmlFor="email" className="text-sm font-medium ml-1">Email Address</Label>
+            <div className="space-y-2.5">
+              <Label htmlFor="email" className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Email Address</Label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/60" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/40" />
                 <Input
                   id="email"
                   name="email"
                   type="email"
                   placeholder="name@company.com"
-                  className="pl-12 h-12 bg-background/40"
+                  className="pl-12 h-14 bg-background/40 border-border/40 hover:border-primary/50 transition-colors rounded-xl"
                   required
                 />
               </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               <div className="flex items-center justify-between ml-1">
-                <Label htmlFor="password" name="Password" className="text-sm font-medium">Password</Label>
+                <Label htmlFor="password" name="Password" className="text-xs font-black uppercase tracking-widest text-muted-foreground">Password</Label>
                 <Link
                   href="/forgot-password"
-                  className="text-xs text-primary hover:underline font-semibold"
+                  className="text-[10px] text-primary hover:underline font-black uppercase tracking-tighter"
                 >
                   Forgot Password?
                 </Link>
               </div>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/60" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/40" />
                 <Input
                   id="password"
                   name="password"
                   type="password"
                   placeholder="••••••••"
-                  className="pl-12 h-12 bg-background/40"
+                  className="pl-12 h-14 bg-background/40 border-border/40 hover:border-primary/50 transition-colors rounded-xl"
                   required
                 />
               </div>
             </div>
 
             <div className="pt-2">
-              <Button type="submit" className="w-full h-12 text-base font-bold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]" disabled={loading}>
+              <Button type="submit" className="w-full h-14 text-base font-black uppercase tracking-widest transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] rounded-xl shadow-lg hover:shadow-primary/20" disabled={loading}>
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Logging in...
+                    Authenticating...
                   </>
                 ) : (
                   "Log In"
@@ -139,8 +139,8 @@ function LoginForm() {
         <CardFooter className="flex flex-col pt-6 pb-10">
           <div className="text-center text-sm text-muted-foreground">
             Don't have an account?{" "}
-            <Link href={`/signup?redirect=${encodeURIComponent(redirectTo)}`} className="text-primary hover:underline font-bold">
-              Create one for your team
+            <Link href={`/signup?redirect=${encodeURIComponent(redirectTo)}`} className="text-primary hover:underline font-black uppercase tracking-tight">
+              Create one
             </Link>
           </div>
         </CardFooter>

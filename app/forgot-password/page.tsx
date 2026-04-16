@@ -59,49 +59,49 @@ export default function ForgotPasswordPage() {
         </CardHeader>
         <CardContent className="py-2">
           {success ? (
-            <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-center space-y-4 animate-in fade-in zoom-in-95 duration-300 my-4">
+            <div className="p-8 rounded-3xl bg-emerald-500/10 border border-emerald-500/20 text-center space-y-6 animate-in fade-in zoom-in-95 duration-500 my-4 shadow-inner">
               <div className="flex justify-center">
-                <div className="p-3 bg-emerald-500/20 rounded-full">
-                  <CheckCircle2 className="h-10 w-10 text-emerald-500" />
+                <div className="p-4 bg-emerald-500/20 rounded-full ring-8 ring-emerald-500/5">
+                  <CheckCircle2 className="h-12 w-12 text-emerald-500 animate-bounce" />
                 </div>
               </div>
-              <div className="space-y-2">
-                <h3 className="text-lg font-bold text-emerald-500">Check your email</h3>
-                <p className="text-sm text-muted-foreground text-balance">
-                  We've sent a password reset link to your email address. Please click the link to continue.
+              <div className="space-y-3">
+                <h3 className="text-2xl font-black text-emerald-500 uppercase tracking-tight">Check your inbox</h3>
+                <p className="text-sm text-muted-foreground font-medium leading-relaxed">
+                  We've sent a password reset link to your email. Please check your inbox and spam folder to continue.
                 </p>
               </div>
             </div>
           ) : (
-            <form action={handleSubmit} className="space-y-6">
+            <form action={handleSubmit} className="space-y-5">
               {error && (
-                <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20 flex items-center gap-3 text-sm text-destructive animate-in fade-in zoom-in-95 duration-200">
+                <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center gap-3 text-sm text-destructive animate-in fade-in zoom-in-95 duration-300">
                   <AlertCircle className="h-4 w-4 shrink-0" />
-                  <p>{error}</p>
+                  <p className="font-medium">{error}</p>
                 </div>
               )}
               
-              <div className="space-y-3">
-                <Label htmlFor="email" className="text-sm font-medium ml-1">Email Address</Label>
+              <div className="space-y-2.5">
+                <Label htmlFor="email" className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Email Address</Label>
                 <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/60" />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/40" />
                   <Input
                     id="email"
                     name="email"
                     type="email"
                     placeholder="name@company.com"
-                    className="pl-12 h-12 bg-background/40"
+                    className="pl-12 h-14 bg-background/40 border-border/40 hover:border-primary/50 transition-colors rounded-xl"
                     required
                   />
                 </div>
               </div>
 
               <div className="pt-2">
-                <Button type="submit" className="w-full h-12 text-base font-bold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]" disabled={loading}>
+                <Button type="submit" className="w-full h-14 text-base font-black uppercase tracking-widest transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] rounded-xl shadow-lg hover:shadow-primary/20" disabled={loading}>
                   {loading ? (
                     <>
                       <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Sending link...
+                      Processing...
                     </>
                   ) : (
                     "Send Reset Link"
@@ -112,10 +112,10 @@ export default function ForgotPasswordPage() {
           )}
         </CardContent>
         <CardFooter className="flex flex-col pt-6 pb-10">
-          <div className="text-center text-sm text-muted-foreground">
+          <div className="text-center text-sm text-muted-foreground font-medium">
             Remembered your password?{" "}
-            <Link href="/login" className="text-primary hover:underline font-bold">
-              Log in instead
+            <Link href="/login" className="text-primary hover:underline font-black uppercase tracking-tight">
+              Log in
             </Link>
           </div>
         </CardFooter>

@@ -133,12 +133,17 @@ export default function TeamSettingsPage() {
   }
 
   const handleCleanup = async () => {
-    const res = await fetch("/api/invite/cleanup")
-    if (res.ok) {
-      const data = await res.json()
-      toast.success(`Cleaned up ${data.deleted} expired/used invites`)
-      if (org?.id) await loadInvites(org.id)
-    }
+    if (isPending) return
+    startTransition(async () => {
+      const res = await fetch("/api/invite/cleanup")
+      if (res.ok) {
+        const data = await res.json()
+        toast.success(`Cleaned up ${data.deleted} expired/used invites`)
+        if (org?.id) await loadInvites(org.id)
+      } else {
+        toast.error("Cleanup failed")
+      }
+    })
   }
 
   const statusBadge = (status: Invite["status"]) => {
@@ -177,10 +182,18 @@ export default function TeamSettingsPage() {
             Project configuration and member access control.
           </p>
         </div>
-        <Button variant="outline" size="lg" onClick={handleCleanup} className="rounded-xl px-6">
-          <Trash2 className="h-4 w-4 mr-2" />
-          Clean Up Expired
-        </Button>
+        {pastInvites.length > 0 && (
+          <Button 
+            variant="outline" 
+            size="lg" 
+            onClick={handleCleanup} 
+            disabled={isPending}
+            className="rounded-xl px-6"
+          >
+            {isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
+            Clean Up Expired
+          </Button>
+        )}
       </div>
 
       {/* Org Info Card */}

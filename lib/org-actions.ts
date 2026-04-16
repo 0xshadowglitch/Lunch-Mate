@@ -4,8 +4,9 @@ import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { cookies } from "next/headers"
+import { cache } from "react"
 
-export async function getUserOrgs() {
+export const getUserOrgs = cache(async () => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -13,14 +14,11 @@ export async function getUserOrgs() {
     if (!user) return []
 
     // Try fetching with currency first
-    const firstAttempt = await supabase
+    let { data: memberships, error } = await supabase
       .from("organization_members")
       .select("org_id, role, organizations(name, currency)")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
-
-    let memberships = firstAttempt.data
-    let error = firstAttempt.error
 
     // If currency column is missing, fallback to name only
     if (error && error.message.includes("currency")) {
@@ -54,9 +52,9 @@ export async function getUserOrgs() {
     console.error("DEBUG CRASH getUserOrgs:", e.message)
     return []
   }
-}
+})
 
-export async function getUserOrg() {
+export const getUserOrg = cache(async () => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -64,14 +62,11 @@ export async function getUserOrg() {
     if (!user) return null
 
     // Try fetching with currency first
-    const firstAttempt = await supabase
+    let { data: memberships, error } = await supabase
       .from("organization_members")
       .select("org_id, role, organizations(name, currency)")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
-
-    let memberships = firstAttempt.data
-    let error = firstAttempt.error
 
     // If currency column is missing, fallback to name only
     if (error && error.message.includes("currency")) {
@@ -109,7 +104,7 @@ export async function getUserOrg() {
     console.error("DEBUG CRASH getUserOrg:", e.message)
     return null
   }
-}
+})
 
 export async function setActiveOrg(orgId: string) {
   const cookieStore = await cookies()
@@ -190,7 +185,7 @@ export async function updateOrganizationCurrency(orgId: string, currency: string
   return { success: true }
 }
 
-export async function getAuthorizedOrgId() {
+export const getAuthorizedOrgId = cache(async () => {
   const org = await getUserOrg()
   if (!org) return null
   const supabase = await createClient()
@@ -201,7 +196,7 @@ export async function getAuthorizedOrgId() {
     role: org.role,
     userId: user?.id
   }
-}
+})
 
 export async function getOrgMembersNotInLunchTracking() {
   const supabase = await createClient()

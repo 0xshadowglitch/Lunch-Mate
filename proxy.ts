@@ -51,19 +51,21 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/admin", request.url))
   }
 
-  // 3. Logged-in user without an org → onboarding
-  //    (except if they're on the invite page — they might be accepting to GET an org)
+  /* 
+  // 3. Logged-in user without an org → optional onboarding
+  // We've disabled this forced redirect to allow users to "Skip" onboarding
   if (user && (isAdminPage || isUserPage) && !isOnboarding) {
     const { data: membership } = await supabase
       .from("organization_members")
       .select("org_id")
       .eq("user_id", user.id)
-      .single()
+      .limit(1)
 
-    if (!membership) {
-      return NextResponse.redirect(new URL("/onboarding", request.url))
+    if (!membership || membership.length === 0) {
+      // return NextResponse.redirect(new URL("/onboarding", request.url))
     }
   }
+  */
 
   return response
 }

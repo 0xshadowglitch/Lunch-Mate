@@ -16,6 +16,7 @@ import {
   Utensils,
   LogOut,
   Settings,
+  PlusCircle,
 } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { getUserOrg } from "@/lib/org-actions"
@@ -145,6 +146,15 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
           >
             <Settings className="h-4 w-4" />
             Team Settings
+          </Link>
+        )}
+        {isAdmin && (
+          <Link
+            href="/onboarding"
+            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-black uppercase tracking-widest text-primary border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all hover:scale-[1.02] mt-4 shadow-lg shadow-primary/5"
+          >
+            <PlusCircle className="h-4 w-4" />
+            Create New Team
           </Link>
         )}
       </nav>

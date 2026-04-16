@@ -136,9 +136,14 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
               <ChevronDown className="h-4 w-4 text-muted-foreground/50 group-hover:text-primary transition-colors shrink-0" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="start">
-            <DropdownMenuLabel className="text-[10px] uppercase tracking-widest text-muted-foreground">My Teams</DropdownMenuLabel>
-            <DropdownMenuSeparator />
+          <DropdownMenuContent className="w-64 bg-card/95 backdrop-blur-xl border-border shadow-2xl !opacity-100 ring-1 ring-white/5" align="start" sideOffset={8}>
+            <div className="p-2 pb-0">
+              <DropdownMenuLabel className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60 font-black px-2 py-1.5 flex items-center justify-between">
+                My Teams
+                <Badge variant="outline" className="text-[9px] border-primary/20 text-primary/80 h-4 px-1.5">{allOrgs.length}</Badge>
+              </DropdownMenuLabel>
+            </div>
+            <DropdownMenuSeparator className="bg-border/50 mx-2" />
             {allOrgs.map((o) => (
               <DropdownMenuItem
                 key={o.id}

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import Link from "next/link"
 import { updatePassword } from "@/lib/auth-actions"
 import { Button } from "@/components/ui/button"

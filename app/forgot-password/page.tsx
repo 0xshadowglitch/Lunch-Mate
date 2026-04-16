@@ -12,19 +12,19 @@ import { Mail, Loader2, AlertCircle, ArrowLeft, CheckCircle2 } from "lucide-reac
 
 export default function ForgotPasswordPage() {
   const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [isPending, startTransition] = useTransition()
   const [success, setSuccess] = useState(false)
 
   async function handleSubmit(formData: FormData) {
-    setLoading(true)
     setError(null)
-    const result = await requestPasswordReset(formData)
-    if (result?.error) {
-      setError(result.error)
-      setLoading(false)
-    } else {
-      setSuccess(true)
-    }
+    startTransition(async () => {
+      const result = await requestPasswordReset(formData)
+      if (result?.error) {
+        setError(result.error)
+      } else {
+        setSuccess(true)
+      }
+    })
   }
 
   return (

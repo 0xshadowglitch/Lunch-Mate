@@ -12,6 +12,7 @@ import {
   getWeeklySummary, 
   getMonthlySummary 
 } from "@/lib/actions"
+import { getUserOrg } from "@/lib/org-actions"
 
 async function fetchData() {
   const [users, balances, entries, weeklyData, monthlyData, org] = await Promise.all([

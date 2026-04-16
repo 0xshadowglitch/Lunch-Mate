@@ -25,12 +25,12 @@ export function SpendingTrendChart({ data }: SpendingTrendChartProps) {
   }))
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Spending Trend</CardTitle>
+    <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+      <CardHeader className="pt-8 px-8 pb-4">
+        <CardTitle className="text-lg font-black tracking-tight uppercase">Spending Trend</CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="h-72">
+      <CardContent className="px-8 pb-8">
+        <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={formattedData}>
               <defs>
@@ -56,24 +56,27 @@ export function SpendingTrendChart({ data }: SpendingTrendChartProps) {
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "var(--color-card)",
-                  backdropFilter: "blur(12px)",
-                  border: "1px solid var(--color-border)",
-                  borderRadius: "12px",
-                  boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+                  backgroundColor: "rgba(18, 24, 33, 0.8)",
+                  backdropFilter: "blur(16px)",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  borderRadius: "16px",
+                  boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.5)",
+                  padding: "12px",
                 }}
-                itemStyle={{ color: "var(--color-chart-1)", fontWeight: "bold" }}
-                labelStyle={{ color: "var(--color-foreground)", marginBottom: "4px" }}
-                formatter={(value: number) => [`₹${value}`, "Expense"]}
+                itemStyle={{ color: "var(--primary)", fontWeight: "bold", fontSize: "14px" }}
+                labelStyle={{ color: "rgba(255,255,255,0.7)", marginBottom: "4px", fontSize: "12px", fontWeight: "bold", textTransform: "uppercase" }}
+                formatter={(value: number) => [`₹${value}`, "Amount Spent"]}
+                cursor={{ stroke: "rgba(16, 185, 129, 0.2)", strokeWidth: 2 }}
               />
               <Line
                 type="monotone"
                 dataKey="expense"
-                stroke="var(--chart-1)"
-                strokeWidth={4}
-                dot={{ fill: "var(--chart-1)", strokeWidth: 2, r: 4, stroke: "var(--background)" }}
-                activeDot={{ r: 8, fill: "var(--chart-1)", strokeWidth: 0 }}
-                animationDuration={1500}
+                stroke="var(--primary)"
+                strokeWidth={5}
+                dot={{ fill: "var(--primary)", strokeWidth: 2, r: 5, stroke: "var(--background)" }}
+                activeDot={{ r: 8, fill: "#fff", strokeWidth: 4, stroke: "var(--primary)" }}
+                animationDuration={2000}
+                connectNulls
               />
             </LineChart>
           </ResponsiveContainer>

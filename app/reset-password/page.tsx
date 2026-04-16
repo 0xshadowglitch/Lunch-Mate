@@ -38,11 +38,13 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
-      <div className="absolute inset-0 overflow-hidden -z-10">
-        <div className="absolute top-[10%] left-[10%] w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-[10%] right-[10%] w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse delay-700" />
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden transition-colors duration-500">
+      {/* Premium Background Effects */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/15 rounded-full blur-[120px] -z-10 animate-pulse" />
+      <div className="absolute top-[20%] right-[15%] w-80 h-80 bg-blue-500/10 rounded-full blur-[100px] -z-10" />
+      <div className="absolute bottom-[10%] left-[10%] w-[450px] h-[450px] bg-emerald-500/5 rounded-full blur-[140px] -z-10" />
+      
+      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] dark:opacity-20 pointer-events-none -z-10 transition-opacity" />
 
       <Card className="w-full max-w-md border-border/50 bg-background/80 backdrop-blur-xl shadow-2xl">
         <CardHeader className="space-y-1">

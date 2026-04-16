@@ -18,33 +18,33 @@ interface UserBalanceTableProps {
 
 export function UserBalanceTable({ balances }: UserBalanceTableProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Financial Overview</CardTitle>
+    <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+      <CardHeader className="pt-8 px-8 pb-4">
+        <CardTitle className="text-lg font-black tracking-tight uppercase">Financial Overview</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-8 pb-8">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>User</TableHead>
-              <TableHead className="text-right">Total Paid</TableHead>
-              <TableHead className="text-right">Total Shares</TableHead>
-              <TableHead className="text-right">Current Balance</TableHead>
+            <TableRow className="bg-primary/5 hover:bg-primary/5 border-none">
+              <TableHead className="py-4 px-4 font-black text-primary uppercase text-[10px] tracking-widest">User</TableHead>
+              <TableHead className="py-4 px-4 text-right font-black text-primary uppercase text-[10px] tracking-widest">Total Paid</TableHead>
+              <TableHead className="py-4 px-4 text-right font-black text-primary uppercase text-[10px] tracking-widest">Total Shares</TableHead>
+              <TableHead className="py-4 px-4 text-right font-black text-primary uppercase text-[10px] tracking-widest">Current Balance</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {balances.map((balance) => (
-              <TableRow key={balance.id}>
-                <TableCell className="font-medium">{balance.name}</TableCell>
-                <TableCell className="text-right">
+              <TableRow key={balance.id} className="hover:bg-muted/40 transition-colors border-b border-border/30 last:border-none">
+                <TableCell className="py-5 px-4 font-bold text-sm tracking-tight">{balance.name}</TableCell>
+                <TableCell className="py-5 px-4 text-right tabular-nums text-sm font-medium">
                   ₹{balance.totalPaid.toLocaleString()}
                 </TableCell>
-                <TableCell className="text-right">
+                <TableCell className="py-5 px-4 text-right tabular-nums text-sm font-medium">
                   ₹{balance.totalShares.toLocaleString()}
                 </TableCell>
                 <TableCell
                   className={cn(
-                    "text-right font-semibold",
+                    "py-5 px-4 text-right tabular-nums text-sm font-black",
                     balance.balance > 0
                       ? "text-emerald-500"
                       : balance.balance < 0

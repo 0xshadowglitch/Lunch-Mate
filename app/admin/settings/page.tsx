@@ -323,7 +323,7 @@ export default function TeamSettingsPage() {
                     {generatedLink}
                   </p>
                   <p className="text-xs text-muted-foreground mt-3 flex items-center gap-2 font-medium">
-                    <Clock className="h-4 w-4" /> Expires in 24 hours · Single-use
+                    <Clock className="h-4 w-4" /> Expires in 24 hours · Multi-use
                   </p>
                 </div>
                 <Button

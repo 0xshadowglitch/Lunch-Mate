@@ -278,6 +278,8 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
           <LogOut className="h-4 w-4" />
           Logout
         </button>
+      </div>
+
       <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
         <AlertDialogContent className="max-w-[340px] rounded-3xl border-border/40 backdrop-blur-2xl">
           <AlertDialogHeader>

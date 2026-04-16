@@ -31,11 +31,12 @@ export async function signup(formData: FormData) {
     password: formData.get("password") as string,
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-  const { error } = await supabase.auth.signUp({
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || "http://localhost:3000"
+  
+  const { error, data: signupData } = await supabase.auth.signUp({
     ...data,
     options: {
-      emailRedirectTo: `${baseUrl.endsWith("/") ? baseUrl : baseUrl + "/"}auth/callback`,
+      emailRedirectTo: `${baseUrl}/auth/callback`,
     },
   })
 
@@ -43,9 +44,14 @@ export async function signup(formData: FormData) {
     return { error: error.message }
   }
 
-  const redirectTo = formData.get("redirectTo") as string | null
-  revalidatePath("/", "layout")
-  redirect(redirectTo || "/admin")
+  // If email confirmation is enabled, we should not redirect to a protected page immediately
+  // as the user is not yet logged in. The frontend will handle showing the success state.
+  if (signupData.user && signupData.user.identities && signupData.user.identities.length === 0) {
+    // Identity already exists, user might be trying to sign up again
+    return { error: "An account with this email already exists." }
+  }
+
+  return { success: true }
 }
 
 export async function signOut() {

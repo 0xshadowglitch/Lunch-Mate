@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import Image from "next/image"
-import { Lock, Mail, Loader2, AlertCircle, CheckCircle2 } from "lucide-react"
+import { Lock, Mail, Loader2, AlertCircle, CheckCircle2, Eye, EyeOff } from "lucide-react"
 
 export default function LoginPage() {
   return (
@@ -22,6 +22,7 @@ export default function LoginPage() {
 function LoginForm() {
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+  const [showPassword, setShowPassword] = useState(false)
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get("redirect") || "/admin"
   const message = searchParams.get("message")
@@ -114,11 +115,22 @@ function LoginForm() {
                 <Input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
-                  className="pl-12 h-14 bg-background/40 border-border/40 hover:border-primary/50 transition-colors rounded-xl"
+                  className="pl-12 pr-12 h-14 bg-background/40 border-border/40 hover:border-primary/50 transition-colors rounded-xl"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-primary transition-colors cursor-pointer"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
               </div>
             </div>
 

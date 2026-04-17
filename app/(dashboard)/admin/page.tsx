@@ -62,11 +62,12 @@ export default async function AdminOverviewPage() {
     )
   }
 
-  const [stats, balances, spendingTrend, contributionData] = await Promise.all([
+  const [stats, balances, spendingTrend, contributionData, user] = await Promise.all([
     getStats(),
     getUserBalances(),
     getSpendingTrend(),
     getContributionData(),
+    getCurrentUser(),
   ])
 
   return (
@@ -80,7 +81,7 @@ export default async function AdminOverviewPage() {
           totalEntries={stats.totalEntries}
           currency={org.currency}
         />
-        <UserBalanceTable balances={balances} currency={org.currency} />
+        <UserBalanceTable balances={balances} currency={org.currency} currentUserId={user?.id} />
         <div className="grid gap-8 lg:grid-cols-2">
           <SpendingTrendChart data={spendingTrend} currency={org.currency} />
           <ContributionChart data={contributionData} currency={org.currency} />

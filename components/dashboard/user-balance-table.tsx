@@ -12,12 +12,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import type { UserBalance } from "@/lib/actions"
 
+import { UserLabel } from "./user-label"
+
 interface UserBalanceTableProps {
   balances: UserBalance[]
   currency?: string
+  currentUserId?: string
 }
 
-export function UserBalanceTable({ balances, currency = "₹" }: UserBalanceTableProps) {
+export function UserBalanceTable({ balances, currency = "₹", currentUserId }: UserBalanceTableProps) {
   return (
     <Card className="bg-card/50 backdrop-blur-sm border-border/50">
       <CardHeader className="pt-8 px-8 pb-4">
@@ -36,7 +39,13 @@ export function UserBalanceTable({ balances, currency = "₹" }: UserBalanceTabl
           <TableBody>
             {balances.map((balance) => (
               <TableRow key={balance.id} className="hover:bg-muted/40 transition-colors border-b border-border/30 last:border-none">
-                <TableCell className="py-5 px-4 font-bold text-sm tracking-tight">{balance.name}</TableCell>
+                <TableCell className="py-5 px-4 font-bold text-sm tracking-tight max-w-[150px]">
+                  <UserLabel 
+                    name={balance.name} 
+                    isMe={balance.linked_user_id === currentUserId} 
+                    className="text-sm"
+                  />
+                </TableCell>
                 <TableCell className="py-5 px-4 text-right tabular-nums text-sm font-medium">
                   {currency}{balance.totalPaid.toLocaleString()}
                 </TableCell>

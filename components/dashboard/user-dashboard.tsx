@@ -35,6 +35,7 @@ import { formatDate } from "@/lib/date-utils"
 import { WeeklySummary } from "./weekly-summary"
 import { MonthlySummary } from "./monthly-summary"
 import { LayoutDashboard, CalendarDays, CalendarRange } from "lucide-react"
+import { UserLabel } from "./user-label"
 
 interface UserDashboardProps {
   users: LunchUser[]
@@ -45,6 +46,7 @@ interface UserDashboardProps {
   selectedUserId: string
   onUserChange: (userId: string) => void
   currency?: string
+  currentUserId?: string
 }
 
 const COLORS = [
@@ -64,6 +66,7 @@ export function UserDashboard({
   selectedUserId,
   onUserChange,
   currency = "₹",
+  currentUserId,
 }: UserDashboardProps) {
   const selectedBalance = balances.find((b) => b.id === selectedUserId)
   
@@ -128,7 +131,12 @@ export function UserDashboard({
                 <SelectContent>
                   {users.map((user) => (
                     <SelectItem key={user.id} value={user.id}>
-                      {user.name}
+                      <UserLabel 
+                        name={user.name} 
+                        isMe={user.linked_user_id === currentUserId} 
+                        marquee={false} 
+                        className="text-xs"
+                      />
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -356,6 +364,7 @@ export function UserDashboard({
             users={weeklyData.users} 
             overallBalances={weeklyData.overallBalances} 
             currency={currency}
+            currentUserId={currentUserId}
           />
         </TabsContent>
 
@@ -364,6 +373,7 @@ export function UserDashboard({
             months={monthlyData.months} 
             users={monthlyData.users} 
             currency={currency}
+            currentUserId={currentUserId}
           />
         </TabsContent>
       </Tabs>

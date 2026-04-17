@@ -48,18 +48,23 @@ type OverallBalance = {
   balance: number
 }
 
+import { UserLabel } from "./user-label"
+import type { LunchUser } from "@/lib/actions"
+
 interface WeeklySummaryProps {
   weeks: WeekData[]
-  users: { id: string; name: string }[]
+  users: LunchUser[]
   overallBalances: OverallBalance[]
   currency?: string
+  currentUserId?: string
 }
 
 export function WeeklySummary({ 
   weeks, 
   users, 
   overallBalances, 
-  currency = "₹" 
+  currency = "₹",
+  currentUserId
 }: WeeklySummaryProps) {
   const [expandedWeeks, setExpandedWeeks] = useState<Set<string>>(new Set())
 
@@ -126,22 +131,26 @@ export function WeeklySummary({
                   <TableHead className="text-right font-bold text-primary">
                     Total Expense
                   </TableHead>
-                  {users.map((user) => (
                     <TableHead
                       key={`${user.id}-paid`}
-                      className="text-right font-bold text-primary min-w-[100px]"
+                      className="text-right font-bold text-primary min-w-[100px] max-w-[120px]"
                     >
-                      {user.name} Paid
+                      <UserLabel 
+                        name={user.name} 
+                        isMe={user.linked_user_id === currentUserId} 
+                        className="text-[10px] text-right" 
+                      />
                     </TableHead>
-                  ))}
-                  {users.map((user) => (
                     <TableHead
                       key={`${user.id}-bal`}
-                      className="text-right font-bold text-primary min-w-[100px]"
+                      className="text-right font-bold text-primary min-w-[100px] max-w-[120px]"
                     >
-                      {user.name} Bal
+                      <UserLabel 
+                        name={user.name} 
+                        isMe={user.linked_user_id === currentUserId} 
+                        className="text-[10px] text-right" 
+                      />
                     </TableHead>
-                  ))}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -230,7 +239,13 @@ export function WeeklySummary({
                                       <TableHead className="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Date</TableHead>
                                       <TableHead className="py-3 px-4 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground">Amount</TableHead>
                                       {users.map(u => (
-                                        <TableHead key={u.id} className="py-3 px-4 text-center text-xs font-bold uppercase tracking-wider text-muted-foreground">{u.name}</TableHead>
+                                        <TableHead key={u.id} className="py-3 px-4 text-center text-xs font-bold uppercase tracking-wider text-muted-foreground min-w-[100px] max-w-[120px]">
+                                          <UserLabel 
+                                            name={u.name} 
+                                            isMe={u.linked_user_id === currentUserId} 
+                                            className="text-[10px]" 
+                                          />
+                                        </TableHead>
                                       ))}
                                     </TableRow>
                                   </TableHeader>

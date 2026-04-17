@@ -30,15 +30,17 @@ type EntryData = {
   userDetails: UserDetail[]
 }
 
+import { AddEntryDialog } from "./add-entry-dialog"
+import { UserLabel } from "./user-label"
+
 interface DailyLunchTrackerProps {
   entries: EntryData[]
-  users: { id: string; name: string }[]
+  users: { id: string; name: string; linked_user_id?: string | null }[]
   currency?: string
+  currentUserId?: string
 }
 
-import { AddEntryDialog } from "./add-entry-dialog"
-
-export function DailyLunchTracker({ entries, users, currency = "₹" }: DailyLunchTrackerProps) {
+export function DailyLunchTracker({ entries, users, currency = "₹", currentUserId }: DailyLunchTrackerProps) {
   return (
     <Card>
       <CardHeader className="pb-3 px-6">
@@ -49,7 +51,7 @@ export function DailyLunchTracker({ entries, users, currency = "₹" }: DailyLun
               {entries.length} entries
             </Badge>
           </CardTitle>
-          <AddEntryDialog users={users} currency={currency} />
+          <AddEntryDialog users={users} currency={currency} currentUserId={currentUserId} />
         </div>
       </CardHeader>
       <CardContent>
@@ -62,38 +64,46 @@ export function DailyLunchTracker({ entries, users, currency = "₹" }: DailyLun
                 <TableHead className="text-right font-semibold text-primary">
                   Total Expense
                 </TableHead>
-                {users.map((user) => (
                   <TableHead
                     key={`${user.id}-present`}
-                    className="text-center font-semibold text-primary"
+                    className="text-center font-semibold text-primary min-w-[100px] max-w-[120px]"
                   >
-                    {user.name} Present
+                    <UserLabel 
+                      name={user.name} 
+                      isMe={user.linked_user_id === currentUserId} 
+                      className="text-[10px]" 
+                    />
                   </TableHead>
-                ))}
-                {users.map((user) => (
                   <TableHead
                     key={`${user.id}-share`}
-                    className="text-right font-semibold text-primary"
+                    className="text-right font-semibold text-primary min-w-[100px] max-w-[120px]"
                   >
-                    {user.name} Share
+                    <UserLabel 
+                      name={user.name} 
+                      isMe={user.linked_user_id === currentUserId} 
+                      className="text-[10px] text-right" 
+                    />
                   </TableHead>
-                ))}
-                {users.map((user) => (
                   <TableHead
                     key={`${user.id}-paid`}
-                    className="text-right font-semibold text-primary"
+                    className="text-right font-semibold text-primary min-w-[100px] max-w-[120px]"
                   >
-                    {user.name} Paid
+                    <UserLabel 
+                      name={user.name} 
+                      isMe={user.linked_user_id === currentUserId} 
+                      className="text-[10px] text-right" 
+                    />
                   </TableHead>
-                ))}
-                {users.map((user) => (
                   <TableHead
                     key={`${user.id}-bal`}
-                    className="text-right font-semibold text-primary"
+                    className="text-right font-semibold text-primary min-w-[100px] max-w-[120px]"
                   >
-                    {user.name} Balance
+                    <UserLabel 
+                      name={user.name} 
+                      isMe={user.linked_user_id === currentUserId} 
+                      className="text-[10px] text-right" 
+                    />
                   </TableHead>
-                ))}
               </TableRow>
             </TableHeader>
             <TableBody>

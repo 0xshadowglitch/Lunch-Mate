@@ -42,13 +42,22 @@ type MonthData = {
   entries: EntryDetail[]
 }
 
+import { UserLabel } from "./user-label"
+import type { LunchUser } from "@/lib/actions"
+
 interface MonthlySummaryProps {
   months: MonthData[]
-  users: { id: string; name: string }[]
+  users: LunchUser[]
   currency?: string
+  currentUserId?: string
 }
 
-export function MonthlySummary({ months, users, currency = "₹" }: MonthlySummaryProps) {
+export function MonthlySummary({ 
+  months, 
+  users, 
+  currency = "₹",
+  currentUserId
+}: MonthlySummaryProps) {
   const [expandedMonths, setExpandedMonths] = useState<Set<string>>(new Set())
 
   const toggleMonth = (monthKey: string) => {
@@ -82,22 +91,26 @@ export function MonthlySummary({ months, users, currency = "₹" }: MonthlySumma
                 <TableHead className="text-right font-bold text-primary min-w-[120px]">
                   Total Expense
                 </TableHead>
-                {users.map((user) => (
-                  <TableHead
-                    key={`${user.id}-paid`}
-                    className="text-right font-bold text-primary min-w-[100px]"
-                  >
-                    {user.name} Paid
-                  </TableHead>
-                ))}
-                {users.map((user) => (
-                  <TableHead
-                    key={`${user.id}-bal`}
-                    className="text-right font-bold text-primary min-w-[100px]"
-                  >
-                    {user.name} Bal
-                  </TableHead>
-                ))}
+                    <TableHead
+                      key={`${user.id}-paid`}
+                      className="text-right font-bold text-primary min-w-[100px] max-w-[120px]"
+                    >
+                      <UserLabel 
+                        name={user.name} 
+                        isMe={user.linked_user_id === currentUserId} 
+                        className="text-[10px] text-right" 
+                      />
+                    </TableHead>
+                    <TableHead
+                      key={`${user.id}-bal`}
+                      className="text-right font-bold text-primary min-w-[100px] max-w-[120px]"
+                    >
+                      <UserLabel 
+                        name={user.name} 
+                        isMe={user.linked_user_id === currentUserId} 
+                        className="text-[10px] text-right" 
+                      />
+                    </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -185,9 +198,13 @@ export function MonthlySummary({ months, users, currency = "₹" }: MonthlySumma
                                   <TableRow className="bg-background/50 hover:bg-background/50 border-none">
                                     <TableHead className="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Date</TableHead>
                                     <TableHead className="py-3 px-4 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground">Amount</TableHead>
-                                    {users.map(u => (
-                                      <TableHead key={u.id} className="py-3 px-4 text-center text-xs font-bold uppercase tracking-wider text-muted-foreground">{u.name}</TableHead>
-                                    ))}
+                                      <TableHead key={u.id} className="py-3 px-4 text-center text-xs font-bold uppercase tracking-wider text-muted-foreground min-w-[100px] max-w-[120px]">
+                                        <UserLabel 
+                                          name={u.name} 
+                                          isMe={u.linked_user_id === currentUserId} 
+                                          className="text-[10px]" 
+                                        />
+                                      </TableHead>
                                   </TableRow>
                                 </TableHeader>
                                 <TableBody>

@@ -25,12 +25,15 @@ import { addEntry } from "@/lib/actions"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 
+import { UserLabel } from "./user-label"
+
 interface AddEntryDialogProps {
-  users: { id: string; name: string }[]
+  users: { id: string; name: string; linked_user_id?: string | null }[]
   currency?: string
+  currentUserId?: string
 }
 
-export function AddEntryDialog({ users, currency = "₹" }: AddEntryDialogProps) {
+export function AddEntryDialog({ users, currency = "₹", currentUserId }: AddEntryDialogProps) {
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   
@@ -148,7 +151,12 @@ export function AddEntryDialog({ users, currency = "₹" }: AddEntryDialogProps)
                 <SelectContent className="rounded-xl border-border/50 backdrop-blur-xl">
                   {users.map((user) => (
                     <SelectItem key={user.id} value={user.id} className="rounded-lg">
-                      {user.name}
+                      <UserLabel 
+                        name={user.name} 
+                        isMe={user.linked_user_id === currentUserId} 
+                        marquee={false} 
+                        className="text-xs"
+                      />
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -183,9 +191,13 @@ export function AddEntryDialog({ users, currency = "₹" }: AddEntryDialogProps)
                   />
                   <label
                     htmlFor={`user-${user.id}`}
-                    className="text-sm font-bold leading-none cursor-pointer select-none opacity-80"
+                    className="text-sm font-bold leading-none cursor-pointer select-none opacity-80 flex-1 min-w-0"
                   >
-                    {user.name}
+                    <UserLabel 
+                      name={user.name} 
+                      isMe={user.linked_user_id === currentUserId} 
+                      className="text-xs"
+                    />
                   </label>
                 </div>
               ))}

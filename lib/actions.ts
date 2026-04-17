@@ -4,6 +4,13 @@ import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { getAuthorizedOrgId } from "./org-actions"
 
+// Get current user profile
+export async function getCurrentUser() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  return user
+}
+
 export type LunchUser = {
   id: string
   name: string
@@ -39,6 +46,7 @@ export type LunchPayment = {
 export type UserBalance = {
   id: string
   name: string
+  linked_user_id: string | null
   totalPaid: number
   totalShares: number
   balance: number
@@ -254,6 +262,7 @@ export async function getUserBalances(): Promise<UserBalance[]> {
     return {
       id: user.id,
       name: user.name,
+      linked_user_id: user.linked_user_id,
       totalPaid,
       totalShares,
       balance: totalPaid - totalShares,

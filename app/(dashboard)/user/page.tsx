@@ -10,20 +10,22 @@ import {
   getUserBalances, 
   getEntriesWithDetails, 
   getWeeklySummary, 
-  getMonthlySummary 
+  getMonthlySummary,
+  getCurrentUser
 } from "@/lib/actions"
 import { getUserOrg } from "@/lib/org-actions"
 
 async function fetchData() {
-  const [users, balances, entries, weeklyData, monthlyData, org] = await Promise.all([
+  const [users, balances, entries, weeklyData, monthlyData, org, user] = await Promise.all([
     getUsers(),
     getUserBalances(),
     getEntriesWithDetails(),
     getWeeklySummary(),
     getMonthlySummary(),
     getUserOrg(),
+    getCurrentUser(),
   ])
-  return { users, balances, entries, weeklyData, monthlyData, org }
+  return { users, balances, entries, weeklyData, monthlyData, org, user }
 }
 
 export default function UserPage() {
@@ -63,6 +65,7 @@ export default function UserPage() {
           selectedUserId={selectedUserId}
           onUserChange={setSelectedUserId}
           currency={data.org?.currency || "₹"}
+          currentUserId={data.user?.id}
         />
       </div>
     </div>

@@ -14,9 +14,10 @@ import {
 
 interface ContributionChartProps {
   data: { name: string; paid: number; shares: number }[]
+  currency?: string
 }
 
-export function ContributionChart({ data }: ContributionChartProps) {
+export function ContributionChart({ data, currency = "₹" }: ContributionChartProps) {
   return (
     <Card className="bg-card/50 backdrop-blur-sm border-border/50">
       <CardHeader className="pt-8 px-8 pb-4">
@@ -48,7 +49,7 @@ export function ContributionChart({ data }: ContributionChartProps) {
                 tick={{ fontSize: 12, fill: "var(--color-muted-foreground)", fontWeight: 500 }}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(value) => `₹${value}`}
+                tickFormatter={(value) => `${currency}${value}`}
                 dx={-10}
               />
               <Tooltip
@@ -61,6 +62,7 @@ export function ContributionChart({ data }: ContributionChartProps) {
                   padding: "12px",
                 }}
                 labelStyle={{ color: "rgba(255,255,255,0.7)", fontWeight: "bold", marginBottom: "4px", fontSize: "12px", textTransform: "uppercase" }}
+                formatter={(value: number) => [`${currency}${value}`, ""]}
                 cursor={{ fill: "rgba(255, 255, 255, 0.05)", radius: 10 }}
               />
               <Legend

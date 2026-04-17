@@ -14,9 +14,10 @@ import type { UserBalance } from "@/lib/actions"
 
 interface UserBalanceTableProps {
   balances: UserBalance[]
+  currency?: string
 }
 
-export function UserBalanceTable({ balances }: UserBalanceTableProps) {
+export function UserBalanceTable({ balances, currency = "₹" }: UserBalanceTableProps) {
   return (
     <Card className="bg-card/50 backdrop-blur-sm border-border/50">
       <CardHeader className="pt-8 px-8 pb-4">
@@ -37,10 +38,10 @@ export function UserBalanceTable({ balances }: UserBalanceTableProps) {
               <TableRow key={balance.id} className="hover:bg-muted/40 transition-colors border-b border-border/30 last:border-none">
                 <TableCell className="py-5 px-4 font-bold text-sm tracking-tight">{balance.name}</TableCell>
                 <TableCell className="py-5 px-4 text-right tabular-nums text-sm font-medium">
-                  ₹{balance.totalPaid.toLocaleString()}
+                  {currency}{balance.totalPaid.toLocaleString()}
                 </TableCell>
                 <TableCell className="py-5 px-4 text-right tabular-nums text-sm font-medium">
-                  ₹{balance.totalShares.toLocaleString()}
+                  {currency}{balance.totalShares.toLocaleString()}
                 </TableCell>
                 <TableCell
                   className={cn(
@@ -52,7 +53,7 @@ export function UserBalanceTable({ balances }: UserBalanceTableProps) {
                       : "text-muted-foreground"
                   )}
                 >
-                  {balance.balance >= 0 ? "+" : ""}₹
+                  {balance.balance >= 0 ? "+" : ""}{currency}
                   {balance.balance.toLocaleString()}
                 </TableCell>
               </TableRow>

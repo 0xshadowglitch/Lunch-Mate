@@ -13,9 +13,10 @@ import {
 
 interface SpendingTrendChartProps {
   data: { date: string; expense: number }[]
+  currency?: string
 }
 
-export function SpendingTrendChart({ data }: SpendingTrendChartProps) {
+export function SpendingTrendChart({ data, currency = "₹" }: SpendingTrendChartProps) {
   const formattedData = data.map((item) => ({
     ...item,
     date: new Date(item.date).toLocaleDateString("en-US", {
@@ -51,7 +52,7 @@ export function SpendingTrendChart({ data }: SpendingTrendChartProps) {
                 tick={{ fontSize: 12, fill: "var(--color-muted-foreground)", fontWeight: 500 }}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(value) => `₹${value}`}
+                tickFormatter={(value) => `${currency}${value}`}
                 dx={-10}
               />
               <Tooltip
@@ -65,7 +66,7 @@ export function SpendingTrendChart({ data }: SpendingTrendChartProps) {
                 }}
                 itemStyle={{ color: "var(--primary)", fontWeight: "bold", fontSize: "14px" }}
                 labelStyle={{ color: "rgba(255,255,255,0.7)", marginBottom: "4px", fontSize: "12px", fontWeight: "bold", textTransform: "uppercase" }}
-                formatter={(value: number) => [`₹${value}`, "Amount Spent"]}
+                formatter={(value: number) => [`${currency}${value}`, "Amount Spent"]}
                 cursor={{ stroke: "rgba(16, 185, 129, 0.2)", strokeWidth: 2 }}
               />
               <Line

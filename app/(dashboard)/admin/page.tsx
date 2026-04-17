@@ -80,10 +80,10 @@ export default async function AdminOverviewPage() {
           totalEntries={stats.totalEntries}
           currency={org.currency}
         />
-        <UserBalanceTable balances={balances} />
+        <UserBalanceTable balances={balances} currency={org.currency} />
         <div className="grid gap-8 lg:grid-cols-2">
-          <SpendingTrendChart data={spendingTrend} />
-          <ContributionChart data={contributionData} />
+          <SpendingTrendChart data={spendingTrend} currency={org.currency} />
+          <ContributionChart data={contributionData} currency={org.currency} />
         </div>
       </div>
     </div>

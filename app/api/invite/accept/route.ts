@@ -95,6 +95,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: memberError.message }, { status: 500 })
     }
 
+    // NEW: Automatically add them to lunch_users so they show up in tracker lists
+    // We try to get their name from metadata, fallback to email prefix
+    const displayName = user.user_metadata?.full_name || user.email?.split("@")[0] || "New Member";
+    
+    await supabase.from("lunch_users").insert({
+      name: displayName,
+      org_id: invite.org_id,
+      linked_user_id: user.id
+    })
+
     // 9. Mark invite as USED ONLY IF it was restricted to a specific email
     // Public links (no email) are now MULTI-USE by default
     if (invite.email) {

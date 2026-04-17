@@ -173,55 +173,58 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
           <DropdownMenuContent className="w-64 bg-card/95 backdrop-blur-xl border-border shadow-2xl !opacity-100 ring-1 ring-white/5" align="start" sideOffset={8}>
             <div className="p-2 pb-0">
               <DropdownMenuLabel className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60 font-black px-2 py-1.5 flex items-center justify-between">
-                My Teams
+                Switch Organization
                 <Badge variant="outline" className="text-[9px] border-primary/20 text-primary/80 h-4 px-1.5">{allOrgs.length}</Badge>
               </DropdownMenuLabel>
             </div>
             <DropdownMenuSeparator className="bg-border/50 mx-2" />
-            {allOrgs.map((o) => (
-              <DropdownMenuItem
-                key={o.id}
-                onClick={() => handleSwitchTeam(o.id)}
-                className="flex items-center gap-3 cursor-pointer py-3 px-3 group/item overflow-hidden"
-              >
-                <button
-                  onClick={(e) => handleDeleteTeam(e, o.id)}
-                  className="shrink-0 p-1.5 hover:bg-destructive/20 hover:text-destructive rounded-lg transition-all text-muted-foreground/40 group-hover/item:text-destructive/60"
+            <div className="max-h-[300px] overflow-y-auto">
+              {allOrgs.map((o) => (
+                <DropdownMenuItem
+                  key={o.id}
+                  onClick={() => handleSwitchTeam(o.id)}
+                  className="flex items-center gap-3 cursor-pointer py-3 px-3 group/item overflow-hidden"
                 >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-
-                <div className="flex items-center gap-2 flex-1 min-w-0 overflow-hidden">
-                  {o.id === org?.id ? (
-                    <div className="h-2 w-2 rounded-full bg-primary animate-pulse shrink-0" />
-                  ) : (
-                    <div className="h-2 w-2 rounded-full bg-muted-foreground/20 shrink-0" />
-                  )}
-                  <div className="flex flex-col flex-1 min-w-0 overflow-hidden relative">
-                    <div className="overflow-hidden whitespace-nowrap">
-                      <span className={cn(
-                        "inline-block font-black text-xs uppercase tracking-wider transition-all",
-                        o.id === org?.id ? "text-primary" : "text-foreground/90",
-                        o.name.length > 20 && "animate-marquee-slow hover:pause"
-                      )}>
-                        {o.name}
-                        {o.name.length > 20 && <span className="ml-8">{o.name}</span>}
-                      </span>
+                  <div className="flex items-center gap-2 flex-1 min-w-0 overflow-hidden">
+                    {o.id === org?.id ? (
+                      <div className="h-2 w-2 rounded-full bg-primary animate-pulse shrink-0" />
+                    ) : (
+                      <div className="h-2 w-2 rounded-full bg-muted-foreground/20 shrink-0" />
+                    )}
+                    <div className="flex flex-col flex-1 min-w-0 overflow-hidden relative">
+                      <div className="overflow-hidden whitespace-nowrap">
+                        <span className={cn(
+                          "inline-block font-black text-xs uppercase tracking-wider transition-all",
+                          o.id === org?.id ? "text-primary" : "text-foreground/90",
+                          o.name.length > 20 && "animate-marquee-slow hover:pause"
+                        )}>
+                          {o.name}
+                          {o.name.length > 20 && <span className="ml-8">{o.name}</span>}
+                        </span>
+                      </div>
+                      <span className="text-[8px] text-muted-foreground/60 uppercase font-black tracking-[0.1em]">{o.role === 'admin' ? "👑 Manager" : "👤 Member"}</span>
                     </div>
-                    <span className="text-[8px] text-muted-foreground/60 uppercase font-black tracking-[0.1em]">{o.role}</span>
                   </div>
-                </div>
-                
-                <div className="shrink-0 ml-auto">
-                  {o.id === org?.id && <Check className="h-4 w-4 text-primary" />}
-                </div>
-              </DropdownMenuItem>
-            ))}
+                  
+                  <div className="shrink-0 ml-auto flex items-center gap-2">
+                    {o.id === org?.id && <Check className="h-4 w-4 text-primary" />}
+                    {o.role === 'admin' && (
+                      <button
+                        onClick={(e) => handleDeleteTeam(e, o.id)}
+                        className="shrink-0 p-1.5 hover:bg-destructive/20 hover:text-destructive rounded-lg transition-all text-muted-foreground/40"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </div>
+                </DropdownMenuItem>
+              ))}
+            </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <Link href="/onboarding" className="flex items-center gap-2 text-primary focus:text-primary cursor-pointer py-2.5">
                 <PlusCircle className="h-4 w-4" />
-                <span className="font-bold text-xs uppercase tracking-tight">Create New Team</span>
+                <span className="font-bold text-xs uppercase tracking-tight">Create New Organization</span>
               </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -254,30 +257,30 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
 
       {/* Persistent Management Section */}
       <div className="border-t border-border/50 p-4 space-y-1">
-        <h3 className="px-3 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-2">Management</h3>
+        <h3 className="px-3 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-2">Navigator</h3>
         <Link
           href="/teams"
           className={cn(
-            "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+            "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-black uppercase tracking-wider transition-all",
             pathname === "/teams"
               ? "bg-primary text-primary-foreground"
               : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
           )}
         >
-          <Users className="h-4 w-4" />
-          Joined Teams
+          <Building2 className="h-4 w-4" />
+          My Organizations
         </Link>
         <Link
           href="/invite"
           className={cn(
-            "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+            "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-black uppercase tracking-wider transition-all",
             pathname === "/invite"
               ? "bg-primary text-primary-foreground"
               : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
           )}
         >
           <Mail className="h-4 w-4" />
-          Invitations
+          Join / Invites
         </Link>
         <Link
           href="/onboarding"
@@ -311,10 +314,10 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
       <div className="border-t border-sidebar-border p-4 space-y-2">
         <Link
           href={isAdmin ? "/user" : "/admin"}
-          className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+          className="flex items-center gap-3 rounded-xl px-3 py-3 text-xs font-black uppercase tracking-widest bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20 transition-all shadow-[0_0_15px_rgba(16,185,129,0.1)] group"
         >
-          {isAdmin ? <User className="h-4 w-4" /> : <LayoutDashboard className="h-4 w-4" />}
-          {isAdmin ? "Switch to User View" : "Switch to Admin View"}
+          {isAdmin ? <User className="h-4 w-4 group-hover:scale-110 transition-transform" /> : <ShieldCheck className="h-4 w-4 group-hover:scale-110 transition-transform" />}
+          {isAdmin ? "👤 Personal Dashboard" : "👑 Admin Panel"}
         </Link>
         <button
           onClick={() => signOut()}

@@ -60,17 +60,48 @@ export async function getUsers(): Promise<LunchUser[]> {
   const { orgId } = auth
   const supabase = await createClient()
   
-  const { data, error } = await supabase
+  // 1. Get current tracker users
+  const { data: trackerUsers, error: fetchError } = await supabase
     .from("lunch_users")
     .select("*")
     .eq("org_id", orgId)
     .order("name")
 
-  if (error) {
-    console.error("Error fetching users:", error)
-    return []
+  if (fetchError) return []
+
+  // 2. Get all org members to see if anyone is missing
+  const { data: members } = await supabase
+    .from("organization_members")
+    .select("user_id, role")
+    .eq("org_id", orgId)
+
+  const trackedUserIds = new Set(trackerUsers?.map(u => u.linked_user_id))
+  const missingMembers = members?.filter(m => !trackedUserIds.has(m.user_id)) || []
+
+  // 3. Auto-sync missing members if found
+  if (missingMembers.length > 0) {
+    for (const member of missingMembers) {
+      // Get profile info for name
+      const { data: user } = await supabase.auth.admin.getUserById(member.user_id).catch(() => ({ data: { user: null } })) as any;
+      const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Team Member";
+      
+      await supabase.from("lunch_users").insert({
+        name: displayName,
+        org_id: orgId,
+        linked_user_id: member.user_id
+      })
+    }
+    
+    // Re-fetch to get complete list
+    const { data: updated } = await supabase
+      .from("lunch_users")
+      .select("*")
+      .eq("org_id", orgId)
+      .order("name")
+    return updated || []
   }
-  return data || []
+
+  return trackerUsers || []
 }
 
 // Add a member of this org to lunch tracking (they must have an account)

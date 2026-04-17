@@ -22,6 +22,7 @@ import {
   AlertTriangle,
   Mail,
   Building2,
+  ShieldCheck,
 } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { getUserOrg, getUserOrgs, setActiveOrg, deleteOrganization } from "@/lib/org-actions"

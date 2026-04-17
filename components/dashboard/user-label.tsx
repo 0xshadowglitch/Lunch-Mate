@@ -9,21 +9,24 @@ interface UserLabelProps {
   className?: string
   marquee?: boolean
   isMe?: boolean
+  suffix?: string
 }
 
-export function UserLabel({ name, userId, currentUserId, className, marquee = true, isMe }: UserLabelProps) {
+export function UserLabel({ name, userId, currentUserId, className, marquee = true, isMe, suffix }: UserLabelProps) {
   const isCurrentlyMe = isMe || (userId && currentUserId && userId === currentUserId)
-  const displayName = isCurrentlyMe ? `${name} (Me)` : name
+  const baseLabel = isCurrentlyMe ? `${name} (Me)` : name
+  const fullLabel = suffix ? `${baseLabel} ${suffix}` : baseLabel
+  const shouldMarquee = marquee && fullLabel.length > 12
 
   return (
     <div className={cn("overflow-hidden whitespace-nowrap max-w-full", className)}>
       <span className={cn(
         "inline-block font-bold uppercase tracking-tight transition-all",
         isCurrentlyMe && "text-primary",
-        marquee && name.length > 12 && "animate-marquee-slow hover:pause"
+        shouldMarquee && "animate-marquee-slow hover:pause"
       )}>
-        {displayName}
-        {marquee && name.length > 12 && <span className="ml-8">{displayName}</span>}
+        {fullLabel}
+        {shouldMarquee && <span className="ml-8">{fullLabel}</span>}
       </span>
     </div>
   )

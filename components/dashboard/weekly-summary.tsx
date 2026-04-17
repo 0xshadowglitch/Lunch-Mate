@@ -139,6 +139,7 @@ export function WeeklySummary({
                       <UserLabel 
                         name={user.name} 
                         isMe={user.linked_user_id === currentUserId} 
+                        suffix="Paid"
                         className="text-[10px] text-right" 
                       />
                     </TableHead>
@@ -151,6 +152,7 @@ export function WeeklySummary({
                       <UserLabel 
                         name={user.name} 
                         isMe={user.linked_user_id === currentUserId} 
+                        suffix="Bal"
                         className="text-[10px] text-right" 
                       />
                     </TableHead>

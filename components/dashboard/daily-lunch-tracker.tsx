@@ -72,6 +72,7 @@ export function DailyLunchTracker({ entries, users, currency = "₹", currentUse
                     <UserLabel 
                       name={user.name} 
                       isMe={user.linked_user_id === currentUserId} 
+                      suffix="Atten"
                       className="text-[10px]" 
                     />
                   </TableHead>
@@ -84,6 +85,7 @@ export function DailyLunchTracker({ entries, users, currency = "₹", currentUse
                     <UserLabel 
                       name={user.name} 
                       isMe={user.linked_user_id === currentUserId} 
+                      suffix="Share"
                       className="text-[10px] text-right" 
                     />
                   </TableHead>
@@ -96,6 +98,7 @@ export function DailyLunchTracker({ entries, users, currency = "₹", currentUse
                     <UserLabel 
                       name={user.name} 
                       isMe={user.linked_user_id === currentUserId} 
+                      suffix="Paid"
                       className="text-[10px] text-right" 
                     />
                   </TableHead>
@@ -108,6 +111,7 @@ export function DailyLunchTracker({ entries, users, currency = "₹", currentUse
                     <UserLabel 
                       name={user.name} 
                       isMe={user.linked_user_id === currentUserId} 
+                      suffix="Bal"
                       className="text-[10px] text-right" 
                     />
                   </TableHead>

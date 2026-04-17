@@ -64,6 +64,7 @@ export function DailyLunchTracker({ entries, users, currency = "₹", currentUse
                 <TableHead className="text-right font-semibold text-primary">
                   Total Expense
                 </TableHead>
+                {users.map((user) => (
                   <TableHead
                     key={`${user.id}-present`}
                     className="text-center font-semibold text-primary min-w-[100px] max-w-[120px]"
@@ -74,6 +75,8 @@ export function DailyLunchTracker({ entries, users, currency = "₹", currentUse
                       className="text-[10px]" 
                     />
                   </TableHead>
+                ))}
+                {users.map((user) => (
                   <TableHead
                     key={`${user.id}-share`}
                     className="text-right font-semibold text-primary min-w-[100px] max-w-[120px]"
@@ -84,6 +87,8 @@ export function DailyLunchTracker({ entries, users, currency = "₹", currentUse
                       className="text-[10px] text-right" 
                     />
                   </TableHead>
+                ))}
+                {users.map((user) => (
                   <TableHead
                     key={`${user.id}-paid`}
                     className="text-right font-semibold text-primary min-w-[100px] max-w-[120px]"
@@ -94,6 +99,8 @@ export function DailyLunchTracker({ entries, users, currency = "₹", currentUse
                       className="text-[10px] text-right" 
                     />
                   </TableHead>
+                ))}
+                {users.map((user) => (
                   <TableHead
                     key={`${user.id}-bal`}
                     className="text-right font-semibold text-primary min-w-[100px] max-w-[120px]"
@@ -104,6 +111,7 @@ export function DailyLunchTracker({ entries, users, currency = "₹", currentUse
                       className="text-[10px] text-right" 
                     />
                   </TableHead>
+                ))}
               </TableRow>
             </TableHeader>
             <TableBody>

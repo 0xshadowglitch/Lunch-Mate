@@ -35,6 +35,7 @@ import { Badge } from "@/components/ui/badge"
 import { Trash2, UserPlus, Loader2, Mail, ShieldCheck, User } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { addUser, deleteUser, type LunchUser, type UserBalance } from "@/lib/actions"
+import { UserLabel } from "./user-label"
 import { createClient } from "@/lib/supabase/client"
 import { getUserOrg } from "@/lib/org-actions"
 
@@ -48,9 +49,10 @@ interface MemberProfile {
 interface UserManagementProps {
   users: LunchUser[]
   balances: UserBalance[]
+  currentUserId?: string
 }
 
-export function UserManagement({ users, balances }: UserManagementProps) {
+export function UserManagement({ users, balances, currentUserId }: UserManagementProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [availableMembers, setAvailableMembers] = useState<MemberProfile[]>([])
@@ -239,7 +241,11 @@ export function UserManagement({ users, balances }: UserManagementProps) {
                           {user.name.charAt(0).toUpperCase()}
                         </span>
                       </div>
-                      {user.name}
+                      <UserLabel 
+                        name={user.name} 
+                        isMe={user.linked_user_id === currentUserId} 
+                        className="text-sm"
+                      />
                     </div>
                   </TableCell>
                   <TableCell className="text-right">{balance?.daysPresent || 0}</TableCell>

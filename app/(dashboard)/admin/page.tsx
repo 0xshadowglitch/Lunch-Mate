@@ -8,6 +8,7 @@ import {
   getUserBalances,
   getSpendingTrend,
   getContributionData,
+  getCurrentUser,
 } from "@/lib/actions"
 import { getUserOrg } from "@/lib/org-actions"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"

@@ -86,28 +86,31 @@ export async function getUsers(): Promise<LunchUser[]> {
   const trackedUserIds = new Set(trackerUsers?.map(u => u.linked_user_id))
   const missingMembers = members?.filter(m => !trackedUserIds.has(m.user_id)) || []
 
-  // 3. Auto-sync missing members if found
-  if (missingMembers.length > 0) {
-    for (const member of missingMembers) {
-      // Get profile info for name
-      const { data: user } = await supabase.auth.admin.getUserById(member.user_id).catch(() => ({ data: { user: null } })) as any;
-      const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Team Member";
+    // 3. Auto-sync missing members if found
+    if (missingMembers.length > 0) {
+      const { createAdminClient } = await import("@/lib/supabase/admin")
+      const adminSupabase = createAdminClient()
       
-      await supabase.from("lunch_users").insert({
-        name: displayName,
-        org_id: orgId,
-        linked_user_id: member.user_id
-      })
+      for (const member of missingMembers) {
+        // Get profile info for name
+        const { data: { user } } = await adminSupabase.auth.admin.getUserById(member.user_id)
+        const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Team Member";
+        
+        await supabase.from("lunch_users").insert({
+          name: displayName,
+          org_id: orgId,
+          linked_user_id: member.user_id
+        })
+      }
+      
+      // Re-fetch to get complete list
+      const { data: updated } = await supabase
+        .from("lunch_users")
+        .select("*")
+        .eq("org_id", orgId)
+        .order("name")
+      return updated || []
     }
-    
-    // Re-fetch to get complete list
-    const { data: updated } = await supabase
-      .from("lunch_users")
-      .select("*")
-      .eq("org_id", orgId)
-      .order("name")
-    return updated || []
-  }
 
   return trackerUsers || []
 }

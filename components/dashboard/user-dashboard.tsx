@@ -65,7 +65,7 @@ export function UserDashboard({
   monthlyData,
   selectedUserId,
   onUserChange,
-  currency = "₹",
+  currency = "PKR",
   currentUserId,
 }: UserDashboardProps) {
   const selectedBalance = balances.find((b) => b.id === selectedUserId)
@@ -134,7 +134,6 @@ export function UserDashboard({
                       <UserLabel 
                         name={user.name} 
                         isMe={user.linked_user_id === currentUserId} 
-                        marquee={false} 
                         className="text-xs"
                       />
                     </SelectItem>
@@ -164,8 +163,7 @@ export function UserDashboard({
                       : "text-card-foreground"
                   )}
                 >
-                  {(selectedBalance?.balance || 0) >= 0 ? "+" : ""}{currency}
-                  {(selectedBalance?.balance || 0).toLocaleString()}
+                  {(selectedBalance?.balance || 0) >= 0 ? "+" : ""}{currency} {(selectedBalance?.balance || 0).toLocaleString()}
                 </div>
               </CardContent>
             </Card>
@@ -177,7 +175,7 @@ export function UserDashboard({
               </CardHeader>
               <CardContent className="px-6 pb-8">
                 <div className="text-3xl font-black tabular-nums text-card-foreground">
-                  {currency}{(selectedBalance?.totalPaid || 0).toLocaleString()}
+                  {currency} {(selectedBalance?.totalPaid || 0).toLocaleString()}
                 </div>
               </CardContent>
             </Card>
@@ -189,7 +187,7 @@ export function UserDashboard({
               </CardHeader>
               <CardContent className="px-6 pb-8">
                 <div className="text-3xl font-black tabular-nums text-card-foreground">
-                  {currency}{(selectedBalance?.totalShares || 0).toLocaleString()}
+                  {currency} {(selectedBalance?.totalShares || 0).toLocaleString()}
                 </div>
               </CardContent>
             </Card>
@@ -221,7 +219,7 @@ export function UserDashboard({
                       <XAxis
                         type="number"
                         tick={{ fontSize: 10, fill: "var(--color-muted-foreground)" }}
-                        tickFormatter={(v) => `${currency}${v}`}
+                        tickFormatter={(v) => `${currency} ${v}`}
                         stroke="var(--color-border)"
                       />
                       <YAxis
@@ -241,7 +239,7 @@ export function UserDashboard({
                         }}
                         itemStyle={{ fontWeight: "700", fontSize: "12px", color: "var(--color-chart-1)" }}
                         labelStyle={{ color: "var(--color-foreground)", marginBottom: "4px", fontSize: "14px", fontWeight: "900" }}
-                        formatter={(value: number) => [`${currency}${value}`, "Balance"]}
+                        formatter={(value: number) => [`${currency} ${value}`, "Balance"]}
                         cursor={{ fill: 'var(--color-primary)', opacity: 0.05 }}
                       />
                       <Bar
@@ -292,7 +290,7 @@ export function UserDashboard({
                         }}
                         itemStyle={{ fontWeight: "700", fontSize: "12px" }}
                         labelStyle={{ color: "var(--color-foreground)", marginBottom: "4px", fontSize: "14px", fontWeight: "900" }}
-                        formatter={(value: number) => [`${currency}${value}`, "Total Shares"]}
+                        formatter={(value: number) => [`${currency} ${value}`, "Total Shares"]}
                       />
                       <Legend 
                         iconType="circle" 
@@ -327,10 +325,10 @@ export function UserDashboard({
                         {formatDate(activity.date)}
                       </TableCell>
                       <TableCell className="py-4 px-6 text-right tabular-nums text-sm font-medium">
-                        {currency}{activity.totalExpense.toLocaleString()}
+                        {currency} {activity.totalExpense.toLocaleString()}
                       </TableCell>
                       <TableCell className="py-4 px-6 text-right tabular-nums text-sm font-medium">
-                        {currency}{activity.share.toLocaleString()}
+                        {currency} {activity.share.toLocaleString()}
                       </TableCell>
                       <TableCell
                         className={cn(
@@ -338,7 +336,7 @@ export function UserDashboard({
                           activity.paid > 0 ? "text-emerald-500" : "text-muted-foreground"
                         )}
                       >
-                        {currency}{activity.paid.toLocaleString()}
+                        {currency} {activity.paid.toLocaleString()}
                       </TableCell>
                     </TableRow>
                   ))}

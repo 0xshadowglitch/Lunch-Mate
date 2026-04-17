@@ -19,14 +19,13 @@ export function UserLabel({ name, userId, currentUserId, className, marquee = tr
   const shouldMarquee = marquee && fullLabel.length > 12
 
   return (
-    <div className={cn("overflow-hidden whitespace-nowrap max-w-full", className)}>
+    <div className={cn("overflow-hidden whitespace-nowrap max-w-[150px]", className)}>
       <span className={cn(
         "inline-block font-bold uppercase tracking-tight transition-all",
         isCurrentlyMe && "text-primary",
         shouldMarquee && "animate-marquee-slow hover:pause"
       )}>
         {fullLabel}
-        {shouldMarquee && <span className="ml-8">{fullLabel}</span>}
       </span>
     </div>
   )

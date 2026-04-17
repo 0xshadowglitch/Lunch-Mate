@@ -17,7 +17,7 @@ interface ContributionChartProps {
   currency?: string
 }
 
-export function ContributionChart({ data, currency = "₹" }: ContributionChartProps) {
+export function ContributionChart({ data, currency = "PKR" }: ContributionChartProps) {
   return (
     <Card className="bg-card/50 backdrop-blur-sm border-border/50">
       <CardHeader className="pt-8 px-8 pb-4">

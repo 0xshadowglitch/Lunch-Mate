@@ -40,7 +40,7 @@ interface DailyLunchTrackerProps {
   currentUserId?: string
 }
 
-export function DailyLunchTracker({ entries, users, currency = "₹", currentUserId }: DailyLunchTrackerProps) {
+export function DailyLunchTracker({ entries, users, currency = "PKR", currentUserId }: DailyLunchTrackerProps) {
   return (
     <Card>
       <CardHeader className="pb-3 px-6">

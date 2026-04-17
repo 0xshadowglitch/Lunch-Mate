@@ -16,7 +16,7 @@ interface SpendingTrendChartProps {
   currency?: string
 }
 
-export function SpendingTrendChart({ data, currency = "₹" }: SpendingTrendChartProps) {
+export function SpendingTrendChart({ data, currency = "PKR" }: SpendingTrendChartProps) {
   const formattedData = data.map((item) => ({
     ...item,
     date: new Date(item.date).toLocaleDateString("en-US", {

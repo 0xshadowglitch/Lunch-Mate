@@ -50,9 +50,10 @@ interface UserManagementProps {
   users: LunchUser[]
   balances: UserBalance[]
   currentUserId?: string
+  currency?: string
 }
 
-export function UserManagement({ users, balances, currentUserId }: UserManagementProps) {
+export function UserManagement({ users, balances, currentUserId, currency = "PKR" }: UserManagementProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [availableMembers, setAvailableMembers] = useState<MemberProfile[]>([])
@@ -259,8 +260,7 @@ export function UserManagement({ users, balances, currentUserId }: UserManagemen
                         : "text-muted-foreground"
                     )}
                   >
-                    {(balance?.balance || 0) >= 0 ? "+" : ""}₹
-                    {(balance?.balance || 0).toLocaleString()}
+                    {(balance?.balance || 0) >= 0 ? "+" : ""}{currency} {(balance?.balance || 0).toLocaleString()}
                   </TableCell>
                   <TableCell className="text-center">
                     <AlertDialog>
@@ -287,7 +287,7 @@ export function UserManagement({ users, balances, currentUserId }: UserManagemen
                             This will remove all their lunch records. Their account will still exist in the team.
                             {balance && balance.balance !== 0 && (
                               <span className="mt-2 block text-amber-600">
-                                Warning: This user has an outstanding balance of ₹
+                                Warning: This user has an outstanding balance of {currency} {" "}
                                 {balance.balance.toLocaleString()}
                               </span>
                             )}

@@ -24,9 +24,10 @@ interface AuditEntry {
 
 interface DataAuditTableProps {
   entries: AuditEntry[]
+  currency?: string
 }
 
-export function DataAuditTable({ entries }: DataAuditTableProps) {
+export function DataAuditTable({ entries, currency = "PKR" }: DataAuditTableProps) {
   return (
     <Card>
       <CardHeader>
@@ -63,10 +64,10 @@ export function DataAuditTable({ entries }: DataAuditTableProps) {
                       entry.totalExpense === 0 && "text-red-500"
                     )}
                   >
-                    ₹{entry.totalExpense.toLocaleString()}
+                    {currency} {entry.totalExpense.toLocaleString()}
                   </TableCell>
                   <TableCell className="text-right">
-                    ₹{entry.totalShares.toLocaleString()}
+                    {currency} {entry.totalShares.toLocaleString()}
                   </TableCell>
                   <TableCell
                     className={cn(
@@ -76,7 +77,7 @@ export function DataAuditTable({ entries }: DataAuditTableProps) {
                         "text-red-500"
                     )}
                   >
-                    ₹{entry.totalPayments.toLocaleString()}
+                    {currency} {entry.totalPayments.toLocaleString()}
                   </TableCell>
                   <TableCell>
                     {hasIssues ? (

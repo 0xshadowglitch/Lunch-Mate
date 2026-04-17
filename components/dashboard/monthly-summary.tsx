@@ -91,26 +91,30 @@ export function MonthlySummary({
                 <TableHead className="text-right font-bold text-primary min-w-[120px]">
                   Total Expense
                 </TableHead>
-                    <TableHead
-                      key={`${user.id}-paid`}
-                      className="text-right font-bold text-primary min-w-[100px] max-w-[120px]"
-                    >
-                      <UserLabel 
-                        name={user.name} 
-                        isMe={user.linked_user_id === currentUserId} 
-                        className="text-[10px] text-right" 
-                      />
-                    </TableHead>
-                    <TableHead
-                      key={`${user.id}-bal`}
-                      className="text-right font-bold text-primary min-w-[100px] max-w-[120px]"
-                    >
-                      <UserLabel 
-                        name={user.name} 
-                        isMe={user.linked_user_id === currentUserId} 
-                        className="text-[10px] text-right" 
-                      />
-                    </TableHead>
+                {users.map((user) => (
+                  <TableHead
+                    key={`${user.id}-paid`}
+                    className="text-right font-bold text-primary min-w-[100px] max-w-[120px]"
+                  >
+                    <UserLabel 
+                      name={user.name} 
+                      isMe={user.linked_user_id === currentUserId} 
+                      className="text-[10px] text-right" 
+                    />
+                  </TableHead>
+                ))}
+                {users.map((user) => (
+                  <TableHead
+                    key={`${user.id}-bal`}
+                    className="text-right font-bold text-primary min-w-[100px] max-w-[120px]"
+                  >
+                    <UserLabel 
+                      name={user.name} 
+                      isMe={user.linked_user_id === currentUserId} 
+                      className="text-[10px] text-right" 
+                    />
+                  </TableHead>
+                ))}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -198,6 +202,7 @@ export function MonthlySummary({
                                   <TableRow className="bg-background/50 hover:bg-background/50 border-none">
                                     <TableHead className="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Date</TableHead>
                                     <TableHead className="py-3 px-4 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground">Amount</TableHead>
+                                    {users.map(u => (
                                       <TableHead key={u.id} className="py-3 px-4 text-center text-xs font-bold uppercase tracking-wider text-muted-foreground min-w-[100px] max-w-[120px]">
                                         <UserLabel 
                                           name={u.name} 
@@ -205,6 +210,7 @@ export function MonthlySummary({
                                           className="text-[10px]" 
                                         />
                                       </TableHead>
+                                    ))}
                                   </TableRow>
                                 </TableHeader>
                                 <TableBody>

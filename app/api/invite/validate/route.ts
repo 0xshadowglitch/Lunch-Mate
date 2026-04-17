@@ -37,8 +37,12 @@ export async function GET(req: NextRequest) {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
+    // Use admin client for lookup to bypass RLS for guest users
+    const { createAdminClient } = await import("@/lib/supabase/admin")
+    const adminSupabase = createAdminClient()
+
     // 1. Look up invite by raw token
-    const { data: invite, error: fetchError } = await supabase
+    const { data: invite, error: fetchError } = await adminSupabase
       .from("invites")
       .select("*, organizations(name)")
       .eq("token_hash", token)

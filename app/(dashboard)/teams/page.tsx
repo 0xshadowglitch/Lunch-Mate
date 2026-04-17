@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic"
 
 function TeamCard({ org }: { org: any }) {
   return (
-    <Card className="group hover:border-primary/50 transition-all bg-card/40 backdrop-blur-xl overflow-hidden">
+    <Card className="group hover:border-primary/50 transition-all bg-card/40 backdrop-blur-xl overflow-hidden shadow-lg border-border/50">
       <div className="absolute top-0 left-0 w-1 h-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
       <CardHeader className="flex flex-row items-center justify-between py-5">
         <div className="flex items-center gap-4">
@@ -31,7 +31,7 @@ function TeamCard({ org }: { org: any }) {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" className="rounded-xl font-bold h-11" asChild>
+          <Button variant="outline" className="rounded-xl font-bold h-11 border-primary/20 hover:bg-primary/10" asChild>
             <Link href={org.role === 'admin' ? "/admin" : "/user"}>
               Go to Dashboard
             </Link>
@@ -43,7 +43,9 @@ function TeamCard({ org }: { org: any }) {
 }
 
 export default async function TeamsPage() {
+  // Fetch the organizations for the user
   const allOrgs = await getUserOrgs()
+  
   const adminOrgs = allOrgs.filter(org => org.role === 'admin')
   const memberOrgs = allOrgs.filter(org => org.role !== 'admin')
   
@@ -56,7 +58,7 @@ export default async function TeamsPage() {
             <h2 className="text-3xl font-black uppercase tracking-tight">Teams Navigator</h2>
             <p className="text-muted-foreground text-sm font-medium">Manage and switch between your lunch tracking environments.</p>
           </div>
-          <Button asChild className="rounded-xl font-bold">
+          <Button asChild className="rounded-xl font-bold bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
             <Link href="/onboarding">Create New Team</Link>
           </Button>
         </div>
@@ -97,7 +99,7 @@ export default async function TeamsPage() {
           </section>
         </div>
         
-        <div className="mt-12 p-8 rounded-[2rem] bg-gradient-to-br from-primary/10 via-transparent to-blue-500/5 border border-primary/10 relative overflow-hidden">
+        <div className="mt-12 p-8 rounded-[2rem] bg-gradient-to-br from-primary/10 via-transparent to-blue-500/5 border border-primary/10 relative overflow-hidden backdrop-blur-sm">
           <div className="relative z-10 space-y-4">
             <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-2">
               <ArrowRight className="h-5 w-5 text-primary" />

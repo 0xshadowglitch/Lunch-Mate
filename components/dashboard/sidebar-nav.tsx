@@ -21,6 +21,7 @@ import {
   Loader2,
   AlertTriangle,
   Mail,
+  Building2,
 } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { getUserOrg, getUserOrgs, setActiveOrg, deleteOrganization } from "@/lib/org-actions"

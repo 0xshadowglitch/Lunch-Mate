@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import { headers } from "next/headers"
 
 export async function login(formData: FormData) {
   const supabase = await createClient()
@@ -31,12 +32,19 @@ export async function signup(formData: FormData) {
     password: formData.get("password") as string,
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || "http://localhost:3000"
+  const redirectTo = formData.get("redirectTo") as string | null
+  const headerList = await headers()
+  const host = headerList.get("host")
+  const proto = headerList.get("x-forwarded-proto") || "http"
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || `${proto}://${host}`
+  const emailRedirectTo = redirectTo 
+    ? `${baseUrl}/auth/callback?next=${encodeURIComponent(redirectTo)}`
+    : `${baseUrl}/auth/callback`
   
   const { error, data: signupData } = await supabase.auth.signUp({
     ...data,
     options: {
-      emailRedirectTo: `${baseUrl}/auth/callback`,
+      emailRedirectTo,
     },
   })
 
@@ -69,10 +77,13 @@ export async function signOut() {
 export async function requestPasswordReset(formData: FormData) {
   const supabase = await createClient()
   const email = formData.get("email") as string
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+  const headerList = await headers()
+  const host = headerList.get("host")
+  const proto = headerList.get("x-forwarded-proto") || "http"
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || `${proto}://${host}`
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${baseUrl.endsWith("/") ? baseUrl : baseUrl + "/"}auth/callback?next=/reset-password`,
+    redirectTo: `${baseUrl}/auth/callback?next=/reset-password`,
   })
 
   if (error) {

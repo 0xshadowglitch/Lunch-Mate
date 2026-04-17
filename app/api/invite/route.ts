@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
 
     const { error: insertError } = await supabase.from("invites").insert({
       email: email || null,
-      token_hash: tokenHash,
+      token_hash: rawToken, // Storing raw token directly for 'Copy' functionality
       org_id: orgId,
       expires_at: expiresAt.toISOString(),
       used: false,
@@ -80,8 +80,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: insertError.message }, { status: 500 })
     }
 
-    // 5. Return the full invite link with the RAW token (shown to admin only, never stored)
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || req.headers.get("origin") || "http://localhost:3000"
+    // 5. Return the full invite link with the RAW token
+    const headerList = await req.headers
+    const host = headerList.get("host")
+    const proto = headerList.get("x-forwarded-proto") || "http"
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || `${proto}://${host}`
     const link = `${baseUrl}/invite?token=${rawToken}`
 
     return NextResponse.json({
@@ -121,15 +124,31 @@ export async function GET(req: NextRequest) {
     }
 
     const now = new Date().toISOString()
+
+    // Automatic cleanup: Delete expired or used invites for this org
+    await supabase
+      .from("invites")
+      .delete()
+      .eq("org_id", orgId)
+      .or(`expires_at.lt.${now},used.eq.true`)
+
     const { data: invites } = await supabase
       .from("invites")
-      .select("id, email, expires_at, used, created_at")
+      .select("id, email, expires_at, used, created_at, token_hash")
       .eq("org_id", orgId)
       .order("created_at", { ascending: false })
 
-    // Annotate with status
+    // Calculate base URL once for the list
+    const headerList = await req.headers
+    const host = headerList.get("host")
+    const proto = headerList.get("x-forwarded-proto") || "http"
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || `${proto}://${host}`
+
+    // Annotate with status and full link
     const annotated = (invites || []).map((inv) => ({
       ...inv,
+      token: inv.token_hash,
+      link: `${baseUrl}/invite?token=${inv.token_hash}`, // Include the correct full link
       status: inv.used
         ? "used"
         : new Date(inv.expires_at) < new Date(now)

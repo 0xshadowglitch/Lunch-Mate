@@ -15,6 +15,7 @@ import { Building2, Plus, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { MarqueeNews } from "@/components/dashboard/marquee-news"
+import { InviteRecovery } from "@/components/dashboard/invite-recovery"
 
 export const dynamic = "force-dynamic"
 
@@ -26,7 +27,8 @@ export default async function AdminOverviewPage() {
     return (
       <div className="flex flex-col h-full bg-background/50">
         <TopNavbar title="Welcome to Lunch Mate" />
-        <div className="flex-1 flex items-center justify-center p-6 lg:p-10">
+        <div className="flex-1 flex flex-col items-center justify-center p-6 lg:p-10 space-y-6">
+          <InviteRecovery />
           <Card className="max-w-md w-full bg-card/40 backdrop-blur-2xl border-border/40 shadow-2xl rounded-[2rem] overflow-hidden">
             <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
             <CardHeader className="text-center pt-10 pb-2">

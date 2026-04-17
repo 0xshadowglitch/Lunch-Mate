@@ -52,6 +52,8 @@ interface Invite {
   used: boolean
   created_at: string
   status: "pending" | "used" | "expired"
+  token: string
+  link: string
 }
 
 interface OrgInfo {
@@ -191,8 +193,8 @@ export default function TeamSettingsPage() {
     )
   }
 
-  const pendingInvites = invites.filter((i) => i.status === "pending")
-  const pastInvites = invites.filter((i) => i.status !== "pending")
+  const pendingInvites = invites.filter((i) => i.status === "pending" || i.status === "expired")
+  const pastInvites = invites.filter((i) => i.status === "used")
 
   return (
     <div className="py-6 px-4 md:px-8 space-y-6 max-w-4xl mx-auto">
@@ -354,7 +356,15 @@ export default function TeamSettingsPage() {
                     <TableCell className="py-3 text-[10px] text-muted-foreground font-bold">
                       {formatDistanceToNow(new Date(invite.expires_at), { addSuffix: true })}
                     </TableCell>
-                    <TableCell className="py-3 text-right px-6">
+                    <TableCell className="py-3 text-right px-6 flex items-center justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleCopy(invite.link)}
+                        className="h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                      >
+                        <Copy className="h-3.5 w-3.5" />
+                      </Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10">

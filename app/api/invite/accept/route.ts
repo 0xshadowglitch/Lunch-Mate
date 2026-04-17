@@ -43,16 +43,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Token is required." }, { status: 400 })
     }
 
-    // 2. Hash the incoming raw token to look it up in DB
-    const tokenHash = sha256(token)
-
-    // 3. Find invite by hash
+    // 2. Find invite by raw token
     const { data: invite, error: fetchError } = await supabase
       .from("invites")
       .select("*")
-      .eq("token_hash", tokenHash)
+      .eq("token_hash", token)
       .single()
-
+    
     if (fetchError || !invite) {
       return NextResponse.json({ error: "Invalid invite link." }, { status: 404 })
     }

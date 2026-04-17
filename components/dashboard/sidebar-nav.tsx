@@ -20,6 +20,7 @@ import {
   Trash2,
   Loader2,
   AlertTriangle,
+  Mail,
 } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { getUserOrg, getUserOrgs, setActiveOrg, deleteOrganization } from "@/lib/org-actions"
@@ -249,6 +250,48 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
             </Link>
           )
         })}
+      </nav>
+
+      {/* Persistent Management Section */}
+      <div className="border-t border-border/50 p-4 space-y-1">
+        <h3 className="px-3 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-2">Management</h3>
+        <Link
+          href="/teams"
+          className={cn(
+            "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+            pathname === "/teams"
+              ? "bg-primary text-primary-foreground"
+              : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          )}
+        >
+          <Users className="h-4 w-4" />
+          Joined Teams
+        </Link>
+        <Link
+          href="/invite"
+          className={cn(
+            "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+            pathname === "/invite"
+              ? "bg-primary text-primary-foreground"
+              : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          )}
+        >
+          <Mail className="h-4 w-4" />
+          Invitations
+        </Link>
+        <Link
+          href="/onboarding"
+          className={cn(
+            "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+            pathname === "/onboarding"
+              ? "bg-primary text-primary-foreground"
+              : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          )}
+        >
+          <PlusCircle className="h-4 w-4" />
+          Create New Team
+        </Link>
+        
         {isAdmin && org?.role === 'admin' && (
           <Link
             href="/admin/settings"
@@ -263,16 +306,8 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
             Team Settings
           </Link>
         )}
-        {isAdmin && (
-          <Link
-            href="/onboarding"
-            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-black uppercase tracking-widest text-primary border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all hover:scale-[1.02] mt-4 shadow-lg shadow-primary/5"
-          >
-            <PlusCircle className="h-4 w-4" />
-            Create New Team
-          </Link>
-        )}
-      </nav>
+      </div>
+
       <div className="border-t border-sidebar-border p-4 space-y-2">
         <Link
           href={isAdmin ? "/user" : "/admin"}

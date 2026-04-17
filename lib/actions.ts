@@ -444,10 +444,35 @@ export async function getWeeklySummary() {
       }
     })
 
+    const weekEntryDetails = week.entries.map((entry: any) => {
+      const entryShares = weekShares.filter((s) => s.entry_id === entry.id)
+      const entryPayments = weekPayments.filter((p) => p.entry_id === entry.id)
+
+      const userDetails = users.map((user) => {
+        const share = entryShares.find((s) => s.user_id === user.id)
+        const payment = entryPayments.find((p) => p.user_id === user.id)
+        return {
+          userId: user.id,
+          userName: user.name,
+          isPresent: !!share,
+          share: share ? Number(share.share_amount) : 0,
+          paid: payment ? Number(payment.paid_amount) : 0,
+        }
+      })
+
+      return {
+        id: entry.id,
+        date: entry.date,
+        totalExpense: Number(entry.total_expense),
+        userDetails,
+      }
+    })
+
     return {
       weekStart: week.weekStart,
       totalExpense: week.totalExpense,
       userStats,
+      entries: weekEntryDetails,
     }
   }).sort((a, b) => new Date(b.weekStart).getTime() - new Date(a.weekStart).getTime())
 
@@ -507,7 +532,31 @@ export async function getMonthlySummary() {
         balance: totalPaid - totalShares,
       }
     })
-    return { monthKey: month.monthKey, totalExpense: month.totalExpense, userStats }
+    const monthEntryDetails = month.entries.map((entry: any) => {
+      const entryShares = shares?.filter((s) => s.entry_id === entry.id) || []
+      const entryPayments = payments?.filter((p) => p.entry_id === entry.id) || []
+
+      const userDetails = users.map((user) => {
+        const share = entryShares.find((s) => s.user_id === user.id)
+        const payment = entryPayments.find((p) => p.user_id === user.id)
+        return {
+          userId: user.id,
+          userName: user.name,
+          isPresent: !!share,
+          share: share ? Number(share.share_amount) : 0,
+          paid: payment ? Number(payment.paid_amount) : 0,
+        }
+      })
+
+      return {
+        id: entry.id,
+        date: entry.date,
+        totalExpense: Number(entry.total_expense),
+        userDetails,
+      }
+    })
+
+    return { monthKey: month.monthKey, totalExpense: month.totalExpense, userStats, entries: monthEntryDetails }
   }).sort((a, b) => b.monthKey.localeCompare(a.monthKey))
 
   return { months, users: users.map(u => ({ id: u.id, name: u.name })) }

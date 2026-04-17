@@ -16,6 +16,7 @@ import {
   LogIn,
 } from "lucide-react"
 import Link from "next/link"
+import { cn } from "@/lib/utils"
 
 type Status = "loading" | "ready" | "joining" | "success" | "error"
 
@@ -46,17 +47,46 @@ function InviteContent() {
   const [state, setState] = useState<InviteState>({ status: "loading" })
   const [user, setUser] = useState<any>(null)
 
-  // Check auth status
+  // Check auth status and validate token
   useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data }) => {
+    const validateToken = async () => {
+      const supabase = createClient()
+      const { data } = await supabase.auth.getUser()
       setUser(data.user)
+
       if (!token) {
         setState({ status: "error", errorMessage: "No invite token found in URL." })
-      } else {
-        setState({ status: "ready" })
+        return
       }
-    })
+
+      try {
+        // We'll call the accept endpoint with a GET request to validate without joining
+        const res = await fetch(`/api/invite/validate?token=${token}`)
+        const data = await res.json()
+
+        if (!res.ok) {
+          setState({ 
+            status: "error", 
+            errorMessage: data.error,
+            orgName: data.orgName // Some errors might still know the org name
+          })
+        } else {
+          setState({ status: "ready", orgName: data.orgName })
+          // Persist the invite so it survives login/signup redirects
+          if (token && data.orgName) {
+            localStorage.setItem("pending_invite", JSON.stringify({
+              token,
+              orgName: data.orgName,
+              timestamp: Date.now()
+            }))
+          }
+        }
+      } catch (err) {
+        setState({ status: "error", errorMessage: "Failed to validate invite link." })
+      }
+    }
+
+    validateToken()
   }, [token])
 
   const handleAccept = async () => {
@@ -75,6 +105,8 @@ function InviteContent() {
       setState({ status: "error", errorMessage: data.error })
     } else {
       setState({ status: "success", orgName: data.orgName })
+      // Clear the pending invite from localStorage on success
+      localStorage.removeItem("pending_invite")
       // Redirect to the dashboard after 2 seconds
       setTimeout(() => router.push("/user"), 2000)
     }
@@ -109,21 +141,31 @@ function InviteContent() {
       case "error":
         const isExpired = state.errorMessage?.includes("expired")
         const isUsed = state.errorMessage?.includes("already been used")
-        const Icon = isExpired ? Clock : isUsed ? XCircle : XCircle
+        const isMember = state.errorMessage?.includes("already a member")
+        const Icon = isExpired ? Clock : isUsed ? XCircle : isMember ? CheckCircle2 : XCircle
         
         return (
           <div className="flex flex-col items-center gap-6 py-8 text-center animate-in fade-in zoom-in-95 duration-500">
-            <div className="p-4 bg-destructive/10 rounded-2xl ring-8 ring-destructive/5">
-              <Icon className="h-12 w-12 text-destructive" />
+            <div className={cn("p-4 rounded-2xl ring-8", isMember ? "bg-emerald-500/10 ring-emerald-500/5" : "bg-destructive/10 ring-destructive/5")}>
+              <Icon className={cn("h-12 w-12", isMember ? "text-emerald-500" : "text-destructive")} />
             </div>
             <div className="space-y-2">
-              <h2 className="text-2xl font-black uppercase tracking-tight text-destructive">
-                {isExpired ? "Invite Expired" : isUsed ? "Already Used" : "Invalid Invite"}
+              <h2 className={cn("text-2xl font-black uppercase tracking-tight", isMember ? "text-emerald-500" : "text-destructive")}>
+                {isExpired ? "Invite Expired" : isUsed ? "Already Used" : isMember ? "Already In Team" : !token ? "No Invite Found" : "Invalid Invite"}
               </h2>
-              <p className="text-muted-foreground text-sm font-medium max-w-xs">{state.errorMessage}</p>
+              <p className="text-muted-foreground text-sm font-medium max-w-xs">
+                {!token ? "Please make sure you have the correct invite link from your administrator." : state.errorMessage}
+              </p>
+              {state.orgName && (
+                <p className="text-xs font-bold text-primary uppercase mt-2 tracking-widest">{state.orgName}</p>
+              )}
             </div>
-            <Button variant="outline" className="h-12 px-8 rounded-xl font-bold mt-4" asChild>
-              <Link href="/login">Go to Login</Link>
+            <Button variant="outline" className="h-12 px-8 rounded-xl font-bold mt-4" onClick={() => {
+              if (isMember) localStorage.removeItem("pending_invite")
+            }} asChild>
+              <Link href={isMember ? "/user" : user ? "/teams" : "/login"}>
+                {isMember || user ? "Back to Dashboard" : "Go to Login"}
+              </Link>
             </Button>
           </div>
         )
@@ -139,7 +181,11 @@ function InviteContent() {
             <div className="space-y-1">
               <h2 className="text-2xl font-black uppercase tracking-tight">You've been invited!</h2>
               <p className="text-muted-foreground text-sm font-medium">
-                Accept this invite to join your team.
+                {state.orgName ? (
+                  <>You've been invited to join <span className="text-primary font-bold">{state.orgName}</span>.</>
+                ) : (
+                  "Accept this invite to join your team."
+                )}
               </p>
             </div>
 

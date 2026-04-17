@@ -235,24 +235,28 @@ export default function TeamSettingsPage() {
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="bg-background/40 p-1 rounded-xl border border-primary/10 flex items-center gap-1">
-                {["₹", "PKR", "$", "€", "£"].map((curr) => (
-                  <button
-                    key={curr}
-                    onClick={() => handleUpdateCurrency(curr)}
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="currency" className="text-[9px] text-muted-foreground uppercase tracking-[0.2em] font-black">Currency</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="currency"
+                    value={org?.currency || ""}
+                    onChange={(e) => setOrg(org ? { ...org, currency: e.target.value } : null)}
+                    className="h-8 w-24 text-xs font-bold"
+                    placeholder="PKR"
+                  />
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    className="h-8 text-[10px] font-black uppercase"
+                    onClick={() => handleUpdateCurrency(org?.currency || "PKR")}
                     disabled={isCurrencyPending}
-                    className={cn(
-                      "min-w-8 h-8 px-2 rounded-lg text-xs font-bold transition-all",
-                      org?.currency === curr
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "hover:bg-primary/10 text-muted-foreground"
-                    )}
                   >
-                    {curr}
-                  </button>
-                ))}
+                    {isCurrencyPending ? <Loader2 className="h-3 w-3 animate-spin" /> : "Save"}
+                  </Button>
+                </div>
               </div>
-              <Badge variant="outline" className="text-[10px] px-2 py-0.5 h-6 rounded-lg uppercase tracking-wider font-black border-primary/20 bg-primary/5 text-primary">
+              <Badge variant="outline" className="text-[10px] px-2 py-0.5 h-6 rounded-lg uppercase tracking-wider font-black border-primary/20 bg-primary/5 text-primary self-end mb-1">
                 {org?.role}
               </Badge>
             </div>

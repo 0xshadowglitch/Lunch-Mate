@@ -64,7 +64,7 @@ export default function UserPage() {
           monthlyData={data.monthlyData}
           selectedUserId={selectedUserId}
           onUserChange={setSelectedUserId}
-          currency={data.org?.currency || "₹"}
+          currency={data.org?.currency || ""}
           currentUserId={data.user?.id}
         />
       </div>

@@ -27,7 +27,7 @@ interface DataAuditTableProps {
   currency?: string
 }
 
-export function DataAuditTable({ entries, currency = "PKR" }: DataAuditTableProps) {
+export function DataAuditTable({ entries, currency }: DataAuditTableProps) {
   return (
     <Card>
       <CardHeader>

@@ -20,7 +20,7 @@ interface UserBalanceTableProps {
   currentUserId?: string
 }
 
-export function UserBalanceTable({ balances, currency = "PKR", currentUserId }: UserBalanceTableProps) {
+export function UserBalanceTable({ balances, currency, currentUserId }: UserBalanceTableProps) {
   return (
     <Card className="bg-card/50 backdrop-blur-sm border-border/50">
       <CardHeader className="pt-8 px-8 pb-4">

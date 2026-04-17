@@ -45,7 +45,7 @@ export const getUserOrgs = cache(async () => {
         id: m.org_id,
         role: m.role,
         name: (org as any)?.name || "Lunch Mate",
-        currency: (org as any)?.currency || "₹"
+        currency: (org as any)?.currency || ""
       }
     })
   } catch (e: any) {
@@ -98,7 +98,7 @@ export const getUserOrg = cache(async () => {
       id: membership.org_id,
       role: membership.role,
       name: (org as any)?.name || "Lunch Mate",
-      currency: (org as any)?.currency || "₹"
+      currency: (org as any)?.currency || ""
     }
   } catch (e: any) {
     console.error("DEBUG CRASH getUserOrg:", e.message)

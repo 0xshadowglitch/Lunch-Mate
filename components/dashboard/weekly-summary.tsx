@@ -63,7 +63,7 @@ export function WeeklySummary({
   weeks, 
   users, 
   overallBalances, 
-  currency = "PKR",
+  currency,
   currentUserId
 }: WeeklySummaryProps) {
   const [expandedWeeks, setExpandedWeeks] = useState<Set<string>>(new Set())

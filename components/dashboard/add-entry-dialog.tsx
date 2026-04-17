@@ -33,7 +33,7 @@ interface AddEntryDialogProps {
   currentUserId?: string
 }
 
-export function AddEntryDialog({ users, currency = "₹", currentUserId }: AddEntryDialogProps) {
+export function AddEntryDialog({ users, currency, currentUserId }: AddEntryDialogProps) {
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   

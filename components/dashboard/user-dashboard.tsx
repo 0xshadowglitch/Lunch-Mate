@@ -65,7 +65,7 @@ export function UserDashboard({
   monthlyData,
   selectedUserId,
   onUserChange,
-  currency = "PKR",
+  currency,
   currentUserId,
 }: UserDashboardProps) {
   const selectedBalance = balances.find((b) => b.id === selectedUserId)

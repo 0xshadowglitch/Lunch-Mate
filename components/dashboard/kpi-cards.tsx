@@ -17,7 +17,7 @@ export function KPICards({
   totalPaid,
   netBalance,
   totalEntries,
-  currency = "PKR",
+  currency,
 }: KPICardsProps) {
   const cards = [
     {

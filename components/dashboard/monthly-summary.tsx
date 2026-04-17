@@ -55,7 +55,7 @@ interface MonthlySummaryProps {
 export function MonthlySummary({ 
   months, 
   users, 
-  currency = "PKR",
+  currency,
   currentUserId
 }: MonthlySummaryProps) {
   const [expandedMonths, setExpandedMonths] = useState<Set<string>>(new Set())

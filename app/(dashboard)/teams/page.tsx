@@ -26,7 +26,7 @@ function TeamCard({ org }: { org: any }) {
             <CardDescription className="flex items-center gap-2 font-bold uppercase text-[10px] tracking-widest mt-1">
               Role: {org.role}
               <span className="h-1 w-1 rounded-full bg-muted-foreground/30" />
-              Currency: {org.currency || "₹"}
+              Currency: {org.currency || ""}
             </CardDescription>
           </div>
         </div>

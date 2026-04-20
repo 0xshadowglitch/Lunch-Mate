@@ -47,12 +47,14 @@ import { AddEntryDialog } from "./add-entry-dialog"
 import { EditEntryDialog } from "./edit-entry-dialog"
 import { UserLabel } from "./user-label"
 
-function PaymentAmountEdit({ entryId, userId, initialValue, entryData, currency }: {
+function PaymentAmountEdit({ entryId, userId, initialValue, entryData, currency, isPresent, isAdmin }: {
   entryId: string,
   userId: string,
   initialValue: number,
   entryData: EntryData,
-  currency: string
+  currency: string,
+  isPresent: boolean,
+  isAdmin: boolean
 }) {
   const [isEditing, setIsEditing] = useState(false)
   const [value, setValue] = useState(initialValue.toString())
@@ -125,10 +127,11 @@ function PaymentAmountEdit({ entryId, userId, initialValue, entryData, currency 
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-1.5 px-2 py-1 rounded-lg transition-all cursor-pointer group",
+        "inline-flex items-center gap-1.5 px-2 py-1 rounded-lg transition-all text-center",
+        !isAdmin || !isPresent ? "cursor-default pointer-events-none" : "cursor-pointer group",
         initialValue > 0 ? "bg-primary/10 text-primary font-black" : "text-muted-foreground/30 hover:bg-primary/5 hover:text-primary/60"
       )}
-      onClick={() => setIsEditing(true)}
+      onClick={() => isAdmin && isPresent && setIsEditing(true)}
     >
       <span className="tabular-nums">
         {currency}{initialValue.toLocaleString("en-IN", {
@@ -141,8 +144,8 @@ function PaymentAmountEdit({ entryId, userId, initialValue, entryData, currency 
   )
 }
 
-function TotalExpenseEdit({ id, initialValue, date, currency, userDetails, currentUserId }: {
-  id: string, initialValue: number, date: string, currency: string, userDetails: UserDetail[], currentUserId?: string
+function TotalExpenseEdit({ id, initialValue, date, currency, userDetails, currentUserId, isAdmin }: {
+  id: string, initialValue: number, date: string, currency: string, userDetails: UserDetail[], currentUserId?: string, isAdmin: boolean
 }) {
   const [isEditing, setIsEditing] = useState(false)
   const [value, setValue] = useState(initialValue.toString())
@@ -204,9 +207,12 @@ function TotalExpenseEdit({ id, initialValue, date, currency, userDetails, curre
 
   return (
     <div
-      className="cursor-pointer hover:bg-primary/5 transition-colors px-4 py-6 text-center tabular-nums group h-full flex flex-col justify-center"
-      onClick={() => setIsEditing(true)}
-      title="Click to edit total"
+      className={cn(
+        "transition-colors px-4 py-6 text-center tabular-nums h-full flex flex-col justify-center",
+        !isAdmin ? "cursor-default" : "cursor-pointer hover:bg-primary/5 group"
+      )}
+      onClick={() => isAdmin && setIsEditing(true)}
+      title={isAdmin ? "Click to edit total" : undefined}
     >
       <div>
         <span className="text-xs font-normal text-muted-foreground mr-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -226,9 +232,10 @@ interface DailyLunchTrackerProps {
   users: { id: string; name: string; linked_user_id?: string | null }[]
   currency?: string
   currentUserId?: string
+  isAdmin?: boolean
 }
 
-export function DailyLunchTracker({ entries, users, currency, currentUserId }: DailyLunchTrackerProps) {
+export function DailyLunchTracker({ entries, users, currency, currentUserId, isAdmin = false }: DailyLunchTrackerProps) {
   return (
     <Card>
       <CardHeader className="pb-3 px-6">
@@ -239,7 +246,7 @@ export function DailyLunchTracker({ entries, users, currency, currentUserId }: D
               {entries.length} entries
             </Badge>
           </CardTitle>
-          <AddEntryDialog users={users} currency={currency} currentUserId={currentUserId} />
+          {isAdmin && <AddEntryDialog users={users} currency={currency} currentUserId={currentUserId} />}
         </div>
       </CardHeader>
       <CardContent className="mb-8">
@@ -355,10 +362,12 @@ export function DailyLunchTracker({ entries, users, currency, currentUserId }: D
                         currency={currency || "₹"}
                         userDetails={entry.userDetails}
                         currentUserId={currentUserId}
+                        isAdmin={isAdmin}
                       />
                     </TableCell>
                     <TableCell className="text-center border-r border-primary/5 px-4 h-full">
                       <Select
+                        disabled={!isAdmin}
                         defaultValue={entry.userDetails.find(d => d.paid > 0)?.userId || ""}
                         onValueChange={async (newPayerId) => {
                           const originalPayer = entry.userDetails.find(d => d.paid > 0);
@@ -386,7 +395,10 @@ export function DailyLunchTracker({ entries, users, currency, currentUserId }: D
                           }
                         }}
                       >
-                        <SelectTrigger className="h-9 border-none bg-primary/5 hover:bg-primary/10 transition-colors rounded-lg px-2 focus:ring-0 cursor-pointer">
+                        <SelectTrigger className={cn(
+                          "h-9 border-none rounded-lg px-2 focus:ring-0",
+                          !isAdmin ? "bg-transparent cursor-default px-0" : "bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer"
+                        )}>
                           <SelectValue>
                             {(() => {
                               const originalPayer = entry.userDetails.find(d => d.paid > 0);
@@ -426,6 +438,7 @@ export function DailyLunchTracker({ entries, users, currency, currentUserId }: D
                         >
                           <div className="flex justify-center py-2 h-full cursor-pointer hover:bg-primary/5 hover:rounded transition-colors group">
                             <Checkbox
+                              disabled={!isAdmin}
                               checked={detail?.isPresent}
                               onCheckedChange={async (checked) => {
                                 const isPresent = checked === true;
@@ -468,7 +481,10 @@ export function DailyLunchTracker({ entries, users, currency, currentUserId }: D
                                   toast.error("An error occurred", { id: loader });
                                 }
                               }}
-                              className="h-5 w-5 rounded-md border-primary/30"
+                              className={cn(
+                                "h-5 w-5 rounded-md border-primary/30",
+                                !isAdmin && "opacity-50 cursor-default"
+                              )}
                             />
                           </div>
                         </TableCell>
@@ -503,6 +519,8 @@ export function DailyLunchTracker({ entries, users, currency, currentUserId }: D
                             initialValue={detail?.paid || 0}
                             entryData={entry}
                             currency={currency || "₹"}
+                            isPresent={!!detail?.isPresent}
+                            isAdmin={isAdmin}
                           />
                         </TableCell>
                       )
@@ -532,7 +550,7 @@ export function DailyLunchTracker({ entries, users, currency, currentUserId }: D
                       )
                     })}
                     <TableCell className="sticky right-0 z-10 text-center bg-background/95 backdrop-blur-sm border-l border-primary/5 shadow-[-4px_0_12px_-4px_rgba(0,0,0,0.1)]">
-                      <EditEntryDialog entry={entry} users={users} currency={currency} currentUserId={currentUserId} />
+                      {isAdmin && <EditEntryDialog entry={entry} users={users} currency={currency} currentUserId={currentUserId} />}
                     </TableCell>
                   </TableRow>
                 ))

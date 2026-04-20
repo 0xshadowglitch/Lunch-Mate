@@ -19,7 +19,13 @@ export default async function LunchPage() {
     <div className="flex flex-col h-full">
       <TopNavbar title="Daily Lunch Tracker" />
       <div className="flex-1 p-4 lg:p-6 space-y-6 overflow-auto">
-        <DailyLunchTracker entries={entries} users={users} currency={org?.currency || "₹"} currentUserId={currentUserId} />
+        <DailyLunchTracker 
+          entries={entries} 
+          users={users} 
+          currency={org?.currency || "₹"} 
+          currentUserId={currentUserId}
+          isAdmin={org?.role === "admin"}
+        />
       </div>
     </div>
   )

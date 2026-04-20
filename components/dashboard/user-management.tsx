@@ -183,8 +183,7 @@ export function UserManagement({ users, balances, currentUserId, currency = "PKR
                     <button
                       key={member.user_id}
                       onClick={() => setSelectedMember(member)}
-                      className={cn(
-                        "w-full text-left flex items-center gap-3 p-3 rounded-lg border transition-all",
+                        "w-full text-left flex items-center gap-3 p-3 rounded-lg border transition-all cursor-pointer",
                         selectedMember?.user_id === member.user_id
                           ? "border-primary bg-primary/5 shadow-sm"
                           : "border-border hover:border-primary/50 hover:bg-muted/50"

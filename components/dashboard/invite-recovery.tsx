@@ -35,7 +35,7 @@ export function InviteRecovery() {
       
       <button 
         onClick={() => setDismissed(true)}
-        className="absolute top-4 right-4 p-1 rounded-full hover:bg-primary/10 transition-colors text-primary/60 hover:text-primary"
+        className="absolute top-4 right-4 p-1 rounded-full hover:bg-primary/10 transition-colors text-primary/60 hover:text-primary cursor-pointer"
       >
         <X className="h-4 w-4" />
       </button>

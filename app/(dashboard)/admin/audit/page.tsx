@@ -31,7 +31,7 @@ export default async function AuditPage() {
   return (
     <div className="flex flex-col h-full">
       <TopNavbar title="Data Audit" />
-      <div className="flex-1 p-4 lg:p-6 overflow-auto">
+      <div className="flex-1 p-4 lg:p-6 overflow-auto mb-8">
         <DataAuditTable entries={auditEntries} />
       </div>
     </div>

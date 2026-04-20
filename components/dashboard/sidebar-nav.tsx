@@ -151,7 +151,7 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
       <div className="flex h-20 items-center justify-between border-b border-border/50 px-4 bg-foreground/[0.02]">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-2 group hover:bg-foreground/[0.03] p-1.5 rounded-xl transition-all flex-1 min-w-0">
+            <button className="flex items-center gap-2 group hover:bg-foreground/[0.03] p-1.5 rounded-xl transition-all flex-1 min-w-0 cursor-pointer">
               <div className="flex-shrink-0 bg-primary/20 p-2 rounded-xl border border-primary/30 shadow-[0_0_15px_var(--glow-emerald)] group-hover:scale-105 transition-all">
                 <Image
                   src="/logo.png"
@@ -213,7 +213,7 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
                     {o.role === 'admin' && (
                       <button
                         onClick={(e) => handleDeleteTeam(e, o.id)}
-                        className="shrink-0 p-1.5 hover:bg-destructive/20 hover:text-destructive rounded-lg transition-all text-muted-foreground/40"
+                        className="shrink-0 p-1.5 hover:bg-destructive/20 hover:text-destructive rounded-lg transition-all text-muted-foreground/40 cursor-pointer"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
@@ -323,7 +323,7 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
         </Link>
         <button
           onClick={() => signOut()}
-          className="w-full flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
+          className="w-full flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
         >
           <LogOut className="h-4 w-4" />
           Logout

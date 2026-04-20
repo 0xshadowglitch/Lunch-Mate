@@ -72,6 +72,7 @@ export default function TeamSettingsPage() {
   const [newInviteEmail, setNewInviteEmail] = useState("")
   const [generatedLink, setGeneratedLink] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [initialCurrency, setInitialCurrency] = useState("")
 
   const loadInvites = useCallback(async (orgId: string) => {
     const res = await fetch(`/api/invite?orgId=${orgId}`)
@@ -85,6 +86,9 @@ export default function TeamSettingsPage() {
     async function init() {
       const orgData = await getUserOrg()
       setOrg(orgData as OrgInfo | null)
+      if (orgData?.currency) {
+        setInitialCurrency(orgData.currency)
+      }
       if (orgData?.id) {
         await loadInvites(orgData.id)
       }
@@ -159,6 +163,7 @@ export default function TeamSettingsPage() {
       const result = await updateOrganizationCurrency(org.id, currency)
       if (result.success) {
         setOrg({ ...org, currency })
+        setInitialCurrency(currency) // Update initial after success
         toast.success("Currency updated!")
       } else {
         toast.error("Failed to update currency")
@@ -248,9 +253,9 @@ export default function TeamSettingsPage() {
                   <Button 
                     size="sm" 
                     variant="outline"
-                    className="h-8 text-[10px] font-black uppercase"
+                    className="h-8 text-[10px] font-black uppercase cursor-pointer"
                     onClick={() => handleUpdateCurrency(org?.currency || "PKR")}
-                    disabled={isCurrencyPending}
+                    disabled={isCurrencyPending || org?.currency === initialCurrency}
                   >
                     {isCurrencyPending ? <Loader2 className="h-3 w-3 animate-spin" /> : "Save"}
                   </Button>

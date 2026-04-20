@@ -36,7 +36,7 @@ export function DataAuditTable({ entries, currency }: DataAuditTableProps) {
           <Badge variant="secondary">{entries.length} entries</Badge>
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="mb-8">
         <Table>
           <TableHeader>
             <TableRow>

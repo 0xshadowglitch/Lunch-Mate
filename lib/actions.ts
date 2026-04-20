@@ -69,7 +69,7 @@ export async function getUsers(): Promise<LunchUser[]> {
   const supabase = await createClient()
   
   // 1. Get current tracker users
-  const { data: trackerUsers, error: fetchError } = await supabase
+  let { data: trackerUsers, error: fetchError } = await supabase
     .from("lunch_users")
     .select("*")
     .eq("org_id", orgId)
@@ -105,11 +105,28 @@ export async function getUsers(): Promise<LunchUser[]> {
           const emailPrefix = user?.email?.split("@")[0];
           const displayName = (fullName && !isGeneric(fullName)) ? fullName : (emailPrefix || "User");
           
-          await supabase.from("lunch_users").insert({
-            name: displayName,
-            org_id: orgId,
-            linked_user_id: member.user_id
-          })
+          // CRITICAL FIX: Check if an unlinked user with this name already exists
+          const existingUnlinked = trackerUsers?.find(u => 
+            !u.linked_user_id && 
+            u.name.toLowerCase().trim() === displayName.toLowerCase().trim()
+          );
+
+          if (existingUnlinked) {
+            // Update existing instead of double-inserting
+            await supabase.from("lunch_users")
+              .update({ linked_user_id: member.user_id })
+              .eq("id", existingUnlinked.id)
+            
+            // Remove from trackerUsers so it doesn't get processed below if generic
+            const idx = trackerUsers!.indexOf(existingUnlinked);
+            if (idx > -1) trackerUsers!.splice(idx, 1);
+          } else {
+            await supabase.from("lunch_users").insert({
+              name: displayName,
+              org_id: orgId,
+              linked_user_id: member.user_id
+            })
+          }
         } catch (err) {
           console.error("Error syncing missing member:", err)
         }
@@ -145,10 +162,39 @@ export async function getUsers(): Promise<LunchUser[]> {
       .select("*")
       .eq("org_id", orgId)
       .order("name")
-    return updated || []
+    
+    trackerUsers = updated || []
   }
 
-  return trackerUsers || []
+  // Final safety deduplication before returning to UI
+  const finalUsers = trackerUsers || []
+  const uniqueUsers: LunchUser[] = []
+  const seenLinkedIds = new Set<string>()
+  const seenNames = new Set<string>()
+
+  // Sort: prioritize linked users so they 'claim' their names/IDs first
+  const sortedUsers = [...finalUsers].sort((a, b) => {
+    if (a.linked_user_id && !b.linked_user_id) return -1
+    if (!a.linked_user_id && b.linked_user_id) return 1
+    return 0
+  })
+
+  for (const u of sortedUsers) {
+    const nameKey = u.name.toLowerCase().trim()
+    
+    // 1. Skip if we've already seen this specific Supabase user ID
+    if (u.linked_user_id && seenLinkedIds.has(u.linked_user_id)) continue
+    
+    // 2. Skip if we've already seen this name (prevents duplicate labels)
+    // We only do this if it's an unlinked user or if the name is very specific
+    if (seenNames.has(nameKey)) continue
+
+    uniqueUsers.push(u)
+    if (u.linked_user_id) seenLinkedIds.add(u.linked_user_id)
+    seenNames.add(nameKey)
+  }
+
+  return uniqueUsers.sort((a, b) => a.name.localeCompare(b.name))
 }
 
 // Add a member of this org to lunch tracking (they must have an account)

@@ -40,11 +40,11 @@ export function DataAuditTable({ entries, currency }: DataAuditTableProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead className="text-right">Total Expense</TableHead>
-              <TableHead className="text-right">Total Shares</TableHead>
-              <TableHead className="text-right">Total Paid</TableHead>
-              <TableHead>Issues</TableHead>
+              <TableHead className="text-center">Date</TableHead>
+              <TableHead className="text-center">Total Expense</TableHead>
+              <TableHead className="text-center">Total Shares</TableHead>
+              <TableHead className="text-center">Total Paid</TableHead>
+              <TableHead className="text-center">Issues</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -55,23 +55,23 @@ export function DataAuditTable({ entries, currency }: DataAuditTableProps) {
                   key={entry.id}
                   className={cn(hasIssues && "bg-destructive/5")}
                 >
-                  <TableCell>
+                  <TableCell className="text-center">
                     {new Date(entry.date).toLocaleDateString()}
                   </TableCell>
                   <TableCell
                     className={cn(
-                      "text-right",
+                      "text-center",
                       entry.totalExpense === 0 && "text-red-500"
                     )}
                   >
                     {currency} {entry.totalExpense.toLocaleString()}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center">
                     {currency} {entry.totalShares.toLocaleString()}
                   </TableCell>
                   <TableCell
                     className={cn(
-                      "text-right",
+                      "text-center",
                       entry.totalPayments === 0 &&
                         entry.totalExpense > 0 &&
                         "text-red-500"
@@ -79,16 +79,16 @@ export function DataAuditTable({ entries, currency }: DataAuditTableProps) {
                   >
                     {currency} {entry.totalPayments.toLocaleString()}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-center">
                     {hasIssues ? (
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center justify-center gap-2">
                         <AlertCircle className="h-4 w-4 text-red-500" />
                         <span className="text-sm text-red-500">
                           {entry.issues.join(", ")}
                         </span>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center justify-center gap-2">
                         <CheckCircle className="h-4 w-4 text-emerald-500" />
                         <span className="text-sm text-muted-foreground">
                           No issues

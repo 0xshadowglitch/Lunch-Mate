@@ -59,7 +59,7 @@ function PaymentAmountEdit({ entryId, userId, initialValue, entryData, currency 
 
   if (isEditing) {
     return (
-      <div className="flex items-center justify-end p-1">
+      <div className="flex items-center justify-center p-1">
         <Input
           className="h-8 w-20 text-right font-black bg-background border-primary text-xs"
           type="number"
@@ -149,7 +149,7 @@ function TotalExpenseEdit({ id, initialValue, date, currency, userDetails, curre
 
   if (isEditing) {
     return (
-      <div className="flex items-center justify-end p-2 gap-2">
+      <div className="flex items-center justify-center p-2 gap-2">
         <Input
           className="h-10 w-24 text-right font-black bg-background border-primary focus-visible:ring-1"
           type="number"
@@ -204,7 +204,7 @@ function TotalExpenseEdit({ id, initialValue, date, currency, userDetails, curre
 
   return (
     <div
-      className="cursor-pointer hover:bg-primary/5 transition-colors px-4 py-6 text-right tabular-nums group h-full flex flex-col justify-center"
+      className="cursor-pointer hover:bg-primary/5 transition-colors px-4 py-6 text-center tabular-nums group h-full flex flex-col justify-center"
       onClick={() => setIsEditing(true)}
       title="Click to edit total"
     >
@@ -250,17 +250,17 @@ export function DailyLunchTracker({ entries, users, currency, currentUserId }: D
                 <TableHead colSpan={4} className="text-xs font-black uppercase tracking-widest text-muted-foreground/50 h-10">Entry Basics</TableHead>
                 <TableHead colSpan={users.length} className="text-xs font-black uppercase tracking-widest text-emerald-500/50 text-center border-l border-primary/5 h-10">1. Attendance</TableHead>
                 <TableHead className="w-0 p-0 border-r border-primary/5 h-10" />
-                <TableHead colSpan={users.length} className="text-xs font-black uppercase tracking-widest text-primary/50 text-right border-l border-primary/5 h-10">2. Share Breakdown</TableHead>
+                <TableHead colSpan={users.length} className="text-xs font-black uppercase tracking-widest text-primary/50 text-center border-l border-primary/5 h-10">2. Share Breakdown</TableHead>
                 <TableHead className="w-0 p-0 border-r border-primary/5 h-10" />
-                <TableHead colSpan={users.length} className="text-xs font-black uppercase tracking-widest text-amber-500/50 text-right border-l border-primary/5 h-10">3. Amount Paid</TableHead>
+                <TableHead colSpan={users.length} className="text-xs font-black uppercase tracking-widest text-amber-500/50 text-center border-l border-primary/5 h-10">3. Amount Paid</TableHead>
                 <TableHead className="w-0 p-0 border-r border-primary/5 h-10" />
-                <TableHead colSpan={users.length} className="text-xs font-black uppercase tracking-widest text-blue-500/50 text-right border-l border-primary/5 h-10">4. Running Balance</TableHead>
+                <TableHead colSpan={users.length} className="text-xs font-black uppercase tracking-widest text-blue-500/50 text-center border-l border-primary/5 h-10">4. Running Balance</TableHead>
                 <TableHead className="sticky right-0 z-30 h-10 bg-background/95 backdrop-blur-sm border-l border-primary/10 shadow-[-4px_0_12px_-4px_rgba(0,0,0,0.1)]" />
               </TableRow>
               <TableRow className="bg-primary/10 hover:bg-primary/10 h-14">
                 <TableHead className="font-bold text-primary px-4 whitespace-nowrap">Date</TableHead>
                 <TableHead className="font-bold text-primary whitespace-nowrap">Day</TableHead>
-                <TableHead className="text-right font-bold text-primary px-4 whitespace-nowrap">Total Expense</TableHead>
+                <TableHead className="text-center font-bold text-primary px-4 whitespace-nowrap">Total Expense</TableHead>
                 <TableHead className="font-bold text-primary border-r border-primary/5 px-4 min-w-[140px] whitespace-nowrap">Paid By</TableHead>
                 {users.map((user) => (
                   <TableHead
@@ -279,13 +279,13 @@ export function DailyLunchTracker({ entries, users, currency, currentUserId }: D
                 {users.map((user) => (
                   <TableHead
                     key={`${user.id}-share`}
-                    className="text-right font-semibold text-primary min-w-[100px] max-w-[120px]"
+                    className="text-center font-semibold text-primary min-w-[100px] max-w-[120px]"
                   >
                     <UserLabel
                       name={user.name}
                       isMe={user.linked_user_id === currentUserId}
                       suffix="Share"
-                      className="text-[10px] text-right"
+                      className="text-[10px] text-center"
                     />
                   </TableHead>
                 ))}
@@ -293,13 +293,13 @@ export function DailyLunchTracker({ entries, users, currency, currentUserId }: D
                 {users.map((user) => (
                   <TableHead
                     key={`${user.id}-paid`}
-                    className="text-right font-semibold text-primary min-w-[100px] max-w-[120px]"
+                    className="text-center font-semibold text-primary min-w-[100px] max-w-[120px]"
                   >
                     <UserLabel
                       name={user.name}
                       isMe={user.linked_user_id === currentUserId}
                       suffix="Paid"
-                      className="text-[10px] text-right"
+                      className="text-[10px] text-center"
                     />
                   </TableHead>
                 ))}
@@ -307,13 +307,13 @@ export function DailyLunchTracker({ entries, users, currency, currentUserId }: D
                 {users.map((user) => (
                   <TableHead
                     key={`${user.id}-bal`}
-                    className="text-right font-semibold text-primary min-w-[100px] max-w-[120px]"
+                    className="text-center font-semibold text-primary min-w-[100px] max-w-[120px]"
                   >
                     <UserLabel
                       name={user.name}
                       isMe={user.linked_user_id === currentUserId}
                       suffix="Bal"
-                      className="text-[10px] text-right"
+                      className="text-[10px] text-center"
                     />
                   </TableHead>
                 ))}
@@ -344,10 +344,10 @@ export function DailyLunchTracker({ entries, users, currency, currentUserId }: D
                     <TableCell className="font-bold whitespace-nowrap group-hover:text-primary transition-colors">
                       {formatDate(entry.date)}
                     </TableCell>
-                    <TableCell className="text-muted-foreground font-medium uppercase text-[10px]">
+                    <TableCell className="text-center text-muted-foreground font-medium uppercase text-[10px]">
                       {getDayName(entry.date)}
                     </TableCell>
-                    <TableCell className="text-right tabular-nums font-black text-lg px-4 py-6 border-l border-primary/5 p-0">
+                    <TableCell className="text-center tabular-nums font-black text-lg px-4 py-6 border-l border-primary/5 p-0">
                       <TotalExpenseEdit
                         id={entry.id}
                         initialValue={entry.totalExpense}
@@ -357,7 +357,7 @@ export function DailyLunchTracker({ entries, users, currency, currentUserId }: D
                         currentUserId={currentUserId}
                       />
                     </TableCell>
-                    <TableCell className="border-r border-primary/5 px-4 h-full">
+                    <TableCell className="text-center border-r border-primary/5 px-4 h-full">
                       <Select
                         defaultValue={entry.userDetails.find(d => d.paid > 0)?.userId || ""}
                         onValueChange={async (newPayerId) => {
@@ -480,7 +480,7 @@ export function DailyLunchTracker({ entries, users, currency, currentUserId }: D
                       return (
                         <TableCell
                           key={`${entry.id}-${user.id}-share`}
-                          className="text-right tabular-nums"
+                          className="text-center tabular-nums"
                         >
                           {currency}{(detail?.share || 0).toLocaleString("en-IN", {
                             minimumFractionDigits: 2,
@@ -495,7 +495,7 @@ export function DailyLunchTracker({ entries, users, currency, currentUserId }: D
                       return (
                         <TableCell
                           key={`${entry.id}-${user.id}-paid`}
-                          className="text-right tabular-nums p-2"
+                          className="text-center tabular-nums p-2"
                         >
                           <PaymentAmountEdit
                             entryId={entry.id}
@@ -515,7 +515,7 @@ export function DailyLunchTracker({ entries, users, currency, currentUserId }: D
                         <TableCell
                           key={`${entry.id}-${user.id}-bal`}
                           className={cn(
-                            "text-right tabular-nums font-black text-sm transition-colors",
+                            "text-center tabular-nums font-black text-sm transition-colors",
                             balance > 0
                               ? "text-emerald-500 bg-emerald-500/5"
                               : balance < 0

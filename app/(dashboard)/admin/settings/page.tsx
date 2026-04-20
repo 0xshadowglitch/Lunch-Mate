@@ -342,30 +342,33 @@ export default function TeamSettingsPage() {
             <Table>
               <TableHeader className="bg-muted/10">
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className="h-10 text-[10px] uppercase font-black tracking-widest px-6">Restricted To</TableHead>
-                  <TableHead className="h-10 text-[10px] uppercase font-black tracking-widest">Status</TableHead>
-                  <TableHead className="h-10 text-[10px] uppercase font-black tracking-widest">Expires</TableHead>
-                  <TableHead className="h-10 text-[10px] uppercase font-black tracking-widest text-right px-6">Action</TableHead>
+                  <TableHead className="h-10 text-[10px] uppercase font-black tracking-widest text-center px-6">Restricted To</TableHead>
+                  <TableHead className="h-10 text-[10px] uppercase font-black tracking-widest text-center">Status</TableHead>
+                  <TableHead className="h-10 text-[10px] uppercase font-black tracking-widest text-center">Expires</TableHead>
+                  <TableHead className="h-10 text-[10px] uppercase font-black tracking-widest text-center px-6">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {pendingInvites.map((invite) => (
                   <TableRow key={invite.id} className="group">
-                    <TableCell className="py-3 px-6 text-xs font-medium">
-                      {invite.email ? (
-                        <div className="flex items-center gap-2">
-                          <Mail className="h-3 w-3 text-muted-foreground" />
-                          {invite.email}
-                        </div>
-                      ) : (
-                        <span className="text-muted-foreground italic text-[10px] uppercase tracking-tighter">Public Link</span>
-                      )}
+                    <TableCell className="py-3 px-6 text-xs font-medium text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        {invite.email ? (
+                          <>
+                            <Mail className="h-3 w-3 text-muted-foreground" />
+                            {invite.email}
+                          </>
+                        ) : (
+                          <span className="text-muted-foreground italic text-[10px] uppercase tracking-tighter">Public Link</span>
+                        )}
+                      </div>
                     </TableCell>
-                    <TableCell className="py-3">{statusBadge(invite.status)}</TableCell>
-                    <TableCell className="py-3 text-[10px] text-muted-foreground font-bold">
+                    <TableCell className="py-3 text-center">{statusBadge(invite.status)}</TableCell>
+                    <TableCell className="py-3 text-[10px] text-muted-foreground font-bold text-center">
                       {formatDistanceToNow(new Date(invite.expires_at), { addSuffix: true })}
                     </TableCell>
-                    <TableCell className="py-3 text-right px-6 flex items-center justify-end gap-1">
+                    <TableCell className="py-3 text-center px-6">
+                      <div className="flex items-center justify-center gap-1">
                       <Button
                         variant="ghost"
                         size="icon"

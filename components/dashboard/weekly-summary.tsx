@@ -127,33 +127,33 @@ export function WeeklySummary({
               <TableHeader>
                 <TableRow className="bg-primary/10 hover:bg-primary/10 border-none">
                   <TableHead className="font-bold text-primary w-10"></TableHead>
-                  <TableHead className="font-bold text-primary">Week Start</TableHead>
-                  <TableHead className="text-right font-bold text-primary">
+                  <TableHead className="text-center font-bold text-primary">Week Start</TableHead>
+                  <TableHead className="text-center font-bold text-primary">
                     Total Expense
                   </TableHead>
                   {users.map((user) => (
                     <TableHead
                       key={`${user.id}-paid`}
-                      className="text-right font-bold text-primary min-w-[100px] max-w-[120px]"
+                      className="text-center font-bold text-primary min-w-[100px] max-w-[120px]"
                     >
                       <UserLabel 
                         name={user.name} 
                         isMe={user.linked_user_id === currentUserId} 
                         suffix="Paid"
-                        className="text-[10px] text-right" 
+                        className="text-[10px] text-center" 
                       />
                     </TableHead>
                   ))}
                   {users.map((user) => (
                     <TableHead
                       key={`${user.id}-bal`}
-                      className="text-right font-bold text-primary min-w-[100px] max-w-[120px]"
+                      className="text-center font-bold text-primary min-w-[100px] max-w-[120px]"
                     >
                       <UserLabel 
                         name={user.name} 
                         isMe={user.linked_user_id === currentUserId} 
                         suffix="Bal"
-                        className="text-[10px] text-right" 
+                        className="text-[10px] text-center" 
                       />
                     </TableHead>
                   ))}
@@ -184,10 +184,10 @@ export function WeeklySummary({
                             <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                           )}
                         </TableCell>
-                        <TableCell className="font-bold py-4">
+                        <TableCell className="text-center font-bold py-4">
                           {formatDate(week.weekStart)}
                         </TableCell>
-                        <TableCell className="text-right tabular-nums font-bold py-4">
+                        <TableCell className="text-center tabular-nums font-bold py-4">
                           {currency}{week.totalExpense.toLocaleString("en-IN", {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
@@ -198,7 +198,7 @@ export function WeeklySummary({
                           return (
                             <TableCell
                               key={`${week.weekStart}-${user.id}-paid`}
-                              className="text-right tabular-nums py-4"
+                              className="text-center tabular-nums py-4"
                             >
                               {currency}{(stat?.paid || 0).toLocaleString("en-IN", {
                                 minimumFractionDigits: 2,
@@ -214,7 +214,7 @@ export function WeeklySummary({
                             <TableCell
                               key={`${week.weekStart}-${user.id}-bal`}
                               className={cn(
-                                "text-right tabular-nums font-bold py-4",
+                                "text-center tabular-nums font-bold py-4",
                                 balance > 0
                                   ? "text-emerald-500"
                                   : balance < 0
@@ -242,8 +242,8 @@ export function WeeklySummary({
                                 <Table>
                                   <TableHeader>
                                     <TableRow className="bg-background/50 hover:bg-background/50 border-none">
-                                      <TableHead className="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Date</TableHead>
-                                      <TableHead className="py-3 px-4 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground">Amount</TableHead>
+                                      <TableHead className="py-3 px-4 text-center text-xs font-bold uppercase tracking-wider text-muted-foreground">Date</TableHead>
+                                      <TableHead className="py-3 px-4 text-center text-xs font-bold uppercase tracking-wider text-muted-foreground">Amount</TableHead>
                                       {users.map(u => (
                                         <TableHead key={u.id} className="py-3 px-4 text-center text-xs font-bold uppercase tracking-wider text-muted-foreground min-w-[100px] max-w-[120px]">
                                           <UserLabel 
@@ -258,8 +258,8 @@ export function WeeklySummary({
                                   <TableBody>
                                     {week.entries.map(entry => (
                                       <TableRow key={entry.id} className="hover:bg-primary/5 border-b border-border/20 last:border-none">
-                                        <TableCell className="py-3 px-4 text-sm font-medium">{formatDate(entry.date)}</TableCell>
-                                        <TableCell className="py-3 px-4 text-right tabular-nums text-sm font-bold">{currency}{entry.totalExpense.toLocaleString()}</TableCell>
+                                        <TableCell className="py-3 px-4 text-center text-sm font-medium">{formatDate(entry.date)}</TableCell>
+                                        <TableCell className="py-3 px-4 text-center tabular-nums text-sm font-bold">{currency}{entry.totalExpense.toLocaleString()}</TableCell>
                                         {users.map(user => {
                                           const detail = entry.userDetails.find(d => d.userId === user.id)
                                           return (

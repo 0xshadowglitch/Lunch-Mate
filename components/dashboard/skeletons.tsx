@@ -28,14 +28,14 @@ export function TableSkeleton({ rows = 5 }: { rows?: number }) {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <div className="flex items-center justify-between py-2 border-b">
+          <div className="flex items-center justify-center gap-8 py-2 border-b">
             <Skeleton className="h-4 w-24" />
             <Skeleton className="h-4 w-24" />
             <Skeleton className="h-4 w-24" />
             <Skeleton className="h-4 w-24" />
           </div>
           {Array.from({ length: rows }).map((_, i) => (
-            <div key={i} className="flex items-center justify-between py-2 border-b last:border-0">
+            <div key={i} className="flex items-center justify-center gap-8 py-2 border-b last:border-0">
               <Skeleton className="h-4 w-32" />
               <Skeleton className="h-4 w-20" />
               <Skeleton className="h-4 w-20" />

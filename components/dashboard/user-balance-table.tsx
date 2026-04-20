@@ -30,31 +30,33 @@ export function UserBalanceTable({ balances, currency, currentUserId }: UserBala
         <Table>
           <TableHeader>
             <TableRow className="bg-primary/5 hover:bg-primary/5 border-none">
-              <TableHead className="py-4 px-4 font-black text-primary uppercase text-[10px] tracking-widest">User</TableHead>
-              <TableHead className="py-4 px-4 text-right font-black text-primary uppercase text-[10px] tracking-widest">Total Paid</TableHead>
-              <TableHead className="py-4 px-4 text-right font-black text-primary uppercase text-[10px] tracking-widest">Total Shares</TableHead>
-              <TableHead className="py-4 px-4 text-right font-black text-primary uppercase text-[10px] tracking-widest">Current Balance</TableHead>
+              <TableHead className="py-4 px-4 text-center font-black text-primary uppercase text-[10px] tracking-widest">User</TableHead>
+              <TableHead className="py-4 px-4 text-center font-black text-primary uppercase text-[10px] tracking-widest">Total Paid</TableHead>
+              <TableHead className="py-4 px-4 text-center font-black text-primary uppercase text-[10px] tracking-widest">Total Shares</TableHead>
+              <TableHead className="py-4 px-4 text-center font-black text-primary uppercase text-[10px] tracking-widest">Current Balance</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {balances.map((balance) => (
               <TableRow key={balance.id} className="hover:bg-muted/40 transition-colors border-b border-border/30 last:border-none">
-                <TableCell className="py-5 px-4 font-bold text-sm tracking-tight max-w-[150px]">
-                  <UserLabel 
-                    name={balance.name} 
-                    isMe={balance.linked_user_id === currentUserId} 
-                    className="text-sm"
-                  />
+                <TableCell className="py-5 px-4 text-center font-bold text-sm tracking-tight max-w-[150px]">
+                  <div className="flex justify-center">
+                    <UserLabel 
+                      name={balance.name} 
+                      isMe={balance.linked_user_id === currentUserId} 
+                      className="text-sm"
+                    />
+                  </div>
                 </TableCell>
-                <TableCell className="py-5 px-4 text-right tabular-nums text-sm font-medium">
+                <TableCell className="py-5 px-4 text-center tabular-nums text-sm font-medium">
                   {currency} {balance.totalPaid.toLocaleString()}
                 </TableCell>
-                <TableCell className="py-5 px-4 text-right tabular-nums text-sm font-medium">
+                <TableCell className="py-5 px-4 text-center tabular-nums text-sm font-medium">
                   {currency} {balance.totalShares.toLocaleString()}
                 </TableCell>
                 <TableCell
                   className={cn(
-                    "py-5 px-4 text-right tabular-nums text-sm font-black",
+                    "py-5 px-4 text-center tabular-nums text-sm font-black",
                     balance.balance > 0
                       ? "text-emerald-500"
                       : balance.balance < 0

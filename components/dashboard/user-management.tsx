@@ -244,9 +244,9 @@ export function UserManagement({ users, balances, currentUserId, currency = "PKR
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead className="text-right">Days Present</TableHead>
-              <TableHead className="text-right">Balance</TableHead>
+              <TableHead className="text-center">Name</TableHead>
+              <TableHead className="text-center">Days Present</TableHead>
+              <TableHead className="text-center">Balance</TableHead>
               <TableHead className="text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -255,8 +255,8 @@ export function UserManagement({ users, balances, currentUserId, currency = "PKR
               const balance = getBalanceForUser(user.id)
               return (
                 <TableRow key={user.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-2">
+                  <TableCell className="font-medium text-center">
+                    <div className="flex items-center justify-center gap-2">
                       <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 shrink-0">
                         <span className="text-xs font-semibold text-primary">
                           {user.name.charAt(0).toUpperCase()}
@@ -269,10 +269,10 @@ export function UserManagement({ users, balances, currentUserId, currency = "PKR
                       />
                     </div>
                   </TableCell>
-                  <TableCell className="text-right">{balance?.daysPresent || 0}</TableCell>
+                  <TableCell className="text-center">{balance?.daysPresent || 0}</TableCell>
                   <TableCell
                     className={cn(
-                      "text-right font-semibold",
+                      "text-center font-semibold",
                       (balance?.balance || 0) > 0
                         ? "text-emerald-500"
                         : (balance?.balance || 0) < 0

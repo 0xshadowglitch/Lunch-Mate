@@ -139,7 +139,7 @@ function PaymentAmountEdit({ entryId, userId, initialValue, entryData, currency,
           maximumFractionDigits: 2,
         })}
       </span>
-      <Pencil className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+      {isAdmin && isPresent && <Pencil className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />}
     </div>
   )
 }

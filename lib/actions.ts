@@ -449,6 +449,59 @@ export async function deleteEntry(entryId: string): Promise<{ success: boolean; 
   }
 }
 
+// Update an existing entry
+export async function updateEntry(
+  entryId: string,
+  data: {
+    date: string
+    totalExpense: number
+    shares: { userId: string; amount: number }[]
+    payments: { userId: string; amount: number }[]
+  }
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const auth = await getAuthorizedOrgId()
+    if (!auth) return { success: false, error: "No organization found" }
+    const { orgId, role } = auth
+    if (role !== 'admin') return { success: false, error: "Only admins can edit entries" }
+
+    const supabase = await createClient()
+
+    // 1. Update the main entry
+    const { error: entryError } = await supabase
+      .from("lunch_entries")
+      .update({ date: data.date, total_expense: data.totalExpense })
+      .eq("id", entryId)
+      .eq("org_id", orgId)
+
+    if (entryError) return { success: false, error: entryError.message }
+
+    // 2. Delete existing shares/payments
+    await supabase.from("lunch_shares").delete().eq("entry_id", entryId)
+    await supabase.from("lunch_payments").delete().eq("entry_id", entryId)
+
+    // 3. Insert new shares
+    if (data.shares.length > 0) {
+      await supabase.from("lunch_shares").insert(
+        data.shares.map((s) => ({ entry_id: entryId, user_id: s.userId, share_amount: s.amount, org_id: orgId }))
+      )
+    }
+
+    // 4. Insert new payments
+    if (data.payments.length > 0) {
+      await supabase.from("lunch_payments").insert(
+        data.payments.map((p) => ({ entry_id: entryId, user_id: p.userId, paid_amount: p.amount, org_id: orgId }))
+      )
+    }
+
+    revalidatePath("/admin")
+    revalidatePath("/user")
+    return { success: true }
+  } catch (e: any) {
+    return { success: false, error: e.message }
+  }
+}
+
 // Get summary statistics for current org
 export async function getStats() {
   const auth = await getAuthorizedOrgId()

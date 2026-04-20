@@ -81,20 +81,20 @@ export function WeeklySummary({
   return (
     <div className="space-y-6">
       {/* Overall Balances (Carry Over) */}
-      <Card>
+      <Card className="mb-8 shadow-md border-primary/10">
         <CardHeader className="pb-3 px-6">
           <CardTitle className="text-lg font-semibold text-primary">
             Overall Balances (Carry Over)
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="mb-8">
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
             {overallBalances.map((balance) => (
               <div
                 key={balance.userId}
                 className="flex items-center justify-between rounded-xl border border-border/50 bg-card/50 p-3 backdrop-blur-sm shadow-sm"
               >
-                <span className="font-medium text-foreground text-sm">{balance.userName}</span>
+                <span className="font-medium text-foreground text-sm">{balance.userName || "Unknown User"}</span>
                 <span
                   className={cn(
                     "font-semibold tabular-nums",
@@ -118,10 +118,10 @@ export function WeeklySummary({
 
       {/* Weekly Summary Table */}
       <Card>
-        <CardHeader className="pb-3 px-6">
+        <CardHeader className="px-6">
           <CardTitle className="text-lg font-semibold">Weekly Summary</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="mb-8">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>

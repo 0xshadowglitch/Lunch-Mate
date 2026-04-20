@@ -78,10 +78,10 @@ export function MonthlySummary({
 
   return (
     <Card>
-      <CardHeader className="pb-3 px-6">
+      <CardHeader className="px-6">
         <CardTitle className="text-lg font-semibold">Monthly Summary</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="mb-8">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>

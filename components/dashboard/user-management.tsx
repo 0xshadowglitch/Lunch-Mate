@@ -32,9 +32,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
-import { Trash2, UserPlus, Loader2, Mail, ShieldCheck, User } from "lucide-react"
+import { Trash2, UserPlus, Loader2, Mail, ShieldCheck, User, Edit2 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { addUser, deleteUser, type LunchUser, type UserBalance } from "@/lib/actions"
+import { addUser, deleteUser, updateUser, type LunchUser, type UserBalance } from "@/lib/actions"
 import { UserLabel } from "./user-label"
 import { createClient } from "@/lib/supabase/client"
 import { getUserOrg } from "@/lib/org-actions"
@@ -59,6 +59,9 @@ export function UserManagement({ users, balances, currentUserId, currency = "PKR
   const [availableMembers, setAvailableMembers] = useState<MemberProfile[]>([])
   const [loadingMembers, setLoadingMembers] = useState(false)
   const [selectedMember, setSelectedMember] = useState<MemberProfile | null>(null)
+  const [editingUser, setEditingUser] = useState<LunchUser | null>(null)
+  const [editName, setEditName] = useState("")
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [addError, setAddError] = useState<string | null>(null)
 
   const loadAvailableMembers = useCallback(async () => {
@@ -100,6 +103,23 @@ export function UserManagement({ users, balances, currentUserId, currency = "PKR
         setSelectedMember(null)
       } else {
         setAddError(result.error || "Failed to add user")
+      }
+    })
+  }
+
+  const handleEditUser = (user: LunchUser) => {
+    setEditingUser(user)
+    setEditName(user.name)
+    setIsEditDialogOpen(true)
+  }
+
+  const handleUpdateUser = () => {
+    if (!editingUser) return
+    startTransition(async () => {
+      const result = await updateUser(editingUser.id, editName)
+      if (result.success) {
+        setIsEditDialogOpen(false)
+        setEditingUser(null)
       }
     })
   }
@@ -220,7 +240,7 @@ export function UserManagement({ users, balances, currentUserId, currency = "PKR
           </DialogContent>
         </Dialog>
       </CardHeader>
-      <CardContent>
+      <CardContent className="mb-8">
         <Table>
           <TableHeader>
             <TableRow>
@@ -263,21 +283,30 @@ export function UserManagement({ users, balances, currentUserId, currency = "PKR
                     {(balance?.balance || 0) >= 0 ? "+" : ""}{currency} {(balance?.balance || 0).toLocaleString()}
                   </TableCell>
                   <TableCell className="text-center">
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          className="hover:bg-primary/10 hover:text-primary"
+                          onClick={() => handleEditUser(user)}
                           disabled={isPending}
                         >
-                          {isPending ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-4 w-4" />
-                          )}
+                          <Edit2 className="h-4 w-4" />
                         </Button>
-                      </AlertDialogTrigger>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                              disabled={isPending}
+                            >
+                              {isPending ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
                           <AlertDialogTitle>Remove from Tracking</AlertDialogTitle>
@@ -322,6 +351,38 @@ export function UserManagement({ users, balances, currentUserId, currency = "PKR
           </TableBody>
         </Table>
       </CardContent>
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Member Name</DialogTitle>
+            <DialogDescription>
+              Change how this member appears across the dashboard.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <div className="space-y-2">
+              <label className="text-xs font-black uppercase tracking-widest opacity-60">Display Name</label>
+              <input 
+                autoFocus
+                className="w-full h-12 bg-background border border-border rounded-xl px-4 font-bold text-sm focus:border-primary outline-none transition-all"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                placeholder="Enter name"
+                onKeyDown={(e) => e.key === 'Enter' && handleUpdateUser()}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} disabled={isPending}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdateUser} disabled={isPending || !editName.trim()}>
+              {isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   )
 }

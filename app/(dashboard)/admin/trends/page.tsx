@@ -26,7 +26,7 @@ export default async function TrendsPage() {
                 Average Expense
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="mb-8">
               <div className="text-2xl font-bold">PKR {avgExpense.toLocaleString()}</div>
             </CardContent>
           </Card>
@@ -36,7 +36,7 @@ export default async function TrendsPage() {
                 Highest Expense
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="mb-8">
               <div className="text-2xl font-bold text-red-500">
                 PKR {maxExpense.toLocaleString()}
               </div>
@@ -48,7 +48,7 @@ export default async function TrendsPage() {
                 Lowest Expense
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="mb-8">
               <div className="text-2xl font-bold text-emerald-500">
                 PKR {minExpense.toLocaleString()}
               </div>

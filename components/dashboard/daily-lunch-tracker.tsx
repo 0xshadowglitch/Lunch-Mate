@@ -54,7 +54,7 @@ export function DailyLunchTracker({ entries, users, currency, currentUserId }: D
           <AddEntryDialog users={users} currency={currency} currentUserId={currentUserId} />
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="mb-8">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>

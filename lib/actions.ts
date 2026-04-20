@@ -86,31 +86,67 @@ export async function getUsers(): Promise<LunchUser[]> {
   const trackedUserIds = new Set(trackerUsers?.map(u => u.linked_user_id))
   const missingMembers = members?.filter(m => !trackedUserIds.has(m.user_id)) || []
 
-    // 3. Auto-sync missing members if found
-    if (missingMembers.length > 0) {
+  const isGeneric = (name: string) => {
+    const n = (name || "").trim().toUpperCase();
+    return !n || n.includes("TEAM MEMBER") || n.includes("MEMBER (ME)") || n === "MEMBER" || n === "USER" || n === "LUNCH MATE";
+  };
+
+  // 3. Auto-sync missing members or generic names if found
+  if (missingMembers.length > 0 || trackerUsers?.some(u => isGeneric(u.name))) {
+    try {
       const { createAdminClient } = await import("@/lib/supabase/admin")
       const adminSupabase = createAdminClient()
       
+      // Sync missing members
       for (const member of missingMembers) {
-        // Get profile info for name
-        const { data: { user } } = await adminSupabase.auth.admin.getUserById(member.user_id)
-        const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Team Member";
-        
-        await supabase.from("lunch_users").insert({
-          name: displayName,
-          org_id: orgId,
-          linked_user_id: member.user_id
-        })
+        try {
+          const { data: { user } } = await adminSupabase.auth.admin.getUserById(member.user_id)
+          const fullName = user?.user_metadata?.full_name;
+          const emailPrefix = user?.email?.split("@")[0];
+          const displayName = (fullName && !isGeneric(fullName)) ? fullName : (emailPrefix || "User");
+          
+          await supabase.from("lunch_users").insert({
+            name: displayName,
+            org_id: orgId,
+            linked_user_id: member.user_id
+          })
+        } catch (err) {
+          console.error("Error syncing missing member:", err)
+        }
       }
-      
-      // Re-fetch to get complete list
-      const { data: updated } = await supabase
-        .from("lunch_users")
-        .select("*")
-        .eq("org_id", orgId)
-        .order("name")
-      return updated || []
+
+      // Update generic names for existing members
+      const genericUsers = trackerUsers?.filter(u => isGeneric(u.name) && u.linked_user_id) || []
+      for (const gUser of genericUsers) {
+        try {
+          const { data: { user } } = await adminSupabase.auth.admin.getUserById(gUser.linked_user_id!)
+          const fullName = user?.user_metadata?.full_name;
+          const emailPrefix = user?.email?.split("@")[0];
+          
+          // Prioritize full_name if it's not generic, otherwise use email prefix
+          const displayName = (fullName && !isGeneric(fullName)) ? fullName : emailPrefix;
+          
+          if (displayName && !isGeneric(displayName)) {
+            await supabase.from("lunch_users")
+              .update({ name: displayName })
+              .eq("id", gUser.id)
+          }
+        } catch (err) {
+          console.error("Error syncing generic name:", err)
+        }
+      }
+    } catch (adminErr) {
+      console.warn("Auto-sync skipped: SUPABASE_SERVICE_ROLE_KEY may be missing.", adminErr)
     }
+    
+    // Re-fetch to get complete list (even if sync partially failed)
+    const { data: updated } = await supabase
+      .from("lunch_users")
+      .select("*")
+      .eq("org_id", orgId)
+      .order("name")
+    return updated || []
+  }
 
   return trackerUsers || []
 }
@@ -164,6 +200,35 @@ export async function addUser(
 
     revalidatePath("/admin")
     revalidatePath("/admin/users")
+    return { success: true }
+  } catch (e: any) {
+    return { success: false, error: e.message }
+  }
+}
+
+// Update a user (e.g. change their name)
+export async function updateUser(userId: string, name: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const auth = await getAuthorizedOrgId()
+    if (!auth) return { success: false, error: "No organization found" }
+    const { orgId, role } = auth
+    if (role !== 'admin') return { success: false, error: "Only admins can update users" }
+
+    const supabase = await createClient()
+    const { error } = await supabase
+      .from("lunch_users")
+      .update({ name })
+      .eq("id", userId)
+      .eq("org_id", orgId)
+
+    if (error) {
+      console.error("Error updating user:", error)
+      return { success: false, error: error.message }
+    }
+
+    revalidatePath("/admin")
+    revalidatePath("/admin/users")
+    revalidatePath("/user")
     return { success: true }
   } catch (e: any) {
     return { success: false, error: e.message }
@@ -234,14 +299,9 @@ export async function getUserBalances(): Promise<UserBalance[]> {
   const { orgId } = auth
   const supabase = await createClient()
 
-  // Get all users in org
-  const { data: users, error: usersError } = await supabase
-    .from("lunch_users")
-    .select("*")
-    .eq("org_id", orgId)
-    .order("name")
-
-  if (usersError || !users) return []
+  // Get all users in org (synced)
+  const users = await getUsers()
+  if (!users) return []
 
   // Get all shares in org
   const { data: shares } = await supabase
@@ -440,8 +500,8 @@ export async function getWeeklySummary() {
   const { orgId } = auth
   const supabase = await createClient()
 
+  const users = await getUsers()
   const { data: entries } = await supabase.from("lunch_entries").select("*").eq("org_id", orgId).order("date", { ascending: true })
-  const { data: users } = await supabase.from("lunch_users").select("id, name").eq("org_id", orgId).order("name")
   const { data: shares } = await supabase.from("lunch_shares").select("*").eq("org_id", orgId)
   const { data: payments } = await supabase.from("lunch_payments").select("*").eq("org_id", orgId)
 
@@ -529,7 +589,7 @@ export async function getWeeklySummary() {
     }
   })
 
-  return { weeks, users: users.map(u => ({ id: u.id, name: u.name })), overallBalances }
+  return { weeks, users, overallBalances }
 }
 
 // Get monthly summary data for current org
@@ -539,8 +599,8 @@ export async function getMonthlySummary() {
   const { orgId } = auth
   const supabase = await createClient()
 
+  const users = await getUsers()
   const { data: entries } = await supabase.from("lunch_entries").select("*").eq("org_id", orgId).order("date", { ascending: true })
-  const { data: users } = await supabase.from("lunch_users").select("id, name").eq("org_id", orgId).order("name")
   const { data: shares } = await supabase.from("lunch_shares").select("*").eq("org_id", orgId)
   const { data: payments } = await supabase.from("lunch_payments").select("*").eq("org_id", orgId)
 
@@ -602,7 +662,7 @@ export async function getMonthlySummary() {
     return { monthKey: month.monthKey, totalExpense: month.totalExpense, userStats, entries: monthEntryDetails }
   }).sort((a, b) => b.monthKey.localeCompare(a.monthKey))
 
-  return { months, users: users.map(u => ({ id: u.id, name: u.name })) }
+  return { months, users }
 }
 
 export async function getDailyLunchData() {
@@ -611,8 +671,8 @@ export async function getDailyLunchData() {
   const { orgId } = auth
   const supabase = await createClient()
 
+  const users = await getUsers()
   const { data: entries } = await supabase.from("lunch_entries").select("*").eq("org_id", orgId).order("date", { ascending: false })
-  const { data: users } = await supabase.from("lunch_users").select("id, name").eq("org_id", orgId).order("name")
   const { data: shares } = await supabase.from("lunch_shares").select("*").eq("org_id", orgId)
   const { data: payments } = await supabase.from("lunch_payments").select("*").eq("org_id", orgId)
 
@@ -649,5 +709,5 @@ export async function getDailyLunchData() {
     return { id: entry.id, date: entry.date, totalExpense: Number(entry.total_expense), userDetails }
   })
 
-  return { entries: entriesWithDetails.reverse(), users: users.map(u => ({ id: u.id, name: u.name })) }
+  return { entries: entriesWithDetails.reverse(), users }
 }

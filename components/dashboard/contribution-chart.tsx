@@ -23,7 +23,7 @@ export function ContributionChart({ data, currency }: ContributionChartProps) {
       <CardHeader className="pt-8 px-8 pb-4">
         <CardTitle className="text-lg font-black tracking-tight uppercase">Contribution Analysis</CardTitle>
       </CardHeader>
-      <CardContent className="px-8 pb-8">
+      <CardContent className="px-8 pb-12">
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} barGap={8}>
@@ -49,7 +49,7 @@ export function ContributionChart({ data, currency }: ContributionChartProps) {
                 tick={{ fontSize: 12, fill: "var(--color-muted-foreground)", fontWeight: 500 }}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(value) => `${currency}${value}`}
+                tickFormatter={(value) => `${currency || ""}${value}`}
                 dx={-10}
               />
               <Tooltip
@@ -62,7 +62,8 @@ export function ContributionChart({ data, currency }: ContributionChartProps) {
                   padding: "12px",
                 }}
                 labelStyle={{ color: "rgba(255,255,255,0.7)", fontWeight: "bold", marginBottom: "4px", fontSize: "12px", textTransform: "uppercase" }}
-                formatter={(value: number) => [`${currency}${value}`, ""]}
+                formatter={(value: number) => [`${currency || ""}${value || 0}`, ""]}
+                labelFormatter={(label) => label || "Unknown User"}
                 cursor={{ fill: "rgba(255, 255, 255, 0.05)", radius: 10 }}
               />
               <Legend

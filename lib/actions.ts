@@ -321,7 +321,7 @@ export async function getEntries(month?: string): Promise<LunchEntry[]> {
     .from("lunch_entries")
     .select("*")
     .eq("org_id", orgId)
-    .order("date", { ascending: false })
+    .order("date", { ascending: true })
 
   if (month) {
     const [year, monthNum] = month.split("-")
@@ -349,24 +349,17 @@ export async function getUserBalances(): Promise<UserBalance[]> {
   const users = await getUsers()
   if (!users) return []
 
-  // Get all shares in org
-  const { data: shares } = await supabase
-    .from("lunch_shares")
-    .select("user_id, share_amount")
-    .eq("org_id", orgId)
-
-  // Get all payments in org
-  const { data: payments } = await supabase
-    .from("lunch_payments")
-    .select("user_id, paid_amount")
-    .eq("org_id", orgId)
+  // Fetch all entries detail to calculate settled balances
+  const { entries } = await getDailyLunchData()
 
   return users.map((user) => {
-    const userShares = shares?.filter((s) => s.user_id === user.id) || []
-    const userPayments = payments?.filter((p) => p.user_id === user.id) || []
+    const userEntries = entries.map((e) => e.userDetails.find((ud) => ud.userId === user.id))
+    const totalPaid = userEntries.reduce((sum: number, ud) => sum + (ud?.paid || 0), 0)
+    const totalShares = userEntries.reduce((sum: number, ud) => sum + (ud?.share || 0), 0)
+    const totalBalance = userEntries.reduce((sum: number, ud) => sum + (ud?.balance || 0), 0)
 
-    const totalShares = userShares.reduce((sum, s) => sum + Number(s.share_amount), 0)
-    const totalPaid = userPayments.reduce((sum, p) => sum + Number(p.paid_amount), 0)
+    let finalBalance = Math.round(totalBalance * 100) / 100
+    if (Math.abs(finalBalance) < 1) finalBalance = 0
 
     return {
       id: user.id,
@@ -374,8 +367,8 @@ export async function getUserBalances(): Promise<UserBalance[]> {
       linked_user_id: user.linked_user_id,
       totalPaid,
       totalShares,
-      balance: totalPaid - totalShares,
-      daysPresent: userShares.length,
+      balance: finalBalance,
+      daysPresent: userEntries.filter((ud) => ud?.isPresent).length,
     }
   })
 }
@@ -391,7 +384,7 @@ export async function getEntriesWithDetails(month?: string): Promise<EntryWithDe
     .from("lunch_entries")
     .select("*")
     .eq("org_id", orgId)
-    .order("date", { ascending: false })
+    .order("date", { ascending: true })
 
   if (month) {
     const [year, monthNum] = month.split("-")
@@ -631,21 +624,6 @@ export async function getWeeklySummary() {
     const weekShares = shares?.filter((s) => entryIds.includes(s.entry_id)) || []
     const weekPayments = payments?.filter((p) => entryIds.includes(p.entry_id)) || []
 
-    const userStats = users.map((user) => {
-      const userShares = weekShares.filter((s) => s.user_id === user.id)
-      const userPayments = weekPayments.filter((p) => p.user_id === user.id)
-      const totalShares = userShares.reduce((sum, s) => sum + Number(s.share_amount), 0)
-      const totalPaid = userPayments.reduce((sum, p) => sum + Number(p.paid_amount), 0)
-
-      return {
-        userId: user.id,
-        userName: user.name,
-        paid: totalPaid,
-        shares: totalShares,
-        balance: totalPaid - totalShares,
-      }
-    })
-
     const weekEntryDetails = week.entries.map((entry: any) => {
       const entryShares = weekShares.filter((s) => s.entry_id === entry.id)
       const entryPayments = weekPayments.filter((p) => p.entry_id === entry.id)
@@ -653,12 +631,14 @@ export async function getWeeklySummary() {
       const userDetails = users.map((user) => {
         const share = entryShares.find((s) => s.user_id === user.id)
         const payment = entryPayments.find((p) => p.user_id === user.id)
+        const shareAmount = share ? Number(share.share_amount) : 0
+        const paidAmount = payment ? Number(payment.paid_amount) : 0
         return {
           userId: user.id,
           userName: user.name,
           isPresent: !!share,
-          share: share ? Number(share.share_amount) : 0,
-          paid: payment ? Number(payment.paid_amount) : 0,
+          share: shareAmount,
+          paid: paidAmount,
         }
       })
 
@@ -666,7 +646,25 @@ export async function getWeeklySummary() {
         id: entry.id,
         date: entry.date,
         totalExpense: Number(entry.total_expense),
-        userDetails,
+        userDetails: calculateSettlementAwareBalances(Number(entry.total_expense), userDetails),
+      }
+    })
+
+    const userStats = users.map((user) => {
+      const userWeekEntries = weekEntryDetails.map((e) => e.userDetails.find((ud) => ud.userId === user.id))
+      const totalPaid = userWeekEntries.reduce((sum: number, ud) => sum + (ud?.paid || 0), 0)
+      const totalShares = userWeekEntries.reduce((sum: number, ud) => sum + (ud?.share || 0), 0)
+      const totalBalance = userWeekEntries.reduce((sum: number, ud) => sum + (ud?.balance || 0), 0)
+
+      let finalBalance = Math.round(totalBalance * 100) / 100
+      if (Math.abs(finalBalance) < 1) finalBalance = 0
+
+      return {
+        userId: user.id,
+        userName: user.name,
+        paid: totalPaid,
+        shares: totalShares,
+        balance: finalBalance,
       }
     })
 
@@ -676,7 +674,7 @@ export async function getWeeklySummary() {
       userStats,
       entries: weekEntryDetails,
     }
-  }).sort((a, b) => new Date(b.weekStart).getTime() - new Date(a.weekStart).getTime())
+  }).sort((a, b) => new Date(a.weekStart).getTime() - new Date(b.weekStart).getTime())
 
   const overallBalances = users.map((user) => {
     const userShares = shares?.filter((s) => s.user_id === user.id) || []
@@ -721,19 +719,6 @@ export async function getMonthlySummary() {
 
   const months = Array.from(monthMap.values()).map((month) => {
     const entryIds = month.entries.map((e: any) => e.id)
-    const userStats = users.map((user) => {
-      const userShares = shares?.filter((s) => entryIds.includes(s.entry_id) && s.user_id === user.id) || []
-      const userPayments = payments?.filter((p) => entryIds.includes(p.entry_id) && p.user_id === user.id) || []
-      const totalShares = userShares.reduce((sum, s) => sum + Number(s.share_amount), 0)
-      const totalPaid = userPayments.reduce((sum, p) => sum + Number(p.paid_amount), 0)
-      return {
-        userId: user.id,
-        userName: user.name,
-        paid: totalPaid,
-        shares: totalShares,
-        balance: totalPaid - totalShares,
-      }
-    })
     const monthEntryDetails = month.entries.map((entry: any) => {
       const entryShares = shares?.filter((s) => s.entry_id === entry.id) || []
       const entryPayments = payments?.filter((p) => p.entry_id === entry.id) || []
@@ -741,12 +726,14 @@ export async function getMonthlySummary() {
       const userDetails = users.map((user) => {
         const share = entryShares.find((s) => s.user_id === user.id)
         const payment = entryPayments.find((p) => p.user_id === user.id)
+        const shareAmount = share ? Number(share.share_amount) : 0
+        const paidAmount = payment ? Number(payment.paid_amount) : 0
         return {
           userId: user.id,
           userName: user.name,
           isPresent: !!share,
-          share: share ? Number(share.share_amount) : 0,
-          paid: payment ? Number(payment.paid_amount) : 0,
+          share: shareAmount,
+          paid: paidAmount,
         }
       })
 
@@ -754,12 +741,30 @@ export async function getMonthlySummary() {
         id: entry.id,
         date: entry.date,
         totalExpense: Number(entry.total_expense),
-        userDetails,
+        userDetails: calculateSettlementAwareBalances(Number(entry.total_expense), userDetails),
+      }
+    })
+
+    const userStats = users.map((user) => {
+      const userMonthEntries = monthEntryDetails.map((e) => e.userDetails.find((ud) => ud.userId === user.id))
+      const totalPaid = userMonthEntries.reduce((sum: number, ud) => sum + (ud?.paid || 0), 0)
+      const totalShares = userMonthEntries.reduce((sum: number, ud) => sum + (ud?.share || 0), 0)
+      const totalBalance = userMonthEntries.reduce((sum, ud) => sum + (ud?.balance || 0), 0)
+
+      let finalBalance = Math.round(totalBalance * 100) / 100
+      if (Math.abs(finalBalance) < 1) finalBalance = 0
+
+      return {
+        userId: user.id,
+        userName: user.name,
+        paid: totalPaid,
+        shares: totalShares,
+        balance: finalBalance,
       }
     })
 
     return { monthKey: month.monthKey, totalExpense: month.totalExpense, userStats, entries: monthEntryDetails }
-  }).sort((a, b) => b.monthKey.localeCompare(a.monthKey))
+  }).sort((a, b) => a.monthKey.localeCompare(b.monthKey))
 
   return { months, users }
 }
@@ -771,16 +776,13 @@ export async function getDailyLunchData() {
   const supabase = await createClient()
 
   const users = await getUsers()
-  const { data: entries } = await supabase.from("lunch_entries").select("*").eq("org_id", orgId).order("date", { ascending: false })
+  const { data: entries } = await supabase.from("lunch_entries").select("*").eq("org_id", orgId).order("date", { ascending: true })
   const { data: shares } = await supabase.from("lunch_shares").select("*").eq("org_id", orgId)
   const { data: payments } = await supabase.from("lunch_payments").select("*").eq("org_id", orgId)
 
   if (!entries || !users) return { entries: [], users: [] }
 
-  const runningBalances = new Map<string, number>()
-  users.forEach((u) => runningBalances.set(u.id, 0))
-
-  const sortedEntries = [...entries].sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+  const sortedEntries = entries || []
 
   const entriesWithDetails = sortedEntries.map((entry) => {
     const entryShares = shares?.filter((s) => s.entry_id === entry.id) || []
@@ -791,9 +793,6 @@ export async function getDailyLunchData() {
       const payment = entryPayments.find((p) => p.user_id === user.id)
       const shareAmount = share ? Number(share.share_amount) : 0
       const paidAmount = payment ? Number(payment.paid_amount) : 0
-      const prev = runningBalances.get(user.id) || 0
-      const next = prev + paidAmount - shareAmount
-      runningBalances.set(user.id, next)
 
       return {
         userId: user.id,
@@ -801,12 +800,51 @@ export async function getDailyLunchData() {
         isPresent: shareAmount > 0,
         share: shareAmount,
         paid: paidAmount,
-        balance: next,
       }
     })
 
-    return { id: entry.id, date: entry.date, totalExpense: Number(entry.total_expense), userDetails }
+    const settledDetails = calculateSettlementAwareBalances(Number(entry.total_expense), userDetails)
+
+    return { id: entry.id, date: entry.date, totalExpense: Number(entry.total_expense), userDetails: settledDetails }
   })
 
   return { entries: entriesWithDetails.reverse(), users }
+}
+
+function calculateSettlementAwareBalances(
+  totalExpense: number,
+  users: { userId: string; userName: string; isPresent: boolean; share: number; paid: number }[]
+) {
+  const totalPaid = users.reduce((sum, u) => sum + u.paid, 0)
+  const excess = Math.max(0, totalPaid - totalExpense)
+
+  if (excess <= 1.0) { // Small buffer for rounding
+    return users.map(u => ({ ...u, balance: u.paid - u.share }))
+  }
+
+  const rawOverpaidList = users.map(u => ({
+    userId: u.userId,
+    overpaid: Math.max(0, u.paid - u.share)
+  }))
+  const totalOverpaidAmount = rawOverpaidList.reduce((sum, r) => sum + r.overpaid, 0)
+
+  return users.map(u => {
+    const userOverpaidAmount = Math.max(0, u.paid - u.share)
+    // Distribute excess to those who paid more than their share (the primary payers)
+    const reimbursement = totalOverpaidAmount > 0 ? (userOverpaidAmount / totalOverpaidAmount) * excess : 0
+    
+    // Balance is adjusted by reimbursement
+    const balance = (u.paid - u.share) - reimbursement
+    
+    // Round to 2 decimal places to avoid floating point issues in UI
+    let finalBalance = Math.round(balance * 100) / 100
+    
+    // If balance is between -1 and 1, treat it as 0 (covers small remaining debts/credits due to rounding)
+    if (Math.abs(finalBalance) < 1) finalBalance = 0
+    
+    return {
+      ...u,
+      balance: finalBalance
+    }
+  })
 }

@@ -47,7 +47,7 @@ export function KPICards({
   ]
 
   return (
-    <div suppressHydrationWarning className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div suppressHydrationWarning className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((card) => {
           const Icon = card.icon
           return (
@@ -60,7 +60,7 @@ export function KPICards({
               )} />
 
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-                <CardTitle className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">
+                <CardTitle className="text-[10px] font-black text-foreground/90 uppercase tracking-[0.2em]">
                   {card.title}
                 </CardTitle>
                 <div className={cn(
@@ -88,8 +88,8 @@ export function KPICards({
                       card.trend === "positive" ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"
                     )} />
                     <p className={cn(
-                      "text-[10px] font-bold uppercase tracking-wider",
-                      card.trend === "positive" ? "text-emerald-500/90" : "text-red-500/90"
+                      "text-[10px] font-black uppercase tracking-widest",
+                      card.trend === "positive" ? "text-emerald-500" : "text-red-500"
                     )}>
                       {card.trend === "positive" ? "Healthy Credit" : "Needs Payment"}
                     </p>

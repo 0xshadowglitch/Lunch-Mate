@@ -135,221 +135,245 @@ export function UserManagement({ users, balances, currentUserId, currency = "PKR
   }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="flex items-center gap-2">
-          Member Tracking
-          <Badge variant="secondary">{users.length} tracked</Badge>
-        </CardTitle>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" onClick={handleOpenDialog}>
-              <UserPlus className="mr-2 h-4 w-4" />
-              Add Member
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Add Member to Lunch Tracking</DialogTitle>
-              <DialogDescription>
-                Select a team member who has already accepted their invite. Only account holders can be tracked.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="py-4 space-y-3">
-              {loadingMembers ? (
-                <div className="flex justify-center py-6">
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                </div>
-              ) : availableMembers.length === 0 ? (
-                <div className="flex flex-col items-center gap-4 py-8 text-center text-muted-foreground animate-in fade-in duration-500">
-                  <div className="p-4 bg-muted/50 rounded-full">
-                    <UserPlus className="h-10 w-10 text-muted-foreground/30" />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-base font-black uppercase tracking-tight">No members available</p>
-                    <p className="text-sm max-w-[240px] leading-relaxed">
-                      All team members are already being tracked, or you need to invite more people first.
-                    </p>
-                  </div>
-                  <Button variant="outline" className="mt-4 rounded-xl border-2 hover:border-primary/50 font-bold h-12 px-6" asChild>
-                    <a href="/admin/settings">
-                      Generate Invite Link
-                    </a>
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-2 max-h-64 overflow-y-auto">
-                  {availableMembers.map((member) => (
-                    <button
-                      key={member.user_id}
-                      onClick={() => setSelectedMember(member)}
-                      className={cn(
-                        "w-full text-left flex items-center gap-3 p-3 rounded-lg border transition-all cursor-pointer",
-                        selectedMember?.user_id === member.user_id
-                          ? "border-primary bg-primary/5 shadow-sm"
-                          : "border-border hover:border-primary/50 hover:bg-muted/50"
-                      )}
-                    >
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 shrink-0">
-                        <span className="text-sm font-semibold text-primary">
-                          {(member.display_name || member.email).charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        {member.display_name && (
-                          <p className="text-sm font-medium truncate">{member.display_name}</p>
-                        )}
-                        <p className={cn("text-xs truncate", member.display_name ? "text-muted-foreground" : "text-sm font-medium")}>
-                          <Mail className="h-3 w-3 inline mr-1" />
-                          {member.email}
-                        </p>
-                      </div>
-                      <Badge variant={member.role === "admin" ? "default" : "secondary"} className="shrink-0 text-[10px]">
-                        {member.role === "admin" ? <ShieldCheck className="h-3 w-3 mr-1" /> : null}
-                        {member.role}
-                      </Badge>
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {addError && (
-                <p className="text-xs text-destructive bg-destructive/10 p-2 rounded border border-destructive/20">
-                  {addError}
-                </p>
-              )}
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isPending}>
-                Cancel
+    <Card className="border-none bg-card/40 backdrop-blur-2xl shadow-2xl rounded-[2rem] overflow-hidden">
+      <CardHeader className="pb-4 pt-8 px-6 md:px-10">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+          <div className="space-y-1">
+            <CardTitle className="text-xl md:text-2xl font-black uppercase tracking-tight flex items-center gap-3">
+              Member Tracking
+              <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 text-[10px] font-black uppercase tracking-widest px-2.5 py-1">
+                {users.length} Tracked
+              </Badge>
+            </CardTitle>
+            <p className="text-[10px] md:text-xs font-medium text-muted-foreground uppercase tracking-widest opacity-60">Control which team members are tracked for lunch expenses</p>
+          </div>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="h-12 rounded-xl font-black uppercase tracking-widest px-6 shadow-xl shadow-primary/10 transition-all active:scale-95" onClick={handleOpenDialog}>
+                <UserPlus className="mr-2 h-5 w-5" />
+                Add Member
               </Button>
-              <Button
-                onClick={handleAddMember}
-                disabled={!selectedMember || isPending || loadingMembers}
-              >
-                {isPending ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Adding...
-                  </>
-                ) : (
-                  "Add to Tracking"
-                )}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </CardHeader>
-      <CardContent className="mb-8">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="text-center">Name</TableHead>
-              <TableHead className="text-center">Days Present</TableHead>
-              <TableHead className="text-center">Balance</TableHead>
-              <TableHead className="text-center">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {users.map((user) => {
-              const balance = getBalanceForUser(user.id)
-              return (
-                <TableRow key={user.id}>
-                  <TableCell className="font-medium text-center">
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 shrink-0">
-                        <span className="text-xs font-semibold text-primary">
-                          {user.name.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                      <UserLabel 
-                        name={user.name} 
-                        isMe={user.linked_user_id === currentUserId} 
-                        className="text-sm"
-                      />
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md rounded-[2rem] border-none shadow-2xl backdrop-blur-3xl">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-black uppercase tracking-tight">Add Member</DialogTitle>
+                <DialogDescription className="text-sm font-medium">
+                  Select a team member who has already accepted their invite.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-6 space-y-3">
+                {loadingMembers ? (
+                  <div className="flex justify-center py-10">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  </div>
+                ) : availableMembers.length === 0 ? (
+                  <div className="flex flex-col items-center gap-4 py-10 text-center text-muted-foreground animate-in fade-in duration-500">
+                    <div className="p-5 bg-muted/50 rounded-2xl">
+                      <UserPlus className="h-12 w-12 text-muted-foreground/30" />
                     </div>
-                  </TableCell>
-                  <TableCell className="text-center">{balance?.daysPresent || 0}</TableCell>
-                  <TableCell
-                    className={cn(
-                      "text-center font-semibold",
-                      (balance?.balance || 0) > 0
-                        ? "text-emerald-500"
-                        : (balance?.balance || 0) < 0
-                        ? "text-red-500"
-                        : "text-muted-foreground"
-                    )}
-                  >
-                    {(balance?.balance || 0) >= 0 ? "+" : ""}{currency} {(balance?.balance || 0).toLocaleString()}
-                  </TableCell>
-                  <TableCell className="text-center">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="hover:bg-primary/10 hover:text-primary"
-                          onClick={() => handleEditUser(user)}
-                          disabled={isPending}
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                              disabled={isPending}
-                            >
-                              {isPending ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : (
-                                <Trash2 className="h-4 w-4" />
-                              )}
-                            </Button>
-                          </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Remove from Tracking</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to remove{" "}
-                            <span className="font-semibold">{user.name}</span> from lunch tracking?
-                            This will remove all their lunch records. Their account will still exist in the team.
-                            {balance && balance.balance !== 0 && (
-                              <span className="mt-2 block text-amber-600">
-                                Warning: This user has an outstanding balance of {currency} {" "}
-                                {balance.balance.toLocaleString()}
-                              </span>
-                            )}
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            className="bg-destructive text-white hover:bg-destructive/90"
-                            onClick={() => handleDeleteUser(user.id)}
-                          >
-                            Remove
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </TableCell>
-                </TableRow>
-              )
-            })}
-            {users.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={4} className="text-center text-muted-foreground py-10">
-                  <User className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
-                  <p className="text-sm">No members tracked yet.</p>
-                  <p className="text-xs mt-1">
-                    Invite people to your team first, then add them here.
+                    <div className="space-y-1">
+                      <p className="text-base font-black uppercase tracking-tight text-foreground">No members available</p>
+                      <p className="text-xs max-w-[200px] leading-relaxed font-medium">
+                        All team members are already being tracked.
+                      </p>
+                    </div>
+                    <Button variant="outline" className="mt-4 rounded-xl border-2 hover:border-primary/50 font-black uppercase tracking-widest text-[10px] h-12 px-6" asChild>
+                      <a href="/admin/settings">
+                        Invite More
+                      </a>
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-2 max-h-80 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-primary/10">
+                    {availableMembers.map((member) => (
+                      <button
+                        key={member.user_id}
+                        onClick={() => setSelectedMember(member)}
+                        className={cn(
+                          "w-full text-left flex items-center gap-4 p-4 rounded-2xl border-2 transition-all cursor-pointer group",
+                          selectedMember?.user_id === member.user_id
+                            ? "border-primary bg-primary/5 shadow-md"
+                            : "border-transparent hover:border-primary/30 hover:bg-muted/50 bg-muted/20"
+                        )}
+                      >
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/20 shrink-0 group-hover:scale-110 transition-transform">
+                          <span className="text-xs font-black text-primary">
+                            {(member.display_name || member.email).charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          {member.display_name && (
+                            <p className="text-sm font-black uppercase tracking-tight truncate">{member.display_name}</p>
+                          )}
+                          <p className={cn("text-[10px] uppercase font-bold tracking-wider truncate", member.display_name ? "text-muted-foreground/60" : "text-sm text-foreground")}>
+                            <Mail className="h-3 w-3 inline mr-1 opacity-40" />
+                            {member.email}
+                          </p>
+                        </div>
+                        <Badge variant={member.role === "admin" ? "default" : "secondary"} className="shrink-0 text-[9px] font-black uppercase tracking-widest h-6">
+                          {member.role === "admin" ? <ShieldCheck className="h-3 w-3 mr-1" /> : null}
+                          {member.role}
+                        </Badge>
+                      </button>
+                    ))}
+                  </div>
+                )}
+  
+                {addError && (
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-destructive bg-destructive/10 p-3 rounded-xl border border-destructive/20 animate-in shake-1">
+                    {addError}
                   </p>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+                )}
+              </div>
+              <DialogFooter className="gap-3 sm:gap-0">
+                <Button variant="ghost" className="rounded-xl font-black uppercase tracking-widest text-xs h-12" onClick={() => setIsDialogOpen(false)} disabled={isPending}>
+                  Cancel
+                </Button>
+                <Button
+                  className="flex-1 sm:flex-none rounded-xl font-black uppercase tracking-widest text-xs h-12 shadow-xl shadow-primary/20"
+                  onClick={handleAddMember}
+                  disabled={!selectedMember || isPending || loadingMembers}
+                >
+                  {isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Adding...
+                    </>
+                  ) : (
+                    "Confirm Add"
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </CardHeader>
+      <CardContent className="px-0 pb-10">
+        <div className="relative group/scroll">
+          <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background/20 to-transparent pointer-events-none z-10 lg:hidden group-hover/scroll:opacity-0 transition-opacity" />
+          <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-primary/10 scrollbar-track-transparent">
+            <Table className="min-w-[600px] lg:min-w-full">
+              <TableHeader>
+                <TableRow className="bg-primary/5 hover:bg-primary/5 border-none h-14">
+                  <TableHead className="px-6 font-black text-primary text-[10px] uppercase tracking-[0.2em] text-center">Identity</TableHead>
+                  <TableHead className="font-black text-primary text-[10px] uppercase tracking-[0.2em] text-center">Activity</TableHead>
+                  <TableHead className="font-black text-primary text-[10px] uppercase tracking-[0.2em] text-center">Balance Status</TableHead>
+                  <TableHead className="px-6 font-black text-primary text-[10px] uppercase tracking-[0.2em] text-center">Manage</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {users.map((user) => {
+                  const balance = getBalanceForUser(user.id)
+                  return (
+                    <TableRow key={user.id} className="hover:bg-muted/30 transition-colors border-b border-border/20 last:border-none group">
+                      <TableCell className="py-6 px-6 text-center">
+                        <div className="flex items-center justify-center gap-3">
+                          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 shrink-0 group-hover:scale-110 transition-transform shadow-inner">
+                            <span className="text-xs font-black text-primary">
+                              {user.name.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <UserLabel 
+                            name={user.name} 
+                            isMe={user.linked_user_id === currentUserId} 
+                            className="text-sm font-black uppercase tracking-tight"
+                          />
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-6 text-center">
+                        <div className="inline-flex flex-col">
+                          <span className="text-sm font-black tabular-nums">{balance?.daysPresent || 0}</span>
+                          <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest opacity-60">Days Tracked</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-6 text-center">
+                        <div className={cn(
+                          "inline-flex flex-col px-4 py-2 rounded-2xl transition-all",
+                          (balance?.balance || 0) > 0 ? "bg-emerald-500/5" : (balance?.balance || 0) < 0 ? "bg-red-500/5" : "bg-muted/50"
+                        )}>
+                          <span className={cn(
+                            "text-sm font-black tabular-nums",
+                            (balance?.balance || 0) > 0 ? "text-emerald-500" : (balance?.balance || 0) < 0 ? "text-red-500" : "text-muted-foreground/40"
+                          )}>
+                            {(balance?.balance || 0) >= 0 ? "+" : ""}{currency} {(balance?.balance || 0).toLocaleString()}
+                          </span>
+                          <span className="text-[9px] font-bold uppercase tracking-widest opacity-40">Current Net</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-6 px-6 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-10 w-10 rounded-xl hover:bg-primary/10 hover:text-primary transition-all active:scale-90"
+                            onClick={() => handleEditUser(user)}
+                            disabled={isPending}
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-10 w-10 rounded-xl text-destructive hover:text-destructive hover:bg-destructive/10 transition-all active:scale-90"
+                                disabled={isPending}
+                              >
+                                {isPending ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent className="rounded-[2rem] border-none shadow-2xl backdrop-blur-3xl p-8">
+                              <AlertDialogHeader>
+                                <div className="mx-auto w-16 h-16 bg-destructive/10 rounded-2xl flex items-center justify-center mb-6">
+                                  <Trash2 className="h-8 w-8 text-destructive" />
+                                </div>
+                                <AlertDialogTitle className="text-2xl font-black uppercase tracking-tight text-center">Remove Tracker?</AlertDialogTitle>
+                                <AlertDialogDescription className="text-center text-sm font-medium leading-relaxed">
+                                  Are you certain you want to stop tracking <span className="font-black text-foreground">{user.name}</span>? This will wipe their history but keep their team membership intact.
+                                  {balance && balance.balance !== 0 && (
+                                    <div className="mt-4 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 font-bold text-xs uppercase tracking-tight">
+                                      Critical: They have a balance of {currency} {balance.balance.toLocaleString()}
+                                    </div>
+                                  )}
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter className="mt-8 gap-3 sm:gap-0">
+                                <AlertDialogCancel className="h-14 rounded-xl font-black uppercase tracking-widest text-xs border-2">Keep Member</AlertDialogCancel>
+                                <AlertDialogAction
+                                  className="h-14 rounded-xl font-black uppercase tracking-widest text-xs bg-destructive text-white hover:bg-destructive/90 shadow-xl shadow-destructive/20"
+                                  onClick={() => handleDeleteUser(user.id)}
+                                >
+                                  Wipe & Remove
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
+                {users.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center text-muted-foreground py-20 bg-muted/5">
+                      <div className="flex flex-col items-center gap-4 opacity-30">
+                        <User className="h-12 w-12" />
+                        <div className="space-y-1">
+                          <p className="text-base font-black uppercase tracking-tight">No Tracked Members</p>
+                          <p className="text-xs font-bold uppercase tracking-widest">Add members to start monitoring lunch debt</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
       </CardContent>
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-md">

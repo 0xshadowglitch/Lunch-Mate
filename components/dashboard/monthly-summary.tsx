@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import { formatDate } from "@/lib/date-utils"
 import { ChevronDown, ChevronRight, Check } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 
 type EntryDetail = {
   id: string
@@ -77,20 +78,26 @@ export function MonthlySummary({
   }
 
   return (
-    <Card>
-      <CardHeader className="px-6">
-        <CardTitle className="text-lg font-semibold">Monthly Summary</CardTitle>
+    <Card className="border-none bg-card/40 backdrop-blur-2xl shadow-2xl rounded-[2rem] overflow-hidden">
+      <CardHeader className="pb-4 pt-8 px-6 md:px-10">
+        <CardTitle className="text-xl md:text-2xl font-black uppercase tracking-tight flex items-center gap-3">
+          Monthly Ledger
+          <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 text-[10px] font-black uppercase tracking-widest px-2.5 py-1">Summary</Badge>
+        </CardTitle>
+        <p className="text-[10px] md:text-xs font-medium text-muted-foreground uppercase tracking-widest opacity-60">High-level monthly aggregation of all lunch activities</p>
       </CardHeader>
-      <CardContent className="mb-8">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-primary/10 hover:bg-primary/10 border-none">
-                <TableHead className="font-bold text-primary w-10"></TableHead>
-                <TableHead className="text-center font-bold text-primary min-w-[150px]">Month</TableHead>
-                <TableHead className="text-center font-bold text-primary min-w-[120px]">
-                  Total Expense
-                </TableHead>
+      <CardContent className="px-0 pb-10">
+        <div className="relative group/scroll">
+          <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background/20 to-transparent pointer-events-none z-10 lg:hidden group-hover/scroll:opacity-0 transition-opacity" />
+          <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-primary/10 scrollbar-track-transparent">
+            <Table className="min-w-[1000px] lg:min-w-full">
+              <TableHeader>
+                <TableRow className="bg-primary/10 hover:bg-primary/10 border-none h-14">
+                  <TableHead className="font-bold text-primary w-14 px-6"></TableHead>
+                  <TableHead className="text-center font-black uppercase tracking-widest text-[11px] text-primary min-w-[150px]">Month</TableHead>
+                  <TableHead className="text-center font-black uppercase tracking-widest text-[11px] text-primary min-w-[120px]">
+                    Total Expense
+                  </TableHead>
                 {users.map((user) => (
                   <TableHead
                     key={`${user.id}-paid`}
@@ -248,7 +255,8 @@ export function MonthlySummary({
                 ))
               )}
             </TableBody>
-          </Table>
+            </Table>
+          </div>
         </div>
       </CardContent>
     </Card>

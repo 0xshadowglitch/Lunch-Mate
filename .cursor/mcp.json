@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "code-review-graph": {
-      "command": "uvx",
+      "command": "/Users/macmini/.local/bin/uvx",
       "args": [
         "code-review-graph",
         "serve"

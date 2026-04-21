@@ -5,14 +5,15 @@ import { usePathname } from "next/navigation"
 import { SidebarNav } from "@/components/dashboard/sidebar-nav"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
+import { SidebarProvider, useSidebar } from "@/hooks/use-sidebar"
 
-export default function DashboardLayout({
+function DashboardLayoutContent({
   children,
 }: {
   children: React.ReactNode
 }) {
   const pathname = usePathname()
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { isOpen, setIsOpen } = useSidebar()
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
@@ -48,46 +49,45 @@ export default function DashboardLayout({
       
       {/* Persistent Desktop Sidebar */}
       {!loading && user && (
-        <div className="hidden lg:block shrink-0 h-full">
+        <div className="hidden lg:block shrink-0 h-full border-r border-border/50">
           <SidebarNav isAdmin={isAdminView} />
         </div>
       )}
 
       {/* Mobile Sidebar Overlay */}
-      {sidebarOpen && (
+      {isOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden transition-all duration-300"
+          onClick={() => setIsOpen(false)}
         />
       )}
 
       {/* Persistent Mobile Sidebar */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-50 transition-transform lg:hidden",
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          "fixed inset-y-0 left-0 z-50 transition-all duration-300 ease-in-out lg:hidden",
+          isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
         <SidebarNav isAdmin={isAdminView} />
       </div>
 
-      {/* Main Content Area - Only the content inside here changes when navigating */}
+      {/* Main Content Area */}
       <main className="flex-1 overflow-auto bg-background/30 backdrop-blur-3xl relative">
-        {/* Mobile Sidebar Toggle (Visible only on mobile) */}
-        {!loading && user && (
-          <div className="lg:hidden absolute top-4 left-4 z-30">
-            <button 
-              onClick={() => setSidebarOpen(true)}
-              className="p-2 bg-card border border-border rounded-xl shadow-lg"
-            >
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-          </div>
-        )}
         {children}
       </main>
     </div>
+  )
+}
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <SidebarProvider>
+      <DashboardLayoutContent>{children}</DashboardLayoutContent>
+    </SidebarProvider>
   )
 }

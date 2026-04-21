@@ -15,7 +15,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Building2, Plus, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { MarqueeNews } from "@/components/dashboard/marquee-news"
 import { InviteRecovery } from "@/components/dashboard/invite-recovery"
 
 export const dynamic = "force-dynamic"
@@ -73,8 +72,8 @@ export default async function AdminOverviewPage() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-background/50">
-      <TopNavbar title="Dashboard Overview" />
-      <div className="flex-1 p-6 lg:p-10 pb-24 space-y-8 overflow-auto">
+      <TopNavbar title="Admin Dashboard" />
+      <div className="flex-1 p-4 md:p-6 lg:p-10 pb-24 space-y-6 md:space-y-8 overflow-auto">
         <KPICards
           totalExpense={stats.totalExpense}
           totalPaid={stats.totalPaid}
@@ -83,7 +82,7 @@ export default async function AdminOverviewPage() {
           currency={org.currency}
         />
         <UserBalanceTable balances={balances} currency={org.currency} currentUserId={user?.id} />
-        <div className="grid gap-8 lg:grid-cols-2">
+        <div className="grid gap-6 md:gap-8 grid-cols-1 lg:grid-cols-2">
           <SpendingTrendChart data={spendingTrend} currency={org.currency} />
           <ContributionChart data={contributionData} currency={org.currency} />
         </div>

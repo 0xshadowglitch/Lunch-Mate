@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import { formatDate } from "@/lib/date-utils"
 import { ChevronDown, ChevronRight, Check } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 
 type EntryDetail = {
   id: string
@@ -79,29 +80,31 @@ export function WeeklySummary({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 md:space-y-8">
       {/* Overall Balances (Carry Over) */}
-      <Card className="mb-8 shadow-md border-primary/10">
-        <CardHeader className="pb-3 px-6">
-          <CardTitle className="text-lg font-semibold text-primary">
-            Overall Balances (Carry Over)
+      <Card className="border-none bg-card/40 backdrop-blur-2xl shadow-2xl rounded-[2rem] overflow-hidden">
+        <CardHeader className="pb-4 pt-8 px-6 md:px-10">
+          <CardTitle className="text-xl md:text-2xl font-black uppercase tracking-tight flex items-center gap-3">
+            Portfolio Status
+            <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 text-[10px] font-black uppercase tracking-widest px-2.5 py-1">Carry Over</Badge>
           </CardTitle>
+          <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-widest">Current cumulative balances for all team members</p>
         </CardHeader>
-        <CardContent className="mb-8">
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
+        <CardContent className="px-6 md:px-10 pb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
             {overallBalances.map((balance) => (
               <div
                 key={balance.userId}
-                className="flex items-center justify-between rounded-xl border border-border/50 bg-card/50 p-3 backdrop-blur-sm shadow-sm"
+                className="flex items-center justify-between rounded-2xl border border-border/40 bg-background/40 p-4 backdrop-blur-md shadow-sm group hover:border-primary/30 transition-all"
               >
-                <span className="font-medium text-foreground text-sm">{balance.userName || "Unknown User"}</span>
+                <span className="font-black text-foreground/80 text-[10px] uppercase tracking-wider">{balance.userName || "User"}</span>
                 <span
                   className={cn(
-                    "font-semibold tabular-nums",
+                    "font-black tabular-nums text-sm",
                     balance.balance > 0
-                      ? "text-emerald-500"
+                      ? "text-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.1)]"
                       : balance.balance < 0
-                      ? "text-red-500"
+                      ? "text-red-500 shadow-[0_0_10px_rgba(239,68,68,0.1)]"
                       : "text-muted-foreground"
                   )}
                 >
@@ -117,20 +120,23 @@ export function WeeklySummary({
       </Card>
 
       {/* Weekly Summary Table */}
-      <Card>
-        <CardHeader className="px-6">
-          <CardTitle className="text-lg font-semibold">Weekly Summary</CardTitle>
+      <Card className="border-none bg-card/40 backdrop-blur-2xl shadow-2xl rounded-[2rem] overflow-hidden">
+        <CardHeader className="pb-4 pt-8 px-6 md:px-10">
+          <CardTitle className="text-xl md:text-2xl font-black uppercase tracking-tight">Performance History</CardTitle>
+          <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-widest">Weekly expense and balance breakdown</p>
         </CardHeader>
-        <CardContent className="mb-8">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-primary/10 hover:bg-primary/10 border-none">
-                  <TableHead className="font-bold text-primary w-10"></TableHead>
-                  <TableHead className="text-center font-bold text-primary">Week Start</TableHead>
-                  <TableHead className="text-center font-bold text-primary">
-                    Total Expense
-                  </TableHead>
+        <CardContent className="px-0 pb-10">
+          <div className="relative group/scroll">
+            <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background/20 to-transparent pointer-events-none z-10 lg:hidden group-hover/scroll:opacity-0 transition-opacity" />
+            <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-primary/10 scrollbar-track-transparent">
+              <Table className="min-w-[1000px] lg:min-w-full">
+                <TableHeader>
+                  <TableRow className="bg-primary/10 hover:bg-primary/10 border-none h-14">
+                    <TableHead className="font-bold text-primary w-14 px-6"></TableHead>
+                    <TableHead className="text-center font-black uppercase tracking-widest text-[11px] text-primary">Week Period</TableHead>
+                    <TableHead className="text-center font-black uppercase tracking-widest text-[11px] text-primary">
+                      Volume
+                    </TableHead>
                   {users.map((user) => (
                     <TableHead
                       key={`${user.id}-paid`}
@@ -289,6 +295,7 @@ export function WeeklySummary({
                 )}
               </TableBody>
             </Table>
+            </div>
           </div>
         </CardContent>
       </Card>

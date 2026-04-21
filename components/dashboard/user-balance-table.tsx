@@ -22,54 +22,63 @@ interface UserBalanceTableProps {
 
 export function UserBalanceTable({ balances, currency, currentUserId }: UserBalanceTableProps) {
   return (
-    <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-      <CardHeader className="pt-8 px-8 pb-4">
-        <CardTitle className="text-lg font-black tracking-tight uppercase">Financial Overview</CardTitle>
+    <Card className="border-none bg-card/40 backdrop-blur-2xl shadow-2xl rounded-[2rem] overflow-hidden">
+      <CardHeader className="pb-4 pt-8 px-6 md:px-10">
+        <CardTitle className="text-xl md:text-2xl font-black uppercase tracking-tight">Financial Status</CardTitle>
+        <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-widest">Real-time team debt and credit tracking</p>
       </CardHeader>
-      <CardContent className="px-8 pb-8">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-primary/5 hover:bg-primary/5 border-none">
-              <TableHead className="py-4 px-4 text-center font-black text-primary uppercase text-[10px] tracking-widest">User</TableHead>
-              <TableHead className="py-4 px-4 text-center font-black text-primary uppercase text-[10px] tracking-widest">Total Paid</TableHead>
-              <TableHead className="py-4 px-4 text-center font-black text-primary uppercase text-[10px] tracking-widest">Total Shares</TableHead>
-              <TableHead className="py-4 px-4 text-center font-black text-primary uppercase text-[10px] tracking-widest">Current Balance</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {balances.map((balance) => (
-              <TableRow key={balance.id} className="hover:bg-muted/40 transition-colors border-b border-border/30 last:border-none">
-                <TableCell className="py-5 px-4 text-center font-bold text-sm tracking-tight max-w-[150px]">
-                  <div className="flex justify-center">
-                    <UserLabel 
-                      name={balance.name} 
-                      isMe={balance.linked_user_id === currentUserId} 
-                      className="text-sm"
-                    />
-                  </div>
-                </TableCell>
-                <TableCell className="py-5 px-4 text-center tabular-nums text-sm font-medium">
-                  {currency} {balance.totalPaid.toLocaleString()}
-                </TableCell>
-                <TableCell className="py-5 px-4 text-center tabular-nums text-sm font-medium">
-                  {currency} {balance.totalShares.toLocaleString()}
-                </TableCell>
-                <TableCell
-                  className={cn(
-                    "py-5 px-4 text-center tabular-nums text-sm font-black",
-                    balance.balance > 0
-                      ? "text-emerald-500"
-                      : balance.balance < 0
-                      ? "text-red-500"
-                      : "text-muted-foreground"
-                  )}
-                >
-                  {balance.balance >= 0 ? "+" : ""}{currency} {balance.balance.toLocaleString()}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+      <CardContent className="px-0 pb-10">
+        <div className="relative group/scroll">
+          <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background/20 to-transparent pointer-events-none z-10 lg:hidden group-hover/scroll:opacity-0 transition-opacity" />
+          <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-primary/10 scrollbar-track-transparent">
+            <Table className="min-w-[600px] lg:min-w-full">
+              <TableHeader>
+                <TableRow className="bg-primary/5 hover:bg-primary/5 border-none h-14">
+                  <TableHead className="py-4 px-10 text-left font-black text-primary uppercase text-[10px] tracking-widest border-r border-primary/5">User Profile</TableHead>
+                  <TableHead className="py-4 px-6 text-center font-black text-primary uppercase text-[10px] tracking-widest">Total Paid</TableHead>
+                  <TableHead className="py-4 px-6 text-center font-black text-primary uppercase text-[10px] tracking-widest">Total Share</TableHead>
+                  <TableHead className="py-4 px-6 text-center font-black text-primary uppercase text-[10px] tracking-widest">Active Balance</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {balances.map((balance) => (
+                  <TableRow key={balance.id} className="hover:bg-muted/40 transition-colors border-b border-border/30 last:border-none group">
+                    <TableCell className="py-6 px-10 text-left font-bold text-sm tracking-tight border-r border-primary/5">
+                      <div className="flex justify-start transition-transform group-hover:translate-x-1 duration-300">
+                        <UserLabel 
+                          name={balance.name} 
+                          isMe={balance.linked_user_id === currentUserId} 
+                          className="text-xs md:text-sm"
+                          marquee={false}
+                        />
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-6 px-6 text-center tabular-nums text-xs md:text-sm font-medium">
+                      {currency} {balance.totalPaid.toLocaleString()}
+                    </TableCell>
+                    <TableCell className="py-6 px-6 text-center tabular-nums text-xs md:text-sm font-medium">
+                      {currency} {balance.totalShares.toLocaleString()}
+                    </TableCell>
+                    <TableCell
+                      className={cn(
+                        "py-6 px-6 text-center tabular-nums text-xs md:text-sm font-black transition-all",
+                        balance.balance > 0
+                          ? "text-emerald-500 bg-emerald-500/5 group-hover:bg-emerald-500/10"
+                          : balance.balance < 0
+                          ? "text-red-500 bg-red-500/5 group-hover:bg-red-500/10"
+                          : "text-muted-foreground"
+                      )}
+                    >
+                      <div className="inline-flex items-center gap-1">
+                        {balance.balance >= 0 ? "+" : "-"}{currency} {Math.abs(balance.balance).toLocaleString()}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
       </CardContent>
     </Card>
 

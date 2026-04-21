@@ -17,12 +17,12 @@ export default async function TeamsPage() {
     <div className="flex flex-col h-full bg-background/50">
       <TopNavbar title="Organizations" />
       <div className="flex-1 p-6 lg:p-10 pb-24 overflow-auto max-w-4xl mx-auto w-full">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-10 gap-6">
           <div className="space-y-1">
-            <h2 className="text-3xl font-black uppercase tracking-tight">Teams Navigator</h2>
+            <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight">Teams Navigator</h2>
             <p className="text-muted-foreground text-sm font-medium">Manage and switch between your lunch tracking environments.</p>
           </div>
-          <Button asChild className="rounded-xl font-bold bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+          <Button asChild className="w-full sm:w-auto h-14 rounded-xl font-black uppercase tracking-widest bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_20px_rgba(16,185,129,0.2)] transition-all active:scale-95">
             <Link href="/onboarding">Create New Team</Link>
           </Button>
         </div>

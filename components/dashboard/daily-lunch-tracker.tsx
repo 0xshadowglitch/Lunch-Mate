@@ -237,33 +237,40 @@ interface DailyLunchTrackerProps {
 
 export function DailyLunchTracker({ entries, users, currency, currentUserId, isAdmin = false }: DailyLunchTrackerProps) {
   return (
-    <Card>
-      <CardHeader className="pb-3 px-6">
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-3 text-lg font-semibold">
-            Daily Lunch Tracker
-            <Badge variant="secondary" className="font-normal">
-              {entries.length} entries
-            </Badge>
-          </CardTitle>
+    <Card className="border-none bg-card/40 backdrop-blur-2xl shadow-2xl rounded-[2rem] overflow-hidden">
+      <CardHeader className="pb-4 pt-8 px-6 md:px-10">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <CardTitle className="text-xl md:text-2xl font-black uppercase tracking-tight flex items-center gap-3">
+              Daily Records
+              <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 text-[10px] font-black uppercase tracking-widest px-2.5 py-1">
+                {entries.length} Entries
+              </Badge>
+            </CardTitle>
+            <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-widest">Manage daily lunch expenses and attendance</p>
+          </div>
           {isAdmin && <AddEntryDialog users={users} currency={currency} currentUserId={currentUserId} />}
         </div>
       </CardHeader>
-      <CardContent className="mb-8">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-primary/5 hover:bg-primary/5 border-b-0 h-10">
-                <TableHead colSpan={4} className="text-xs font-black uppercase tracking-widest text-muted-foreground/50 h-10">Entry Basics</TableHead>
-                <TableHead colSpan={users.length} className="text-xs font-black uppercase tracking-widest text-emerald-500/50 text-center border-l border-primary/5 h-10">1. Attendance</TableHead>
-                <TableHead className="w-0 p-0 border-r border-primary/5 h-10" />
-                <TableHead colSpan={users.length} className="text-xs font-black uppercase tracking-widest text-primary/50 text-center border-l border-primary/5 h-10">2. Share Breakdown</TableHead>
-                <TableHead className="w-0 p-0 border-r border-primary/5 h-10" />
-                <TableHead colSpan={users.length} className="text-xs font-black uppercase tracking-widest text-amber-500/50 text-center border-l border-primary/5 h-10">3. Amount Paid</TableHead>
-                <TableHead className="w-0 p-0 border-r border-primary/5 h-10" />
-                <TableHead colSpan={users.length} className="text-xs font-black uppercase tracking-widest text-blue-500/50 text-center border-l border-primary/5 h-10">4. Running Balance</TableHead>
-                <TableHead className="sticky right-0 z-30 h-10 bg-background/95 backdrop-blur-sm border-l border-primary/10 shadow-[-4px_0_12px_-4px_rgba(0,0,0,0.1)]" />
-              </TableRow>
+      <CardContent className="px-0 pb-10">
+        <div className="relative group/scroll">
+          {/* Mobile Scroll Indicator */}
+          <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background/20 to-transparent pointer-events-none z-10 lg:hidden group-hover/scroll:opacity-0 transition-opacity" />
+          
+          <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-primary/10 scrollbar-track-transparent">
+            <Table className="min-w-[1200px] lg:min-w-full border-separate border-spacing-0">
+              <TableHeader>
+                <TableRow className="bg-primary/5 hover:bg-primary/5 border-none h-10">
+                  <TableHead colSpan={4} className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground h-10 px-6">1. Metadata</TableHead>
+                  <TableHead colSpan={users.length} className="text-[9px] font-black uppercase tracking-[0.2em] text-emerald-500 text-center border-l border-primary/10 h-10">2. Attendance</TableHead>
+                  <TableHead className="w-0 p-0 border-r border-primary/10 h-10" />
+                  <TableHead colSpan={users.length} className="text-[9px] font-black uppercase tracking-[0.2em] text-primary text-center border-l border-primary/10 h-10">3. Shares</TableHead>
+                  <TableHead className="w-0 p-0 border-r border-primary/10 h-10" />
+                  <TableHead colSpan={users.length} className="text-[9px] font-black uppercase tracking-[0.2em] text-amber-500 text-center border-l border-primary/10 h-10">4. Payments</TableHead>
+                  <TableHead className="w-0 p-0 border-r border-primary/10 h-10" />
+                  <TableHead colSpan={users.length} className="text-[9px] font-black uppercase tracking-[0.2em] text-blue-500 text-center border-l border-primary/10 h-10">5. Balances</TableHead>
+                  <TableHead className="sticky right-0 z-30 h-10 bg-card/95 backdrop-blur-md border-l border-primary/10 shadow-[-10px_0_20px_-10px_rgba(0,0,0,0.2)]" />
+                </TableRow>
               <TableRow className="bg-primary/10 hover:bg-primary/10 h-14">
                 <TableHead className="font-bold text-primary px-4 whitespace-nowrap">Date</TableHead>
                 <TableHead className="font-bold text-primary whitespace-nowrap">Day</TableHead>
@@ -410,7 +417,7 @@ export function DailyLunchTracker({ entries, users, currency, currentUserId, isA
                                   marquee={false}
                                 />
                               ) : (
-                                <span className="text-muted-foreground/40 italic text-xs">Select Payer</span>
+                                <span className="text-muted-foreground font-bold italic text-xs">Select Payer</span>
                               );
                             })()}
                           </SelectValue>
@@ -538,10 +545,10 @@ export function DailyLunchTracker({ entries, users, currency, currentUserId, isA
                               ? "text-emerald-500 bg-emerald-500/5"
                               : balance < 0
                                 ? "text-red-500 bg-red-500/5"
-                                : "text-muted-foreground/40"
+                                : "text-muted-foreground"
                           )}
                         >
-                          <span className="text-[10px] font-normal mr-0.5 opacity-50">{currency}</span>
+                          <span className="text-[10px] font-bold mr-0.5 text-muted-foreground">{currency}</span>
                           {Math.abs(balance).toLocaleString("en-IN", {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
@@ -549,14 +556,15 @@ export function DailyLunchTracker({ entries, users, currency, currentUserId, isA
                         </TableCell>
                       )
                     })}
-                    <TableCell className="sticky right-0 z-10 text-center bg-background/95 backdrop-blur-sm border-l border-primary/5 shadow-[-4px_0_12px_-4px_rgba(0,0,0,0.1)]">
+                    <TableCell className="sticky right-0 z-10 text-center bg-card/95 backdrop-blur-md border-l border-primary/5 shadow-[-10px_0_20px_-10px_rgba(0,0,0,0.2)]">
                       {isAdmin && <EditEntryDialog entry={entry} users={users} currency={currency} currentUserId={currentUserId} />}
                     </TableCell>
                   </TableRow>
                 ))
               )}
             </TableBody>
-          </Table>
+            </Table>
+          </div>
         </div>
       </CardContent>
     </Card>

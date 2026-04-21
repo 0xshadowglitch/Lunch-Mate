@@ -23,6 +23,7 @@ import {
   Mail,
   Building2,
   ShieldCheck,
+  Wallet,
 } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { getUserOrg, getUserOrgs, setActiveOrg, deleteOrganization } from "@/lib/org-actions"
@@ -48,6 +49,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { useSidebar } from "@/hooks/use-sidebar"
 
 const adminNavItems = [
   {
@@ -59,6 +61,11 @@ const adminNavItems = [
     title: "Lunch Tracker",
     href: "/admin/lunch",
     icon: Utensils,
+  },
+  {
+    title: "Team Balances",
+    href: "/admin/balances",
+    icon: Wallet,
   },
   {
     title: "Weekly Summary",
@@ -106,10 +113,15 @@ interface SidebarNavProps {
 
 export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
   const pathname = usePathname()
+  const { setIsOpen } = useSidebar()
   const [org, setOrg] = useState<{ id: string; name: string; role: string } | null>(null)
   const [allOrgs, setAllOrgs] = useState<any[]>([])
   const [isPending, startTransition] = useTransition()
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
+
+  const handleLinkClick = () => {
+    setIsOpen(false)
+  }
 
   useEffect(() => {
     Promise.all([getUserOrg(), getUserOrgs()]).then(([active, all]) => {
@@ -165,18 +177,18 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
                 <h1 className="text-[11px] font-black text-foreground leading-none tracking-wider uppercase truncate">
                   {org?.name || "Lunch Mate"}
                 </h1>
-                <span className="text-[9px] text-primary/80 uppercase tracking-widest font-bold mt-1">
+                <span className="text-[9px] text-primary uppercase tracking-widest font-black mt-1">
                   Active Team
                 </span>
               </div>
-              <ChevronDown className="h-4 w-4 text-muted-foreground/50 group-hover:text-primary transition-colors shrink-0" />
+              <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-64 bg-card/95 backdrop-blur-xl border-border shadow-2xl !opacity-100 ring-1 ring-white/5" align="start" sideOffset={8}>
             <div className="p-2 pb-0">
-              <DropdownMenuLabel className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60 font-black px-2 py-1.5 flex items-center justify-between">
+              <DropdownMenuLabel className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-black px-2 py-1.5 flex items-center justify-between">
                 Switch Organization
-                <Badge variant="outline" className="text-[9px] border-primary/20 text-primary/80 h-4 px-1.5">{allOrgs.length}</Badge>
+                <Badge variant="outline" className="text-[9px] border-primary/40 text-primary h-4 px-1.5">{allOrgs.length}</Badge>
               </DropdownMenuLabel>
             </div>
             <DropdownMenuSeparator className="bg-border/50 mx-2" />
@@ -204,7 +216,7 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
                           {o.name.length > 20 && <span className="ml-8">{o.name}</span>}
                         </span>
                       </div>
-                      <span className="text-[8px] text-muted-foreground/60 uppercase font-black tracking-[0.1em]">{o.role === 'admin' ? "👑 Manager" : "👤 Member"}</span>
+                      <span className="text-[8px] text-muted-foreground uppercase font-black tracking-[0.1em]">{o.role === 'admin' ? "👑 Manager" : "👤 Member"}</span>
                     </div>
                   </div>
                   
@@ -243,6 +255,7 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
             <Link
               key={item.href}
               href={item.href}
+              onClick={handleLinkClick}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 isActive
@@ -259,9 +272,10 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
 
       {/* Persistent Management Section */}
       <div className="border-t border-border/50 p-4 space-y-1">
-        <h3 className="px-3 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-2">Navigator</h3>
+        <h3 className="px-3 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-2">Navigator</h3>
         <Link
           href="/teams"
+          onClick={handleLinkClick}
           className={cn(
             "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-black uppercase tracking-wider transition-all",
             pathname === "/teams"
@@ -274,6 +288,7 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
         </Link>
         <Link
           href="/invite"
+          onClick={handleLinkClick}
           className={cn(
             "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-black uppercase tracking-wider transition-all",
             pathname === "/invite"
@@ -286,6 +301,7 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
         </Link>
         <Link
           href="/onboarding"
+          onClick={handleLinkClick}
           className={cn(
             "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
             pathname === "/onboarding"
@@ -300,6 +316,7 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
         {isAdmin && org?.role === 'admin' && (
           <Link
             href="/admin/settings"
+            onClick={handleLinkClick}
             className={cn(
               "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
               pathname === "/admin/settings"
@@ -316,6 +333,7 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
       <div className="border-t border-sidebar-border p-4 space-y-2">
         <Link
           href={isAdmin ? "/user" : "/admin"}
+          onClick={handleLinkClick}
           className="flex items-center gap-3 rounded-xl px-3 py-3 text-xs font-black uppercase tracking-widest bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20 transition-all shadow-[0_0_15px_rgba(16,185,129,0.1)] group"
         >
           {isAdmin ? <User className="h-4 w-4 group-hover:scale-110 transition-transform" /> : <ShieldCheck className="h-4 w-4 group-hover:scale-110 transition-transform" />}

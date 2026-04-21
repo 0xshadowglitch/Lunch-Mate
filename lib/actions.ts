@@ -624,7 +624,7 @@ export async function getWeeklySummary() {
     const weekShares = shares?.filter((s) => entryIds.includes(s.entry_id)) || []
     const weekPayments = payments?.filter((p) => entryIds.includes(p.entry_id)) || []
 
-    const weekEntryDetails = week.entries.map((entry: any) => {
+    const weekEntryDetails: LunchEntryDetail[] = week.entries.map((entry: any) => {
       const entryShares = weekShares.filter((s) => s.entry_id === entry.id)
       const entryPayments = weekPayments.filter((p) => p.entry_id === entry.id)
 
@@ -651,10 +651,10 @@ export async function getWeeklySummary() {
     })
 
     const userStats = users.map((user) => {
-      const userWeekEntries = weekEntryDetails.map((e) => e.userDetails.find((ud) => ud.userId === user.id))
-      const totalPaid = userWeekEntries.reduce((sum: number, ud) => sum + (ud?.paid || 0), 0)
-      const totalShares = userWeekEntries.reduce((sum: number, ud) => sum + (ud?.share || 0), 0)
-      const totalBalance = userWeekEntries.reduce((sum: number, ud) => sum + (ud?.balance || 0), 0)
+      const userWeekEntries = weekEntryDetails.map((e) => e.userDetails.find((ud: UserSettlementDetail) => ud.userId === user.id))
+      const totalPaid = userWeekEntries.reduce((sum: number, ud: UserSettlementDetail | undefined) => sum + (ud?.paid || 0), 0)
+      const totalShares = userWeekEntries.reduce((sum: number, ud: UserSettlementDetail | undefined) => sum + (ud?.share || 0), 0)
+      const totalBalance = userWeekEntries.reduce((sum: number, ud: UserSettlementDetail | undefined) => sum + (ud?.balance || 0), 0)
 
       let finalBalance = Math.round(totalBalance * 100) / 100
       if (Math.abs(finalBalance) < 1) finalBalance = 0
@@ -719,7 +719,7 @@ export async function getMonthlySummary() {
 
   const months = Array.from(monthMap.values()).map((month) => {
     const entryIds = month.entries.map((e: any) => e.id)
-    const monthEntryDetails = month.entries.map((entry: any) => {
+    const monthEntryDetails: LunchEntryDetail[] = month.entries.map((entry: any) => {
       const entryShares = shares?.filter((s) => s.entry_id === entry.id) || []
       const entryPayments = payments?.filter((p) => p.entry_id === entry.id) || []
 
@@ -746,10 +746,10 @@ export async function getMonthlySummary() {
     })
 
     const userStats = users.map((user) => {
-      const userMonthEntries = monthEntryDetails.map((e) => e.userDetails.find((ud) => ud.userId === user.id))
-      const totalPaid = userMonthEntries.reduce((sum: number, ud) => sum + (ud?.paid || 0), 0)
-      const totalShares = userMonthEntries.reduce((sum: number, ud) => sum + (ud?.share || 0), 0)
-      const totalBalance = userMonthEntries.reduce((sum, ud) => sum + (ud?.balance || 0), 0)
+      const userMonthEntries = monthEntryDetails.map((e) => e.userDetails.find((ud: UserSettlementDetail) => ud.userId === user.id))
+      const totalPaid = userMonthEntries.reduce((sum: number, ud: UserSettlementDetail | undefined) => sum + (ud?.paid || 0), 0)
+      const totalShares = userMonthEntries.reduce((sum: number, ud: UserSettlementDetail | undefined) => sum + (ud?.share || 0), 0)
+      const totalBalance = userMonthEntries.reduce((sum: number, ud: UserSettlementDetail | undefined) => sum + (ud?.balance || 0), 0)
 
       let finalBalance = Math.round(totalBalance * 100) / 100
       if (Math.abs(finalBalance) < 1) finalBalance = 0
@@ -811,22 +811,38 @@ export async function getDailyLunchData() {
   return { entries: entriesWithDetails.reverse(), users }
 }
 
+interface LunchEntryDetail {
+  id: string
+  date: string
+  totalExpense: number
+  userDetails: UserSettlementDetail[]
+}
+
+interface UserSettlementDetail {
+  userId: string
+  userName: string
+  isPresent: boolean
+  share: number
+  paid: number
+  balance: number
+}
+
 function calculateSettlementAwareBalances(
   totalExpense: number,
   users: { userId: string; userName: string; isPresent: boolean; share: number; paid: number }[]
-) {
-  const totalPaid = users.reduce((sum, u) => sum + u.paid, 0)
+): UserSettlementDetail[] {
+  const totalPaid = users.reduce((sum: number, u) => sum + u.paid, 0)
   const excess = Math.max(0, totalPaid - totalExpense)
 
   if (excess <= 1.0) { // Small buffer for rounding
-    return users.map(u => ({ ...u, balance: u.paid - u.share }))
+    return users.map(u => ({ ...u, balance: Math.round((u.paid - u.share) * 100) / 100 }))
   }
 
   const rawOverpaidList = users.map(u => ({
     userId: u.userId,
     overpaid: Math.max(0, u.paid - u.share)
   }))
-  const totalOverpaidAmount = rawOverpaidList.reduce((sum, r) => sum + r.overpaid, 0)
+  const totalOverpaidAmount = rawOverpaidList.reduce((sum: number, r) => sum + r.overpaid, 0)
 
   return users.map(u => {
     const userOverpaidAmount = Math.max(0, u.paid - u.share)

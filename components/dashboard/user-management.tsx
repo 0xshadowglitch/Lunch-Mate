@@ -255,7 +255,7 @@ export function UserManagement({ users, balances, currentUserId, currency = "PKR
             <Table className="min-w-[600px] lg:min-w-full">
               <TableHeader>
                 <TableRow className="bg-primary/5 hover:bg-primary/5 border-none h-14">
-                  <TableHead className="px-6 font-black text-primary text-[10px] uppercase tracking-[0.2em] text-center">Identity</TableHead>
+                  <TableHead className="py-4 px-10 text-left font-black text-primary uppercase text-[10px] tracking-widest border-r border-primary/5">Identity</TableHead>
                   <TableHead className="font-black text-primary text-[10px] uppercase tracking-[0.2em] text-center">Activity</TableHead>
                   <TableHead className="font-black text-primary text-[10px] uppercase tracking-[0.2em] text-center">Balance Status</TableHead>
                   <TableHead className="px-6 font-black text-primary text-[10px] uppercase tracking-[0.2em] text-center">Manage</TableHead>
@@ -266,8 +266,8 @@ export function UserManagement({ users, balances, currentUserId, currency = "PKR
                   const balance = getBalanceForUser(user.id)
                   return (
                     <TableRow key={user.id} className="hover:bg-muted/30 transition-colors border-b border-border/20 last:border-none group">
-                      <TableCell className="py-6 px-6 text-center">
-                        <div className="flex items-center justify-center gap-3">
+                      <TableCell className="py-6 px-10 text-left font-bold text-sm tracking-tight border-r border-primary/5">
+                        <div className="flex items-center justify-start gap-3 transition-transform group-hover:translate-x-1 duration-300">
                           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 shrink-0 group-hover:scale-110 transition-transform shadow-inner">
                             <span className="text-xs font-black text-primary">
                               {user.name.charAt(0).toUpperCase()}

@@ -36,7 +36,7 @@ export default function ForgotPasswordPage() {
       
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] dark:opacity-20 pointer-events-none -z-10 transition-opacity" />
 
-      <Card className="w-full max-w-md border-border/50 bg-background/80 backdrop-blur-xl shadow-2xl p-2 md:p-4">
+      <Card className="w-full max-w-md border-2 border-border/50 bg-background/80 backdrop-blur-xl shadow-none p-2 md:p-4">
         <CardHeader className="space-y-4 pt-8 pb-4">
           <div className="flex items-center justify-between mb-4 px-1">
             <Link 
@@ -59,7 +59,7 @@ export default function ForgotPasswordPage() {
         </CardHeader>
         <CardContent className="py-2">
           {success ? (
-            <div className="p-8 rounded-3xl bg-emerald-500/10 border border-emerald-500/20 text-center space-y-6 animate-in fade-in zoom-in-95 duration-500 my-4 shadow-inner">
+            <div className="p-8 rounded-3xl bg-emerald-500/10 border-2 border-emerald-500/20 text-center space-y-6 animate-in fade-in zoom-in-95 duration-500 my-4 shadow-none">
               <div className="flex justify-center">
                 <div className="p-4 bg-emerald-500/20 rounded-full ring-8 ring-emerald-500/5">
                   <CheckCircle2 className="h-12 w-12 text-emerald-500 animate-bounce" />
@@ -97,7 +97,7 @@ export default function ForgotPasswordPage() {
               </div>
 
               <div className="pt-2">
-                <Button type="submit" className="w-full h-14 text-base font-black uppercase tracking-widest transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] rounded-xl shadow-lg hover:shadow-primary/20" disabled={isPending}>
+                <Button type="submit" className="w-full h-14 text-base font-black uppercase tracking-widest transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] rounded-xl border-2 border-primary/20 hover:border-primary/50 shadow-none" disabled={isPending}>
                   {isPending ? (
                     <>
                       <Loader2 className="mr-2 h-5 w-5 animate-spin" />

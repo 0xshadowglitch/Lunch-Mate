@@ -13,7 +13,7 @@ export default async function UsersPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <TopNavbar title="User Management" />
+      <TopNavbar title="Member Tracking" />
       <div className="flex-1 p-4 lg:p-6 overflow-auto">
         <UserManagement 
           users={users} 

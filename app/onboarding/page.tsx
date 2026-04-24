@@ -30,10 +30,10 @@ export default function OnboardingPage() {
       
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] dark:opacity-20 pointer-events-none -z-10 transition-opacity" />
 
-      <Card className="w-full max-w-md border-border/50 bg-background/80 backdrop-blur-xl shadow-2xl p-2 md:p-4">
+      <Card className="w-full max-w-md border-2 border-border/60 bg-background/80 backdrop-blur-xl shadow-none p-2 md:p-4">
         <CardHeader className="space-y-4 text-center pt-8 pb-4">
           <div className="flex justify-center mb-4 transition-transform hover:scale-110 duration-500">
-            <div className="p-4 bg-primary rounded-2xl shadow-xl shadow-primary/20 ring-4 ring-primary/10">
+            <div className="p-4 bg-primary rounded-2xl border-2 border-primary/20 ring-4 ring-primary/10 shadow-none">
               <Building2 className="h-10 w-10 text-primary-foreground" />
             </div>
           </div>
@@ -60,7 +60,7 @@ export default function OnboardingPage() {
                 name="name"
                 type="text"
                 placeholder="e.g. Acme Corp Lunch Group"
-                className="h-14 bg-background/40 border-border/40 hover:border-primary/50 transition-colors rounded-xl text-base px-6 shadow-inner"
+                className="h-14 bg-background/40 border-2 border-border/40 hover:border-primary/50 transition-colors rounded-xl text-base px-6 shadow-none"
                 required
               />
               <p className="text-[10px] text-muted-foreground/60 ml-2 font-medium italic">
@@ -68,7 +68,7 @@ export default function OnboardingPage() {
               </p>
             </div>
 
-            <Button type="submit" className="w-full h-14 text-base font-black uppercase tracking-widest transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] rounded-xl shadow-lg hover:shadow-primary/20" disabled={isPending}>
+            <Button type="submit" className="w-full h-14 text-base font-black uppercase tracking-widest transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] rounded-xl border-2 border-primary/20 hover:border-primary/50 shadow-none" disabled={isPending}>
               {isPending ? (
                 <>
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />

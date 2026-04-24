@@ -226,11 +226,11 @@ export default function TeamSettingsPage() {
       </div>
 
       {/* Org Info Card */}
-      <Card className="border-primary/20 bg-primary/5 shadow-sm">
+      <Card className="border-2 border-primary/20 bg-primary/3 shadow-none">
         <CardContent className="p-4 md:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
             <div className="flex items-center gap-4">
-              <div className="p-2.5 bg-primary shadow-md shadow-primary/20 rounded-xl">
+              <div className="p-2.5 bg-primary border border-primary/30 rounded-xl">
                 <Building2 className="h-4 w-4 text-primary-foreground" />
               </div>
               <div>
@@ -252,7 +252,7 @@ export default function TeamSettingsPage() {
                   />
                   <Button 
                     size="sm" 
-                    variant="outline"
+                    variant="secondary"
                     className="h-8 text-[10px] font-black uppercase cursor-pointer"
                     onClick={() => handleUpdateCurrency(org?.currency || "PKR")}
                     disabled={isCurrencyPending || org?.currency === initialCurrency}
@@ -270,7 +270,7 @@ export default function TeamSettingsPage() {
       </Card>
 
       {/* Generate Invite */}
-      <Card className="shadow-sm border-border/40 overflow-hidden">
+      <Card className="shadow-none border-2 border-border/50 overflow-hidden">
         <CardHeader className="p-4 md:p-6 pb-2 border-b border-border/40 bg-muted/30">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -284,7 +284,7 @@ export default function TeamSettingsPage() {
           <Button
             onClick={handleGenerateInvite}
             disabled={isPending}
-            className="w-full h-11 text-xs font-black uppercase tracking-widest transition-all duration-300 hover:scale-[1.005] active:scale-[0.995] rounded-xl shadow-md"
+            className="w-full h-11 text-xs font-black uppercase tracking-widest transition-all duration-300 hover:scale-[1.005] active:scale-[0.995] rounded-xl border-2 border-primary/20 hover:border-primary/50 shadow-none"
           >
             {isPending ? (
               <>
@@ -305,14 +305,14 @@ export default function TeamSettingsPage() {
                 <div className="flex-1 min-w-0">
                   <p className="text-[9px] font-black uppercase tracking-widest text-primary mb-1">URL</p>
                   <div className="flex items-center gap-2">
-                    <div className="flex-1 bg-background/80 px-3 py-2 rounded-lg border border-primary/10 text-[11px] font-mono truncate shadow-inner">
+                    <div className="flex-1 bg-background/80 px-3 py-2 rounded-lg border-2 border-primary/20 text-[11px] font-mono truncate shadow-none">
                       {generatedLink}
                     </div>
                     <Button
                       size="icon"
                       variant="secondary"
                       onClick={() => handleCopy(generatedLink)}
-                      className="h-9 w-9 shrink-0 rounded-lg shadow-sm"
+                      className="h-9 w-9 shrink-0 rounded-lg border-2 border-border shadow-none"
                     >
                       {copied ? <CheckCheck className="h-4 w-4 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
                     </Button>
@@ -330,7 +330,7 @@ export default function TeamSettingsPage() {
 
       {/* Pending Invites */}
       {pendingInvites.length > 0 && (
-        <Card className="shadow-sm border-border/40">
+        <Card className="shadow-none border-2 border-border/50">
           <CardHeader className="p-4 md:p-6 pb-2 border-b border-border/40 bg-muted/30 flex-row items-center justify-between space-y-0">
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4 text-primary" />

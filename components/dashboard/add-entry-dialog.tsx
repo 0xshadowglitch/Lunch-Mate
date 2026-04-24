@@ -101,7 +101,7 @@ export function AddEntryDialog({ users, currency, currentUserId }: AddEntryDialo
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2 shadow-lg shadow-primary/20">
+        <Button className="gap-2 border-2 border-primary/20 hover:border-primary/50 shadow-none">
           <Plus className="h-4 w-4" />
           Add Daily Entry
         </Button>
@@ -138,7 +138,7 @@ export function AddEntryDialog({ users, currency, currentUserId }: AddEntryDialo
                 onChange={(e) => setTotalExpense(e.target.value)}
                 required
                 step="0.01"
-                className="h-14 bg-background/50 border-primary/20 hover:border-primary/50 text-xl font-black rounded-xl px-4 shadow-inner"
+                className="h-14 bg-background/50 border-2 border-primary/20 hover:border-primary/50 text-xl font-black rounded-xl px-4 shadow-none"
               />
             </div>
 
@@ -180,7 +180,7 @@ export function AddEntryDialog({ users, currency, currentUserId }: AddEntryDialo
               </Button>
             </div>
             
-            <div className="grid grid-cols-2 gap-3 p-4 rounded-2xl bg-background/20 border border-border/30 max-h-[160px] overflow-y-auto shadow-inner custom-scrollbar">
+            <div className="grid grid-cols-2 gap-3 p-4 rounded-2xl bg-background/20 border-2 border-border/30 max-h-[160px] overflow-y-auto shadow-none custom-scrollbar">
               {users.map((user) => (
                 <div key={user.id} className="flex items-center space-x-3 p-2 rounded-xl hover:bg-primary/5 transition-colors border border-transparent hover:border-primary/10">
                   <Checkbox
@@ -225,7 +225,7 @@ export function AddEntryDialog({ users, currency, currentUserId }: AddEntryDialo
           <DialogFooter className="pt-2">
             <Button
               type="submit"
-              className="w-full h-14 text-base font-black uppercase tracking-widest transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] rounded-xl shadow-xl shadow-primary/20"
+              className="w-full h-14 text-base font-black uppercase tracking-widest transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] rounded-xl border-2 border-primary/20 hover:border-primary/50 shadow-none"
               disabled={isSubmitting}
             >
               {isSubmitting ? (

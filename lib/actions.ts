@@ -77,7 +77,7 @@ export async function getUsers(): Promise<LunchUser[]> {
 
   if (fetchError) return []
 
-  // 2. Get all org members to see if anyone is missing
+  // 2. Quick check if sync is needed - only if explicit members are missing
   const { data: members } = await supabase
     .from("organization_members")
     .select("user_id, role")
@@ -91,89 +91,94 @@ export async function getUsers(): Promise<LunchUser[]> {
     return !n || n.includes("TEAM MEMBER") || n.includes("MEMBER (ME)") || n === "MEMBER" || n === "USER" || n === "LUNCH MATE";
   };
 
-  // 3. Auto-sync missing members or generic names if found
-  if (missingMembers.length > 0 || trackerUsers?.some(u => isGeneric(u.name))) {
+  const hasGeneric = trackerUsers?.some(u => isGeneric(u.name) && u.linked_user_id)
+
+  // 3. Auto-sync if needed - optimized with Promise.all
+  if (missingMembers.length > 0 || hasGeneric) {
     try {
       const { createAdminClient } = await import("@/lib/supabase/admin")
       const adminSupabase = createAdminClient()
       
-      // Sync missing members
-      for (const member of missingMembers) {
-        try {
-          const { data: { user } } = await adminSupabase.auth.admin.getUserById(member.user_id)
-          const fullName = user?.user_metadata?.full_name;
-          const emailPrefix = user?.email?.split("@")[0];
-          const displayName = (fullName && !isGeneric(fullName)) ? fullName : (emailPrefix || "User");
+      // Batch fetch metadata for all relevant users
+      const allTargetUserIds = [
+        ...missingMembers.map(m => m.user_id),
+        ...(trackerUsers?.filter(u => isGeneric(u.name) && u.linked_user_id).map(u => u.linked_user_id!) || [])
+      ]
+
+      if (allTargetUserIds.length > 0) {
+        const userMetadataMap = new Map<string, { displayName: string }>()
+        
+        // Fetch all in parallel
+        await Promise.all(allTargetUserIds.map(async (uid) => {
+          try {
+            const { data: { user } } = await adminSupabase.auth.admin.getUserById(uid)
+            if (user) {
+              const fullName = user.user_metadata?.full_name;
+              const emailPrefix = user.email?.split("@")[0];
+              const displayName = (fullName && !isGeneric(fullName)) ? fullName : (emailPrefix || "User");
+              userMetadataMap.set(uid, { displayName });
+            }
+          } catch (e) {}
+        }))
+
+        // Process missing members
+        const inserts = []
+        for (const member of missingMembers) {
+          const meta = userMetadataMap.get(member.user_id)
+          const displayName = meta?.displayName || "User"
           
-          // CRITICAL FIX: Check if an unlinked user with this name already exists
           const existingUnlinked = trackerUsers?.find(u => 
             !u.linked_user_id && 
             u.name.toLowerCase().trim() === displayName.toLowerCase().trim()
           );
 
           if (existingUnlinked) {
-            // Update existing instead of double-inserting
             await supabase.from("lunch_users")
               .update({ linked_user_id: member.user_id })
               .eq("id", existingUnlinked.id)
-            
-            // Remove from trackerUsers so it doesn't get processed below if generic
-            const idx = trackerUsers!.indexOf(existingUnlinked);
-            if (idx > -1) trackerUsers!.splice(idx, 1);
           } else {
-            await supabase.from("lunch_users").insert({
+            inserts.push({
               name: displayName,
               org_id: orgId,
               linked_user_id: member.user_id
             })
           }
-        } catch (err) {
-          console.error("Error syncing missing member:", err)
         }
-      }
 
-      // Update generic names for existing members
-      const genericUsers = trackerUsers?.filter(u => isGeneric(u.name) && u.linked_user_id) || []
-      for (const gUser of genericUsers) {
-        try {
-          const { data: { user } } = await adminSupabase.auth.admin.getUserById(gUser.linked_user_id!)
-          const fullName = user?.user_metadata?.full_name;
-          const emailPrefix = user?.email?.split("@")[0];
-          
-          // Prioritize full_name if it's not generic, otherwise use email prefix
-          const displayName = (fullName && !isGeneric(fullName)) ? fullName : emailPrefix;
-          
-          if (displayName && !isGeneric(displayName)) {
+        if (inserts.length > 0) {
+          await supabase.from("lunch_users").insert(inserts)
+        }
+
+        // Update generic names
+        const genericUsers = trackerUsers?.filter(u => isGeneric(u.name) && u.linked_user_id) || []
+        for (const gUser of genericUsers) {
+          const meta = userMetadataMap.get(gUser.linked_user_id!)
+          if (meta && !isGeneric(meta.displayName)) {
             await supabase.from("lunch_users")
-              .update({ name: displayName })
+              .update({ name: meta.displayName })
               .eq("id", gUser.id)
           }
-        } catch (err) {
-          console.error("Error syncing generic name:", err)
         }
+
+        // Re-fetch only if we made changes
+        const { data: updated } = await supabase
+          .from("lunch_users")
+          .select("*")
+          .eq("org_id", orgId)
+          .order("name")
+        trackerUsers = updated || []
       }
     } catch (adminErr) {
-      console.warn("Auto-sync skipped: SUPABASE_SERVICE_ROLE_KEY may be missing.", adminErr)
+      console.warn("Auto-sync skipped:", adminErr)
     }
-    
-    // Re-fetch to get complete list (even if sync partially failed)
-    const { data: updated } = await supabase
-      .from("lunch_users")
-      .select("*")
-      .eq("org_id", orgId)
-      .order("name")
-    
-    trackerUsers = updated || []
   }
 
-  // Final safety deduplication before returning to UI
-  const finalUsers = trackerUsers || []
+  // Deduplication and final return
   const uniqueUsers: LunchUser[] = []
   const seenLinkedIds = new Set<string>()
   const seenNames = new Set<string>()
 
-  // Sort: prioritize linked users so they 'claim' their names/IDs first
-  const sortedUsers = [...finalUsers].sort((a, b) => {
+  const sortedUsers = [...(trackerUsers || [])].sort((a, b) => {
     if (a.linked_user_id && !b.linked_user_id) return -1
     if (!a.linked_user_id && b.linked_user_id) return 1
     return 0
@@ -181,12 +186,7 @@ export async function getUsers(): Promise<LunchUser[]> {
 
   for (const u of sortedUsers) {
     const nameKey = u.name.toLowerCase().trim()
-    
-    // 1. Skip if we've already seen this specific Supabase user ID
     if (u.linked_user_id && seenLinkedIds.has(u.linked_user_id)) continue
-    
-    // 2. Skip if we've already seen this name (prevents duplicate labels)
-    // We only do this if it's an unlinked user or if the name is very specific
     if (seenNames.has(nameKey)) continue
 
     uniqueUsers.push(u)
@@ -593,9 +593,17 @@ export async function getWeeklySummary() {
   const supabase = await createClient()
 
   const users = await getUsers()
-  const { data: entries } = await supabase.from("lunch_entries").select("*").eq("org_id", orgId).order("date", { ascending: true })
-  const { data: shares } = await supabase.from("lunch_shares").select("*").eq("org_id", orgId)
-  const { data: payments } = await supabase.from("lunch_payments").select("*").eq("org_id", orgId)
+  
+  // Parallelize database fetches
+  const [entriesRes, sharesRes, paymentsRes] = await Promise.all([
+    supabase.from("lunch_entries").select("*").eq("org_id", orgId).order("date", { ascending: true }),
+    supabase.from("lunch_shares").select("*").eq("org_id", orgId),
+    supabase.from("lunch_payments").select("*").eq("org_id", orgId)
+  ])
+
+  const { data: entries } = entriesRes
+  const { data: shares } = sharesRes
+  const { data: payments } = paymentsRes
 
   if (!entries || !users) return { weeks: [], users: [], overallBalances: [] }
 
@@ -697,9 +705,17 @@ export async function getMonthlySummary() {
   const supabase = await createClient()
 
   const users = await getUsers()
-  const { data: entries } = await supabase.from("lunch_entries").select("*").eq("org_id", orgId).order("date", { ascending: true })
-  const { data: shares } = await supabase.from("lunch_shares").select("*").eq("org_id", orgId)
-  const { data: payments } = await supabase.from("lunch_payments").select("*").eq("org_id", orgId)
+  
+  // Parallelize database fetches
+  const [entriesRes, sharesRes, paymentsRes] = await Promise.all([
+    supabase.from("lunch_entries").select("*").eq("org_id", orgId).order("date", { ascending: true }),
+    supabase.from("lunch_shares").select("*").eq("org_id", orgId),
+    supabase.from("lunch_payments").select("*").eq("org_id", orgId)
+  ])
+
+  const { data: entries } = entriesRes
+  const { data: shares } = sharesRes
+  const { data: payments } = paymentsRes
 
   if (!entries || !users) return { months: [], users: [] }
 
@@ -776,9 +792,17 @@ export async function getDailyLunchData() {
   const supabase = await createClient()
 
   const users = await getUsers()
-  const { data: entries } = await supabase.from("lunch_entries").select("*").eq("org_id", orgId).order("date", { ascending: true })
-  const { data: shares } = await supabase.from("lunch_shares").select("*").eq("org_id", orgId)
-  const { data: payments } = await supabase.from("lunch_payments").select("*").eq("org_id", orgId)
+  
+  // Parallelize database fetches
+  const [entriesRes, sharesRes, paymentsRes] = await Promise.all([
+    supabase.from("lunch_entries").select("*").eq("org_id", orgId).order("date", { ascending: true }),
+    supabase.from("lunch_shares").select("*").eq("org_id", orgId),
+    supabase.from("lunch_payments").select("*").eq("org_id", orgId)
+  ])
+
+  const { data: entries } = entriesRes
+  const { data: shares } = sharesRes
+  const { data: payments } = paymentsRes
 
   if (!entries || !users) return { entries: [], users: [] }
 

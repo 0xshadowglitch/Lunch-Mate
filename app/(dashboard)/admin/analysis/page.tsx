@@ -1,22 +1,22 @@
 import { TopNavbar } from "@/components/dashboard/top-navbar"
-import { ContributionChart } from "@/components/dashboard/contribution-chart"
 import { UserBalanceTable } from "@/components/dashboard/user-balance-table"
-import { getContributionData, getUserBalances } from "@/lib/actions"
+import { getUserBalances, getCurrentUser } from "@/lib/actions"
+import { getUserOrg } from "@/lib/org-actions"
 
 export const dynamic = "force-dynamic"
 
 export default async function AnalysisPage() {
-  const [contributionData, balances] = await Promise.all([
-    getContributionData(),
+  const [balances, user, org] = await Promise.all([
     getUserBalances(),
+    getCurrentUser(),
+    getUserOrg(),
   ])
 
   return (
-    <div className="flex flex-col h-full">
-      <TopNavbar title="Contribution Analysis" />
+    <div className="flex flex-col h-full overflow-hidden bg-background/50">
+      <TopNavbar title="Financial Status" />
       <div className="flex-1 p-4 lg:p-6 space-y-6 overflow-auto">
-        <ContributionChart data={contributionData} />
-        <UserBalanceTable balances={balances} />
+        <UserBalanceTable balances={balances} currency={org?.currency} currentUserId={user?.id} />
       </div>
     </div>
   )

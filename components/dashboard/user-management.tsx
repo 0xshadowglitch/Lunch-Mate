@@ -135,7 +135,7 @@ export function UserManagement({ users, balances, currentUserId, currency = "PKR
   }
 
   return (
-    <Card className="border-none bg-card/40 backdrop-blur-2xl shadow-2xl rounded-[2rem] overflow-hidden">
+    <Card className="border-2 border-border/50 bg-card/40 backdrop-blur-2xl shadow-none rounded-[2rem] overflow-hidden">
       <CardHeader className="pb-4 pt-8 px-6 md:px-10">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div className="space-y-1">
@@ -149,12 +149,12 @@ export function UserManagement({ users, balances, currentUserId, currency = "PKR
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="h-12 rounded-xl font-black uppercase tracking-widest px-6 shadow-xl shadow-primary/10 transition-all active:scale-95" onClick={handleOpenDialog}>
+              <Button className="h-12 rounded-xl font-black uppercase tracking-widest px-6 border-2 border-primary/20 hover:border-primary/50 shadow-none transition-all active:scale-95" onClick={handleOpenDialog}>
                 <UserPlus className="mr-2 h-5 w-5" />
                 Add Member
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md rounded-[2rem] border-none shadow-2xl backdrop-blur-3xl">
+            <DialogContent className="sm:max-w-md rounded-[2rem] border-2 border-border/50 shadow-none backdrop-blur-3xl">
               <DialogHeader>
                 <DialogTitle className="text-2xl font-black uppercase tracking-tight">Add Member</DialogTitle>
                 <DialogDescription className="text-sm font-medium">
@@ -230,7 +230,7 @@ export function UserManagement({ users, balances, currentUserId, currency = "PKR
                   Cancel
                 </Button>
                 <Button
-                  className="flex-1 sm:flex-none rounded-xl font-black uppercase tracking-widest text-xs h-12 shadow-xl shadow-primary/20"
+                  className="flex-1 sm:flex-none rounded-xl font-black uppercase tracking-widest text-xs h-12 border-2 border-primary/20 hover:border-primary/50 shadow-none"
                   onClick={handleAddMember}
                   disabled={!selectedMember || isPending || loadingMembers}
                 >
@@ -268,7 +268,7 @@ export function UserManagement({ users, balances, currentUserId, currency = "PKR
                     <TableRow key={user.id} className="hover:bg-muted/30 transition-colors border-b border-border/20 last:border-none group">
                       <TableCell className="py-6 px-10 text-left font-bold text-sm tracking-tight border-r border-primary/5">
                         <div className="flex items-center justify-start gap-3 transition-transform group-hover:translate-x-1 duration-300">
-                          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 shrink-0 group-hover:scale-110 transition-transform shadow-inner">
+                          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 shrink-0 group-hover:scale-110 transition-transform border border-primary/20 shadow-none">
                             <span className="text-xs font-black text-primary">
                               {user.name.charAt(0).toUpperCase()}
                             </span>
@@ -326,7 +326,7 @@ export function UserManagement({ users, balances, currentUserId, currency = "PKR
                                 )}
                               </Button>
                             </AlertDialogTrigger>
-                            <AlertDialogContent className="rounded-[2rem] border-none shadow-2xl backdrop-blur-3xl p-8">
+                            <AlertDialogContent className="rounded-[2rem] border-2 border-destructive/20 shadow-none backdrop-blur-3xl p-8">
                               <AlertDialogHeader>
                                 <div className="mx-auto w-16 h-16 bg-destructive/10 rounded-2xl flex items-center justify-center mb-6">
                                   <Trash2 className="h-8 w-8 text-destructive" />
@@ -344,7 +344,7 @@ export function UserManagement({ users, balances, currentUserId, currency = "PKR
                               <AlertDialogFooter className="mt-8 gap-3 sm:gap-0">
                                 <AlertDialogCancel className="h-14 rounded-xl font-black uppercase tracking-widest text-xs border-2">Keep Member</AlertDialogCancel>
                                 <AlertDialogAction
-                                  className="h-14 rounded-xl font-black uppercase tracking-widest text-xs bg-destructive text-white hover:bg-destructive/90 shadow-xl shadow-destructive/20"
+                                  className="h-14 rounded-xl font-black uppercase tracking-widest text-xs bg-destructive text-white hover:bg-destructive/90 border-2 border-destructive/30 shadow-none"
                                   onClick={() => handleDeleteUser(user.id)}
                                 >
                                   Wipe & Remove

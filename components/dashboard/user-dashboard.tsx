@@ -16,18 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  Legend,
-  Tooltip,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-} from "recharts"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 import type { LunchUser, UserBalance, EntryWithDetails } from "@/lib/actions"
@@ -48,14 +36,6 @@ interface UserDashboardProps {
   currency?: string
   currentUserId?: string
 }
-
-const COLORS = [
-  "var(--color-chart-1)",
-  "var(--color-chart-2)",
-  "var(--color-chart-3)",
-  "var(--color-chart-4)",
-  "var(--color-chart-5)",
-]
 
 export function UserDashboard({
   users,
@@ -84,23 +64,11 @@ export function UserDashboard({
       }
     })
 
-  // Expense distribution pie data
-  const expenseDistribution = balances.map((b) => ({
-    name: b.name,
-    value: b.totalShares,
-  }))
-
-  // Balance bar chart data
-  const balanceData = balances.map((b) => ({
-    name: b.name,
-    balance: b.balance,
-  }))
-
   return (
     <div suppressHydrationWarning className="space-y-6 md:space-y-8">
       <Tabs defaultValue="overview" className="space-y-6 md:space-y-8">
         <div className="overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0">
-          <TabsList className="inline-flex w-auto bg-card/50 backdrop-blur-md border border-border/50 p-1.5 h-12 md:h-14 rounded-2xl shadow-lg min-w-full md:min-w-0">
+          <TabsList className="inline-flex w-auto bg-card/50 backdrop-blur-md border-2 border-border/50 p-1.5 h-12 md:h-14 rounded-2xl shadow-none min-w-full md:min-w-0">
             <TabsTrigger value="overview" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2 md:gap-3 px-4 md:px-6 transition-all text-xs md:text-sm font-black uppercase tracking-wider">
               <LayoutDashboard className="h-4 w-4" />
               Overview
@@ -207,106 +175,8 @@ export function UserDashboard({
             </Card>
           </div>
 
-          {/* Charts Row */}
-          <div className="grid gap-8 lg:grid-cols-2">
-            {/* Balance Bar Chart */}
-            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-              <CardHeader>
-                <CardTitle className="text-base font-bold">Team Balances</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={balanceData} layout="vertical">
-                      <XAxis
-                        type="number"
-                        tick={{ fontSize: 10, fill: "var(--color-muted-foreground)" }}
-                        tickFormatter={(v) => `${currency} ${v}`}
-                        stroke="var(--color-border)"
-                      />
-                      <YAxis
-                        type="category"
-                        dataKey="name"
-                        width={80}
-                        tick={{ fontSize: 10, fill: "var(--color-muted-foreground)" }}
-                        stroke="var(--color-border)"
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: "var(--color-card)",
-                          border: "1px solid var(--color-border)",
-                          borderRadius: "16px",
-                          backdropFilter: "blur(12px)",
-                          boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
-                        }}
-                        itemStyle={{ fontWeight: "700", fontSize: "12px", color: "var(--color-chart-1)" }}
-                        labelStyle={{ color: "var(--color-foreground)", marginBottom: "4px", fontSize: "14px", fontWeight: "900" }}
-                        formatter={(value: number) => [`${currency} ${value}`, "Balance"]}
-                        cursor={{ fill: 'var(--color-primary)', opacity: 0.05 }}
-                      />
-                      <Bar
-                        dataKey="balance"
-                        fill="var(--color-chart-1)"
-                        radius={[0, 6, 6, 0]}
-                        barSize={20}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Expense Distribution Pie */}
-            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-              <CardHeader>
-                <CardTitle className="text-base font-bold">Expense Sharing</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={expenseDistribution}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={85}
-                        paddingAngle={4}
-                        dataKey="value"
-                        stroke="none"
-                      >
-                        {expenseDistribution.map((_, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={COLORS[index % COLORS.length]}
-                            className="hover:opacity-80 transition-opacity outline-none"
-                          />
-                        ))}
-                      </Pie>
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: "var(--color-card)",
-                          border: "1px solid var(--color-border)",
-                          borderRadius: "16px",
-                          backdropFilter: "blur(12px)",
-                        }}
-                        itemStyle={{ fontWeight: "700", fontSize: "12px" }}
-                        labelStyle={{ color: "var(--color-foreground)", marginBottom: "4px", fontSize: "14px", fontWeight: "900" }}
-                        formatter={(value: number) => [`${currency} ${value}`, "Total Shares"]}
-                      />
-                      <Legend 
-                        iconType="circle" 
-                        formatter={(value) => <span className="text-xs font-bold text-muted-foreground">{value}</span>}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
           {/* Recent Activity */}
-          <Card className="border-none bg-card/40 backdrop-blur-2xl shadow-2xl rounded-[2rem] overflow-hidden">
+          <Card className="border-2 border-border/50 bg-card/40 backdrop-blur-2xl shadow-none rounded-[2rem] overflow-hidden">
             <CardHeader className="pb-4 pt-8 px-6 md:px-10">
               <CardTitle className="text-xl md:text-2xl font-black uppercase tracking-tight">Recent Activity</CardTitle>
               <p className="text-[10px] md:text-xs font-medium text-muted-foreground uppercase tracking-widest opacity-60">Your latest transactions and lunch participation</p>

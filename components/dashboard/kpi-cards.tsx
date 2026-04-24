@@ -51,7 +51,7 @@ export function KPICards({
         {cards.map((card) => {
           const Icon = card.icon
           return (
-            <Card key={card.title} className="relative group overflow-hidden border-white/[0.03]">
+            <Card key={card.title} className="relative group overflow-hidden border-border/40 hover:border-primary/50 shadow-none">
               {/* Corner Glow */}
               <div className={cn(
                 "absolute -top-12 -right-12 w-24 h-24 blur-3xl rounded-full transition-opacity group-hover:opacity-100 opacity-50",
@@ -64,9 +64,9 @@ export function KPICards({
                   {card.title}
                 </CardTitle>
                 <div className={cn(
-                  "p-2 rounded-xl bg-white/[0.03] border border-white/[0.05]",
-                  card.trend === "positive" ? "text-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.1)]" : 
-                  card.trend === "negative" ? "text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.1)]" : "text-primary"
+                  "p-2 rounded-xl bg-white/[0.03] border-2",
+                  card.trend === "positive" ? "text-emerald-500 border-emerald-500/20" : 
+                  card.trend === "negative" ? "text-red-500 border-red-500/20" : "text-primary border-primary/20"
                 )}>
                   <Icon className="h-4 w-4" />
                 </div>
@@ -85,7 +85,7 @@ export function KPICards({
                   <div className="flex items-center gap-1.5 mt-2">
                     <div className={cn(
                       "h-1.5 w-1.5 rounded-full animate-pulse",
-                      card.trend === "positive" ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"
+                      card.trend === "positive" ? "bg-emerald-500 border border-emerald-500/30" : "bg-red-500 border border-red-500/30"
                     )} />
                     <p className={cn(
                       "text-[10px] font-black uppercase tracking-widest",

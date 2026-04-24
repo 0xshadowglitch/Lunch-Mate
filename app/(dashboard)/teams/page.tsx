@@ -22,7 +22,7 @@ export default async function TeamsPage() {
             <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight">Teams Navigator</h2>
             <p className="text-muted-foreground text-sm font-medium">Manage and switch between your lunch tracking environments.</p>
           </div>
-          <Button asChild className="w-full sm:w-auto h-14 rounded-xl font-black uppercase tracking-widest bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_20px_rgba(16,185,129,0.2)] transition-all active:scale-95">
+          <Button asChild className="w-full sm:w-auto h-14 rounded-xl font-black uppercase tracking-widest bg-primary text-primary-foreground hover:bg-primary/90 border-2 border-primary/30 shadow-none transition-all active:scale-95">
             <Link href="/onboarding">Create New Team</Link>
           </Button>
         </div>

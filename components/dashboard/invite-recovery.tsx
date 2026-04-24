@@ -30,7 +30,7 @@ export function InviteRecovery() {
   if (!pendingInvite || dismissed) return null
 
   return (
-    <Card className="max-w-md w-full bg-primary/5 border-primary/20 backdrop-blur-2xl shadow-xl rounded-[2rem] overflow-hidden relative animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <Card className="max-w-md w-full bg-primary/5 border-2 border-primary/30 backdrop-blur-2xl shadow-none rounded-[2rem] overflow-hidden relative animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-primary/30 via-primary to-primary/30" />
       
       <button 
@@ -58,7 +58,7 @@ export function InviteRecovery() {
         <p className="text-xs font-medium opacity-80 leading-relaxed uppercase tracking-wide">
           It looks like you were in the middle of joining a team. Would you like to complete your invitation now?
         </p>
-        <Button asChild className="w-full h-12 text-xs font-black uppercase tracking-widest rounded-xl shadow-lg shadow-primary/10 group">
+        <Button asChild className="w-full h-12 text-xs font-black uppercase tracking-widest rounded-xl border-2 border-primary/20 hover:border-primary/50 shadow-none group">
           <Link href={`/invite?token=${pendingInvite.token}`}>
             Continue to Join
             <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />

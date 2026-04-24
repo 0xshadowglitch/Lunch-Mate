@@ -22,7 +22,7 @@ interface UserBalanceTableProps {
 
 export function UserBalanceTable({ balances, currency, currentUserId }: UserBalanceTableProps) {
   return (
-    <Card className="border-none bg-card/40 backdrop-blur-2xl shadow-2xl rounded-[2rem] overflow-hidden">
+    <Card className="border-2 border-border/40 bg-card/40 backdrop-blur-2xl shadow-none rounded-[2rem] overflow-hidden">
       <CardHeader className="pb-4 pt-8 px-6 md:px-10">
         <CardTitle className="text-xl md:text-2xl font-black uppercase tracking-tight">Financial Status</CardTitle>
         <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-widest">Real-time team debt and credit tracking</p>

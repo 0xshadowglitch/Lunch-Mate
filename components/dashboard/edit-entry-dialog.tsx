@@ -192,7 +192,7 @@ export function EditEntryDialog({ entry, users, currency, currentUserId, trigger
                 onChange={(e) => setTotalExpense(e.target.value)}
                 required
                 step="0.01"
-                className="h-14 bg-background/50 border-primary/20 hover:border-primary/50 text-xl font-black rounded-xl px-4 shadow-inner"
+                className="h-14 bg-background/50 border-2 border-primary/20 hover:border-primary/50 text-xl font-black rounded-xl px-4 shadow-none"
               />
             </div>
 
@@ -234,7 +234,7 @@ export function EditEntryDialog({ entry, users, currency, currentUserId, trigger
               </Button>
             </div>
             
-            <div className="grid grid-cols-2 gap-3 p-4 rounded-2xl bg-background/20 border border-border/30 max-h-[160px] overflow-y-auto shadow-inner custom-scrollbar">
+            <div className="grid grid-cols-2 gap-3 p-4 rounded-2xl bg-background/20 border-2 border-border/30 max-h-[160px] overflow-y-auto shadow-none custom-scrollbar">
               {users.map((user) => (
                 <div key={user.id} className="flex items-center space-x-3 p-2 rounded-xl hover:bg-primary/5 transition-colors border border-transparent hover:border-primary/10">
                   <Checkbox
@@ -289,7 +289,7 @@ export function EditEntryDialog({ entry, users, currency, currentUserId, trigger
             </Button>
             <Button
               type="submit"
-              className="flex-1 h-14 text-base font-black uppercase tracking-widest transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] rounded-xl shadow-xl shadow-primary/20"
+              className="flex-1 h-14 text-base font-black uppercase tracking-widest transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] rounded-xl border-2 border-primary/20 hover:border-primary/50 shadow-none"
               disabled={isSubmitting || isDeleting}
             >
               {isSubmitting ? (

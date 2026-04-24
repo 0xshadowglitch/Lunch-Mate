@@ -55,7 +55,7 @@ function SignupForm() {
         <div className="absolute top-[20%] right-[15%] w-96 h-96 bg-blue-500/10 rounded-full blur-[100px] -z-10" />
         <div className="absolute bottom-[10%] left-[10%] w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-[140px] -z-10" />
         
-        <Card className="w-full max-w-md border-border/50 bg-background/80 backdrop-blur-xl shadow-2xl text-center p-4">
+        <Card className="w-full max-w-md border-2 border-border/60 bg-background/80 backdrop-blur-xl shadow-none text-center p-4">
           <CardHeader>
             <div className="flex justify-center mb-6">
               <div className="p-4 bg-emerald-500/10 rounded-full ring-8 ring-emerald-500/5">
@@ -68,7 +68,7 @@ function SignupForm() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="p-5 rounded-2xl bg-primary/5 border border-primary/10 text-sm text-muted-foreground text-left shadow-inner">
+            <div className="p-5 rounded-2xl bg-primary/5 border-2 border-primary/10 text-sm text-muted-foreground text-left shadow-none">
               <p className="font-black text-foreground mb-2 uppercase tracking-tight">Next Steps:</p>
               <ul className="list-disc list-inside space-y-2 font-medium">
                 <li>Check your inbox and spam folder</li>
@@ -96,12 +96,12 @@ function SignupForm() {
       
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] dark:opacity-20 pointer-events-none -z-10 transition-opacity" />
 
-      <Card className="w-full max-w-md border-border/50 bg-background/80 backdrop-blur-xl shadow-2xl p-2 md:p-4">
+      <Card className="w-full max-w-md border-2 border-border/60 bg-background/80 backdrop-blur-xl shadow-none p-2 md:p-4">
         <CardHeader className="space-y-3 text-center pt-8 pb-4">
           <div className="flex justify-center mb-6 transition-transform hover:scale-110 duration-500">
             <div className="relative w-24 h-24 group">
               <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-xl group-hover:bg-primary/30 transition-all duration-500" />
-              <div className="relative bg-background/50 backdrop-blur-sm border border-border/50 p-3 rounded-2xl shadow-xl overflow-hidden aspect-square flex items-center justify-center">
+              <div className="relative bg-background/50 backdrop-blur-sm border-2 border-border/50 p-3 rounded-2xl shadow-none overflow-hidden aspect-square flex items-center justify-center">
                 <Image
                   src="/logo.png"
                   alt="Lunch Mate Logo"
@@ -189,7 +189,7 @@ function SignupForm() {
             </div>
 
             <div className="pt-2">
-              <Button type="submit" className="w-full h-14 text-base font-black uppercase tracking-widest transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] rounded-xl shadow-lg hover:shadow-primary/20" disabled={isPending}>
+              <Button type="submit" className="w-full h-14 text-base font-black uppercase tracking-widest transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] rounded-xl border-2 border-primary/20 hover:border-primary/50 shadow-none" disabled={isPending}>
                 {isPending ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />

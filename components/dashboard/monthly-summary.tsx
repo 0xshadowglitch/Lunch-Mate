@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Fragment } from "react"
 import {
   Table,
   TableBody,
@@ -78,7 +78,7 @@ export function MonthlySummary({
   }
 
   return (
-    <Card className="border-none bg-card/40 backdrop-blur-2xl shadow-2xl rounded-[2rem] overflow-hidden">
+    <Card className="border-2 border-border/50 bg-card/40 backdrop-blur-2xl shadow-none rounded-[2rem] overflow-hidden">
       <CardHeader className="pb-4 pt-8 px-6 md:px-10">
         <CardTitle className="text-xl md:text-2xl font-black uppercase tracking-tight flex items-center gap-3">
           Monthly Ledger
@@ -138,7 +138,7 @@ export function MonthlySummary({
                 </TableRow>
               ) : (
                 months.map((month) => (
-                  <>
+                  <Fragment key={month.monthKey}>
                     <TableRow 
                       key={month.monthKey} 
                       className="hover:bg-muted/30 cursor-pointer transition-colors border-b border-border/5 group"
@@ -205,7 +205,7 @@ export function MonthlySummary({
                               <div className="h-1 w-1 rounded-full bg-primary" />
                               Detailed Daily Records
                             </h4>
-                            <div className="rounded-2xl border border-border/50 overflow-hidden shadow-inner">
+                            <div className="rounded-2xl border-2 border-border/50 overflow-hidden shadow-none">
                               <Table>
                                 <TableHeader>
                                   <TableRow className="bg-background/50 hover:bg-background/50 border-none">
@@ -251,7 +251,7 @@ export function MonthlySummary({
                         </TableCell>
                       </TableRow>
                     )}
-                  </>
+                  </Fragment>
                 ))
               )}
             </TableBody>

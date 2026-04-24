@@ -1,13 +1,9 @@
 import { TopNavbar } from "@/components/dashboard/top-navbar"
 import { KPICards } from "@/components/dashboard/kpi-cards"
 import { UserBalanceTable } from "@/components/dashboard/user-balance-table"
-import { SpendingTrendChart } from "@/components/dashboard/spending-trend-chart"
-import { ContributionChart } from "@/components/dashboard/contribution-chart"
 import {
   getStats,
   getUserBalances,
-  getSpendingTrend,
-  getContributionData,
   getCurrentUser,
 } from "@/lib/actions"
 import { getUserOrg } from "@/lib/org-actions"
@@ -29,7 +25,7 @@ export default async function AdminOverviewPage() {
         <TopNavbar title="Welcome to Lunch Mate" />
         <div className="flex-1 flex flex-col items-center justify-center p-6 lg:p-10 space-y-6">
           <InviteRecovery />
-          <Card className="max-w-md w-full bg-card/40 backdrop-blur-2xl border-border/40 shadow-2xl rounded-[2rem] overflow-hidden">
+          <Card className="max-w-md w-full bg-card/40 backdrop-blur-2xl border-2 border-border/50 shadow-none rounded-[2rem] overflow-hidden">
             <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
             <CardHeader className="text-center pt-10 pb-2">
               <div className="mx-auto w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6 ring-1 ring-primary/20">
@@ -49,7 +45,7 @@ export default async function AdminOverviewPage() {
                   Set up your lunch tracker environment to start managing daily expenses and balances with your team.
                 </p>
               </div>
-              <Button asChild className="w-full h-14 text-sm font-black uppercase tracking-widest rounded-xl shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+              <Button asChild className="w-full h-14 text-sm font-black uppercase tracking-widest rounded-xl border-2 border-primary/20 hover:border-primary/50 shadow-none hover:scale-[1.02] active:scale-[0.98] transition-all">
                 <Link href="/onboarding">
                   <Plus className="mr-2 h-5 w-5" />
                   Create Your Team
@@ -62,11 +58,9 @@ export default async function AdminOverviewPage() {
     )
   }
 
-  const [stats, balances, spendingTrend, contributionData, user] = await Promise.all([
+  const [stats, balances, user] = await Promise.all([
     getStats(),
     getUserBalances(),
-    getSpendingTrend(),
-    getContributionData(),
     getCurrentUser(),
   ])
 
@@ -82,10 +76,6 @@ export default async function AdminOverviewPage() {
           currency={org.currency}
         />
         <UserBalanceTable balances={balances} currency={org.currency} currentUserId={user?.id} />
-        <div className="grid gap-6 md:gap-8 grid-cols-1 lg:grid-cols-2">
-          <SpendingTrendChart data={spendingTrend} currency={org.currency} />
-          <ContributionChart data={contributionData} currency={org.currency} />
-        </div>
       </div>
     </div>
   )

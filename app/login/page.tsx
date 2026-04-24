@@ -46,12 +46,12 @@ function LoginForm() {
       
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] dark:opacity-20 pointer-events-none -z-10 transition-opacity" />
 
-      <Card className="w-full max-w-md border-border/50 bg-background/80 backdrop-blur-xl shadow-2xl p-2 md:p-4">
+      <Card className="w-full max-w-md border-2 border-border/60 bg-background/80 backdrop-blur-xl shadow-none p-2 md:p-4">
         <CardHeader className="space-y-3 text-center pt-8 pb-4">
           <div className="flex justify-center mb-6">
             <div className="relative w-24 h-24 group">
               <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-xl group-hover:bg-primary/30 transition-all duration-500" />
-              <div className="relative bg-background/50 backdrop-blur-sm border border-border/50 p-3 rounded-2xl shadow-xl overflow-hidden aspect-square flex items-center justify-center">
+              <div className="relative bg-background/50 backdrop-blur-sm border-2 border-border/50 p-3 rounded-2xl shadow-none overflow-hidden aspect-square flex items-center justify-center">
                 <Image
                   src="/logo.png"
                   alt="Lunch Mate Logo"
@@ -135,7 +135,7 @@ function LoginForm() {
             </div>
 
             <div className="pt-2">
-              <Button type="submit" className="w-full h-14 text-base font-black uppercase tracking-widest transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] rounded-xl shadow-lg hover:shadow-primary/20" disabled={isPending}>
+              <Button type="submit" className="w-full h-14 text-base font-black uppercase tracking-widest transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] rounded-xl border-2 border-primary/20 hover:border-primary/50 shadow-none" disabled={isPending}>
                 {isPending ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />

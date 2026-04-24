@@ -11,6 +11,7 @@ import {
   PieChart,
   FileText,
   User,
+  UserPlus,
   Calendar,
   CalendarDays,
   Utensils,
@@ -78,24 +79,14 @@ const adminNavItems = [
     icon: CalendarDays,
   },
   {
-    title: "Users",
+    title: "Member Tracking",
     href: "/admin/users",
     icon: Users,
   },
   {
-    title: "Trends",
-    href: "/admin/trends",
-    icon: TrendingUp,
-  },
-  {
-    title: "Analysis",
+    title: "Financial Status",
     href: "/admin/analysis",
     icon: PieChart,
-  },
-  {
-    title: "Audit",
-    href: "/admin/audit",
-    icon: FileText,
   },
 ]
 
@@ -164,7 +155,7 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex items-center gap-2 group hover:bg-foreground/[0.03] p-1.5 rounded-xl transition-all flex-1 min-w-0 cursor-pointer">
-              <div className="flex-shrink-0 bg-primary/20 p-2 rounded-xl border border-primary/30 shadow-[0_0_15px_var(--glow-emerald)] group-hover:scale-105 transition-all">
+              <div className="flex-shrink-0 bg-primary/20 p-2 rounded-xl border-2 border-primary/40 shadow-none group-hover:scale-105 transition-all">
                 <Image
                   src="/logo.png"
                   alt="Logo"
@@ -184,7 +175,7 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
               <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-64 bg-card/95 backdrop-blur-xl border-border shadow-2xl !opacity-100 ring-1 ring-white/5" align="start" sideOffset={8}>
+          <DropdownMenuContent className="w-64 bg-card/95 backdrop-blur-xl border-2 border-border shadow-none !opacity-100 ring-1 ring-white/5" align="start" sideOffset={8}>
             <div className="p-2 pb-0">
               <DropdownMenuLabel className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-black px-2 py-1.5 flex items-center justify-between">
                 Switch Organization
@@ -219,7 +210,7 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
                       <span className="text-[8px] text-muted-foreground uppercase font-black tracking-[0.1em]">{o.role === 'admin' ? "👑 Manager" : "👤 Member"}</span>
                     </div>
                   </div>
-                  
+
                   <div className="shrink-0 ml-auto flex items-center gap-2">
                     {o.id === org?.id && <Check className="h-4 w-4 text-primary" />}
                     {o.role === 'admin' && (
@@ -297,8 +288,23 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
           )}
         >
           <Mail className="h-4 w-4" />
-          Join / Invites
+          Pending Invites
         </Link>
+        {isAdmin && org?.role === 'admin' && (
+          <Link
+            href="/admin/users"
+            onClick={handleLinkClick}
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-black uppercase tracking-wider transition-all",
+              pathname === "/admin/users"
+                ? "bg-primary text-primary-foreground"
+                : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            )}
+          >
+            <UserPlus className="h-4 w-4" />
+            Add Member
+          </Link>
+        )}
         <Link
           href="/onboarding"
           onClick={handleLinkClick}
@@ -312,7 +318,7 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
           <PlusCircle className="h-4 w-4" />
           Create New Team
         </Link>
-        
+
         {isAdmin && org?.role === 'admin' && (
           <Link
             href="/admin/settings"
@@ -334,7 +340,7 @@ export function SidebarNav({ isAdmin = true }: SidebarNavProps) {
         <Link
           href={isAdmin ? "/user" : "/admin"}
           onClick={handleLinkClick}
-          className="flex items-center gap-3 rounded-xl px-3 py-3 text-xs font-black uppercase tracking-widest bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20 transition-all shadow-[0_0_15px_rgba(16,185,129,0.1)] group"
+          className="flex items-center gap-3 rounded-xl px-3 py-3 text-xs font-black uppercase tracking-widest bg-primary/10 text-primary hover:bg-primary/20 border-2 border-primary/30 transition-all shadow-none group"
         >
           {isAdmin ? <User className="h-4 w-4 group-hover:scale-110 transition-transform" /> : <ShieldCheck className="h-4 w-4 group-hover:scale-110 transition-transform" />}
           {isAdmin ? "👤 Personal Dashboard" : "👑 Admin Panel"}

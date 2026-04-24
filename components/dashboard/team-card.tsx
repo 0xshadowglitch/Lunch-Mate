@@ -39,7 +39,7 @@ export function TeamCard({ org }: TeamCardProps) {
   }
 
   return (
-    <Card className="group hover:border-primary/50 transition-all bg-card/40 backdrop-blur-xl overflow-hidden shadow-lg border-border/50">
+    <Card className="group hover:border-primary/50 transition-all bg-card/40 backdrop-blur-xl overflow-hidden shadow-none border-2 border-border/50">
       <div className="absolute top-0 left-0 w-1 h-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
       <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between py-6 gap-6">
         <div className="flex items-center gap-4">

@@ -237,7 +237,7 @@ interface DailyLunchTrackerProps {
 
 export function DailyLunchTracker({ entries, users, currency, currentUserId, isAdmin = false }: DailyLunchTrackerProps) {
   return (
-    <Card className="border-none bg-card/40 backdrop-blur-2xl shadow-2xl rounded-[2rem] overflow-hidden">
+    <Card className="border-2 border-border/50 bg-card/40 backdrop-blur-2xl shadow-none rounded-[2rem] overflow-hidden">
       <CardHeader className="pb-4 pt-8 px-6 md:px-10">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1">
@@ -269,7 +269,7 @@ export function DailyLunchTracker({ entries, users, currency, currentUserId, isA
                   <TableHead colSpan={users.length} className="text-[9px] font-black uppercase tracking-[0.2em] text-amber-500 text-center border-l border-primary/10 h-10">4. Payments</TableHead>
                   <TableHead className="w-0 p-0 border-r border-primary/10 h-10" />
                   <TableHead colSpan={users.length} className="text-[9px] font-black uppercase tracking-[0.2em] text-blue-500 text-center border-l border-primary/10 h-10">5. Balances</TableHead>
-                  <TableHead className="sticky right-0 z-30 h-10 bg-card/95 backdrop-blur-md border-l border-primary/10 shadow-[-10px_0_20px_-10px_rgba(0,0,0,0.2)]" />
+                  <TableHead className="sticky right-0 z-30 h-10 bg-card/95 backdrop-blur-md border-l-2 border-primary/20 shadow-none" />
                 </TableRow>
               <TableRow className="bg-primary/10 hover:bg-primary/10 h-14">
                 <TableHead className="font-bold text-primary px-4 whitespace-nowrap">Date</TableHead>
@@ -331,7 +331,7 @@ export function DailyLunchTracker({ entries, users, currency, currentUserId, isA
                     />
                   </TableHead>
                 ))}
-                <TableHead className="sticky right-0 z-20 text-center font-semibold text-primary bg-background/95 backdrop-blur-sm border-l border-primary/10 shadow-[-4px_0_12px_-4px_rgba(0,0,0,0.1)]">Actions</TableHead>
+                <TableHead className="sticky right-0 z-20 text-center font-semibold text-primary bg-background/95 backdrop-blur-sm border-l-2 border-primary/20 shadow-none">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -556,7 +556,7 @@ export function DailyLunchTracker({ entries, users, currency, currentUserId, isA
                         </TableCell>
                       )
                     })}
-                    <TableCell className="sticky right-0 z-10 text-center bg-card/95 backdrop-blur-md border-l border-primary/5 shadow-[-10px_0_20px_-10px_rgba(0,0,0,0.2)]">
+                    <TableCell className="sticky right-0 z-10 text-center bg-card/95 backdrop-blur-md border-l-2 border-primary/20 shadow-none">
                       {isAdmin && <EditEntryDialog entry={entry} users={users} currency={currency} currentUserId={currentUserId} />}
                     </TableCell>
                   </TableRow>

@@ -38,6 +38,7 @@ import { addUser, deleteUser, updateUser, type LunchUser, type UserBalance } fro
 import { UserLabel } from "./user-label"
 import { createClient } from "@/lib/supabase/client"
 import { getUserOrg } from "@/lib/org-actions"
+import { toast } from "sonner"
 
 interface MemberProfile {
   user_id: string
@@ -124,9 +125,14 @@ export function UserManagement({ users, balances, currentUserId, currency = "PKR
     })
   }
 
-  const handleDeleteUser = (userId: string) => {
+  const handleDeleteUser = (userId: string, name: string) => {
     startTransition(async () => {
-      await deleteUser(userId)
+      const result = await deleteUser(userId)
+      if (result.success) {
+        toast.success(`Removed ${name} from tracking`)
+      } else {
+        toast.error(result.error || "Failed to remove member")
+      }
     })
   }
 
@@ -341,11 +347,11 @@ export function UserManagement({ users, balances, currentUserId, currency = "PKR
                                   )}
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
-                              <AlertDialogFooter className="mt-8 gap-3 sm:gap-0">
+                              <AlertDialogFooter className="mt-8 gap-4">
                                 <AlertDialogCancel className="h-14 rounded-xl font-black uppercase tracking-widest text-xs border-2">Keep Member</AlertDialogCancel>
                                 <AlertDialogAction
                                   className="h-14 rounded-xl font-black uppercase tracking-widest text-xs bg-destructive text-white hover:bg-destructive/90 border-2 border-destructive/30 shadow-none"
-                                  onClick={() => handleDeleteUser(user.id)}
+                                  onClick={() => handleDeleteUser(user.id, user.name)}
                                 >
                                   Wipe & Remove
                                 </AlertDialogAction>

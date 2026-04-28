@@ -77,99 +77,46 @@ export async function getUsers(): Promise<LunchUser[]> {
 
   if (fetchError) return []
 
-  // 2. Quick check if sync is needed - only if explicit members are missing
-  const { data: members } = await supabase
-    .from("organization_members")
-    .select("user_id, role")
-    .eq("org_id", orgId)
-
-  const trackedUserIds = new Set(trackerUsers?.map(u => u.linked_user_id))
-  const missingMembers = members?.filter(m => !trackedUserIds.has(m.user_id)) || []
-
+  // 2. Quick check if generic names need updating
   const isGeneric = (name: string) => {
     const n = (name || "").trim().toUpperCase();
     return !n || n.includes("TEAM MEMBER") || n.includes("MEMBER (ME)") || n === "MEMBER" || n === "USER" || n === "LUNCH MATE";
   };
 
-  const hasGeneric = trackerUsers?.some(u => isGeneric(u.name) && u.linked_user_id)
+  const genericUsers = trackerUsers?.filter(u => isGeneric(u.name) && u.linked_user_id) || []
 
-  // 3. Auto-sync if needed - optimized with Promise.all
-  if (missingMembers.length > 0 || hasGeneric) {
+  // 3. Sync names if needed
+  if (genericUsers.length > 0) {
     try {
       const { createAdminClient } = await import("@/lib/supabase/admin")
       const adminSupabase = createAdminClient()
       
-      // Batch fetch metadata for all relevant users
-      const allTargetUserIds = [
-        ...missingMembers.map(m => m.user_id),
-        ...(trackerUsers?.filter(u => isGeneric(u.name) && u.linked_user_id).map(u => u.linked_user_id!) || [])
-      ]
-
-      if (allTargetUserIds.length > 0) {
-        const userMetadataMap = new Map<string, { displayName: string }>()
-        
-        // Fetch all in parallel
-        await Promise.all(allTargetUserIds.map(async (uid) => {
-          try {
-            const { data: { user } } = await adminSupabase.auth.admin.getUserById(uid)
-            if (user) {
-              const fullName = user.user_metadata?.full_name;
-              const emailPrefix = user.email?.split("@")[0];
-              const displayName = (fullName && !isGeneric(fullName)) ? fullName : (emailPrefix || "User");
-              userMetadataMap.set(uid, { displayName });
+      await Promise.all(genericUsers.map(async (gUser) => {
+        try {
+          const { data: { user } } = await adminSupabase.auth.admin.getUserById(gUser.linked_user_id!)
+          if (user) {
+            const fullName = user.user_metadata?.full_name;
+            const emailPrefix = user.email?.split("@")[0];
+            const displayName = (fullName && !isGeneric(fullName)) ? fullName : (emailPrefix || "User");
+            
+            if (displayName && !isGeneric(displayName)) {
+              await supabase.from("lunch_users")
+                .update({ name: displayName })
+                .eq("id", gUser.id)
             }
-          } catch (e) {}
-        }))
-
-        // Process missing members
-        const inserts = []
-        for (const member of missingMembers) {
-          const meta = userMetadataMap.get(member.user_id)
-          const displayName = meta?.displayName || "User"
-          
-          const existingUnlinked = trackerUsers?.find(u => 
-            !u.linked_user_id && 
-            u.name.toLowerCase().trim() === displayName.toLowerCase().trim()
-          );
-
-          if (existingUnlinked) {
-            await supabase.from("lunch_users")
-              .update({ linked_user_id: member.user_id })
-              .eq("id", existingUnlinked.id)
-          } else {
-            inserts.push({
-              name: displayName,
-              org_id: orgId,
-              linked_user_id: member.user_id
-            })
           }
-        }
+        } catch (e) {}
+      }))
 
-        if (inserts.length > 0) {
-          await supabase.from("lunch_users").insert(inserts)
-        }
-
-        // Update generic names
-        const genericUsers = trackerUsers?.filter(u => isGeneric(u.name) && u.linked_user_id) || []
-        for (const gUser of genericUsers) {
-          const meta = userMetadataMap.get(gUser.linked_user_id!)
-          if (meta && !isGeneric(meta.displayName)) {
-            await supabase.from("lunch_users")
-              .update({ name: meta.displayName })
-              .eq("id", gUser.id)
-          }
-        }
-
-        // Re-fetch only if we made changes
-        const { data: updated } = await supabase
-          .from("lunch_users")
-          .select("*")
-          .eq("org_id", orgId)
-          .order("name")
-        trackerUsers = updated || []
-      }
+      // Re-fetch since we updated names
+      const { data: updated } = await supabase
+        .from("lunch_users")
+        .select("*")
+        .eq("org_id", orgId)
+        .order("name")
+      trackerUsers = updated || []
     } catch (adminErr) {
-      console.warn("Auto-sync skipped:", adminErr)
+      console.warn("Name sync skipped:", adminErr)
     }
   }
 

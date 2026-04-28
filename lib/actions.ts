@@ -632,12 +632,14 @@ export async function getWeeklySummary() {
   }).sort((a, b) => new Date(a.weekStart).getTime() - new Date(b.weekStart).getTime())
 
   const overallBalances = users.map((user) => {
-    const userShares = shares?.filter((s) => s.user_id === user.id) || []
-    const userPayments = payments?.filter((p) => p.user_id === user.id) || []
+    const totalBalance = weeks.reduce((sum, week) => {
+      const userStat = week.userStats.find((s: any) => s.userId === user.id)
+      return sum + (userStat?.balance || 0)
+    }, 0)
     return {
       userId: user.id,
       userName: user.name,
-      balance: userPayments.reduce((sum, p) => sum + Number(p.paid_amount), 0) - userShares.reduce((sum, s) => sum + Number(s.share_amount), 0),
+      balance: Math.round(totalBalance * 100) / 100,
     }
   })
 

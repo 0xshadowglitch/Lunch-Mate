@@ -13,6 +13,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import { Check, Receipt, Loader2, Pencil } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
@@ -34,6 +35,7 @@ type UserDetail = {
   share: number
   paid: number
   balance: number
+  totalBalance?: number
 }
 
 type EntryData = {
@@ -47,23 +49,24 @@ import { AddEntryDialog } from "./add-entry-dialog"
 import { EditEntryDialog } from "./edit-entry-dialog"
 import { UserLabel } from "./user-label"
 
-function PaymentAmountEdit({ entryId, userId, initialValue, entryData, currency, isPresent, isAdmin }: {
+function PaymentAmountEdit({ entryId, userId, initialValue, entryData, currency, isPresent, isAdmin, totalBalance = 0 }: {
   entryId: string,
   userId: string,
   initialValue: number,
   entryData: EntryData,
   currency: string,
   isPresent: boolean,
-  isAdmin: boolean
+  isAdmin: boolean,
+  totalBalance?: number
 }) {
   const [isEditing, setIsEditing] = useState(false)
   const [value, setValue] = useState(initialValue.toString())
 
   if (isEditing) {
     return (
-      <div className="flex items-center justify-center p-1">
+      <div className="flex flex-col items-center justify-center p-1 gap-2 bg-background border border-primary rounded-lg shadow-xl animate-in zoom-in-95 duration-200 min-w-[120px]">
         <Input
-          className="h-8 w-20 text-right font-black bg-background border-primary text-xs"
+          className="h-8 w-24 text-right font-black border-none text-xs focus-visible:ring-0"
           type="number"
           step="0.01"
           autoFocus
@@ -115,11 +118,57 @@ function PaymentAmountEdit({ entryId, userId, initialValue, entryData, currency,
               setIsEditing(false);
             }
           }}
-          onBlur={() => {
-            setValue(initialValue.toString());
-            setIsEditing(false);
+          onBlur={(e) => {
+            // Only close if we didn't click on the "Paid All" button
+            if (!e.relatedTarget?.getAttribute('data-paid-all')) {
+              setValue(initialValue.toString());
+              setIsEditing(false);
+            }
           }}
         />
+        {totalBalance < 0 && (
+          <Button
+            size="sm"
+            variant="secondary"
+            data-paid-all="true"
+            className="h-6 w-full text-[9px] font-black uppercase tracking-tighter bg-primary/10 hover:bg-primary text-primary hover:text-primary-foreground"
+            onClick={async () => {
+              const debt = Math.abs(totalBalance);
+              const newValue = initialValue + debt;
+              setValue(newValue.toString());
+              
+              const loader = toast.loading("Processing Full Payment...");
+              try {
+                const otherPayments = entryData.userDetails
+                  .filter(d => d.userId !== userId && d.paid > 0)
+                  .map(d => ({ userId: d.userId, amount: d.paid }));
+
+                const newPayments = [...otherPayments, { userId, amount: newValue }];
+
+                const result = await updateEntry(entryId, {
+                  date: entryData.date,
+                  totalExpense: entryData.totalExpense,
+                  shares: entryData.userDetails.filter(d => d.isPresent).map(d => ({
+                    userId: d.userId,
+                    amount: d.share
+                  })),
+                  payments: newPayments
+                });
+
+                if (result.success) {
+                  toast.success("Full balance paid!", { id: loader });
+                  setIsEditing(false);
+                } else {
+                  toast.error(result.error || "Failed", { id: loader });
+                }
+              } catch (err) {
+                toast.error("Error", { id: loader });
+              }
+            }}
+          >
+            Paid All ({currency}{Math.abs(totalBalance).toLocaleString()})
+          </Button>
+        )}
       </div>
     )
   }
@@ -229,7 +278,7 @@ function TotalExpenseEdit({ id, initialValue, date, currency, userDetails, curre
 
 interface DailyLunchTrackerProps {
   entries: EntryData[]
-  users: { id: string; name: string; linked_user_id?: string | null }[]
+  users: { id: string; name: string; linked_user_id?: string | null; totalBalance?: number }[]
   currency?: string
   currentUserId?: string
   isAdmin?: boolean
@@ -528,6 +577,7 @@ export function DailyLunchTracker({ entries, users, currency, currentUserId, isA
                             currency={currency || "₹"}
                             isPresent={!!detail?.isPresent}
                             isAdmin={isAdmin}
+                            totalBalance={detail?.totalBalance}
                           />
                         </TableCell>
                       )

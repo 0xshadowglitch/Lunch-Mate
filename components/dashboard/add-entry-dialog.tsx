@@ -28,7 +28,7 @@ import { cn } from "@/lib/utils"
 import { UserLabel } from "./user-label"
 
 interface AddEntryDialogProps {
-  users: { id: string; name: string; linked_user_id?: string | null }[]
+  users: { id: string; name: string; linked_user_id?: string | null; totalBalance?: number }[]
   currency?: string
   currentUserId?: string
 }
@@ -44,6 +44,7 @@ export function AddEntryDialog({ users, currency, currentUserId }: AddEntryDialo
   const [presentUserIds, setPresentUserIds] = useState<Set<string>>(
     new Set(users.map((u) => u.id))
   )
+  const [extraPayment, setExtraPayment] = useState(0)
 
   const total = parseFloat(totalExpense) || 0
   const presentCount = presentUserIds.size
@@ -81,7 +82,7 @@ export function AddEntryDialog({ users, currency, currentUserId }: AddEntryDialo
         date,
         totalExpense: total,
         shares,
-        payments: [{ userId: paidBy, amount: total }],
+        payments: [{ userId: paidBy, amount: total + extraPayment }],
       })
 
       if (result.success) {
@@ -143,24 +144,62 @@ export function AddEntryDialog({ users, currency, currentUserId }: AddEntryDialo
             </div>
 
             <div className="grid gap-2.5">
-              <Label htmlFor="paidBy" className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Who Paid?</Label>
-              <Select value={paidBy} onValueChange={setPaidBy}>
-                <SelectTrigger className="h-12 bg-background/50 border-border/40 rounded-xl px-4">
-                  <SelectValue placeholder="Select a user" />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl border-border/50 backdrop-blur-xl">
-                  {users.map((user) => (
-                    <SelectItem key={user.id} value={user.id} className="rounded-lg">
-                      <UserLabel 
-                        name={user.name} 
-                        isMe={user.linked_user_id === currentUserId} 
-                        marquee={false} 
-                        className="text-xs"
-                      />
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex justify-between items-end">
+                <Label htmlFor="paidBy" className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Who Paid?</Label>
+                {(() => {
+                  const selectedUser = users.find(u => u.id === paidBy);
+                  const balance = selectedUser?.totalBalance || 0;
+                  if (balance < 0) {
+                    return (
+                      <Button 
+                        type="button" 
+                        variant="link" 
+                        className="h-auto p-0 text-[10px] font-black uppercase text-primary animate-pulse"
+                        onClick={() => setExtraPayment(Math.abs(balance))}
+                      >
+                        Paid All (Add {currency}{Math.abs(balance).toLocaleString()})
+                      </Button>
+                    );
+                  }
+                  return null;
+                })()}
+              </div>
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <Select value={paidBy} onValueChange={(val) => {
+                    setPaidBy(val);
+                    setExtraPayment(0); // Reset extra payment when switcher payer
+                  }}>
+                    <SelectTrigger className="h-12 bg-background/50 border-border/40 rounded-xl px-4">
+                      <SelectValue placeholder="Select a user" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl border-border/50 backdrop-blur-xl">
+                      {users.map((user) => (
+                        <SelectItem key={user.id} value={user.id} className="rounded-lg">
+                          <UserLabel 
+                            name={user.name} 
+                            isMe={user.linked_user_id === currentUserId} 
+                            marquee={false} 
+                            className="text-xs"
+                          />
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {extraPayment > 0 && (
+                  <div className="w-32 relative">
+                    <Input
+                      type="number"
+                      value={extraPayment}
+                      onChange={(e) => setExtraPayment(parseFloat(e.target.value) || 0)}
+                      className="h-12 bg-primary/10 border-primary/30 rounded-xl px-3 font-black text-primary text-xs"
+                      placeholder="Extra"
+                    />
+                    <span className="absolute -top-4 right-1 text-[8px] font-black text-primary uppercase">Extra Payment</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -215,10 +254,19 @@ export function AddEntryDialog({ users, currency, currentUserId }: AddEntryDialo
               <span>{currency}{total.toLocaleString()} ÷ {presentCount}</span>
             </div>
             <div className="flex justify-between items-end pt-1">
-              <span className="text-xs font-black uppercase tracking-widest opacity-80">Share / Person</span>
-              <span className="text-3xl font-black text-primary tracking-tighter">
-                {currency}{sharePerPerson.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <span className="text-xs font-black uppercase tracking-widest opacity-80">
+                {extraPayment > 0 ? "Total to Record" : "Share / Person"}
               </span>
+              <div className="flex flex-col items-end">
+                {extraPayment > 0 && (
+                  <span className="text-[10px] font-bold text-muted-foreground line-through opacity-50">
+                    {currency}{sharePerPerson.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                )}
+                <span className="text-3xl font-black text-primary tracking-tighter">
+                  {currency}{(extraPayment > 0 ? total + extraPayment : sharePerPerson).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
             </div>
           </div>
 

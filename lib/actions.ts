@@ -757,6 +757,10 @@ export async function getDailyLunchData() {
 
   const sortedEntries = entries || []
 
+  // Get current total balances for "Paid All" functionality
+  const balances = await getUserBalances()
+  const balanceMap = new Map(balances.map(b => [b.id, b.balance]))
+
   const entriesWithDetails = sortedEntries.map((entry) => {
     const entryShares = shares?.filter((s) => s.entry_id === entry.id) || []
     const entryPayments = payments?.filter((p) => p.entry_id === entry.id) || []
@@ -770,9 +774,11 @@ export async function getDailyLunchData() {
       return {
         userId: user.id,
         userName: user.name,
+        linked_user_id: user.linked_user_id,
         isPresent: shareAmount > 0,
         share: shareAmount,
         paid: paidAmount,
+        totalBalance: balanceMap.get(user.id) || 0,
       }
     })
 
@@ -781,7 +787,7 @@ export async function getDailyLunchData() {
     return { id: entry.id, date: entry.date, totalExpense: Number(entry.total_expense), userDetails: settledDetails }
   })
 
-  return { entries: entriesWithDetails.reverse(), users }
+  return { entries: entriesWithDetails.reverse(), users: users.map(u => ({ ...u, totalBalance: balanceMap.get(u.id) || 0 })) }
 }
 
 interface LunchEntryDetail {
@@ -794,15 +800,17 @@ interface LunchEntryDetail {
 interface UserSettlementDetail {
   userId: string
   userName: string
+  linked_user_id?: string | null
   isPresent: boolean
   share: number
   paid: number
   balance: number
+  totalBalance?: number
 }
 
 function calculateSettlementAwareBalances(
   totalExpense: number,
-  users: { userId: string; userName: string; isPresent: boolean; share: number; paid: number }[]
+  users: { userId: string; userName: string; linked_user_id?: string | null; isPresent: boolean; share: number; paid: number; totalBalance?: number }[]
 ): UserSettlementDetail[] {
   const totalPaid = users.reduce((sum: number, u) => sum + u.paid, 0)
   const excess = Math.max(0, totalPaid - totalExpense)

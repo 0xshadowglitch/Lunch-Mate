@@ -26,7 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { updateEntry } from "@/lib/actions"
+import { updateEntry, settleUserDebt } from "@/lib/actions"
 import { toast } from "sonner"
 
 type UserDetail = {
@@ -134,40 +134,22 @@ function PaymentAmountEdit({ entryId, userId, initialValue, entryData, currency,
             data-paid-all="true"
             className="h-6 w-full text-[9px] font-black uppercase tracking-tighter bg-primary/10 hover:bg-primary text-primary hover:text-primary-foreground"
             onClick={async () => {
-              const debt = Math.abs(totalBalance);
-              const newValue = initialValue + debt;
-              setValue(newValue.toString());
-              
-              const loader = toast.loading("Processing Full Payment...");
+              const loader = toast.loading("Processing Full Settlement...");
               try {
-                const otherPayments = entryData.userDetails
-                  .filter(d => d.userId !== userId && d.paid > 0)
-                  .map(d => ({ userId: d.userId, amount: d.paid }));
-
-                const newPayments = [...otherPayments, { userId, amount: newValue }];
-
-                const result = await updateEntry(entryId, {
-                  date: entryData.date,
-                  totalExpense: entryData.totalExpense,
-                  shares: entryData.userDetails.filter(d => d.isPresent).map(d => ({
-                    userId: d.userId,
-                    amount: d.share
-                  })),
-                  payments: newPayments
-                });
+                const result = await settleUserDebt(userId);
 
                 if (result.success) {
-                  toast.success("Full balance paid!", { id: loader });
+                  toast.success("All historical debts settled!", { id: loader });
                   setIsEditing(false);
                 } else {
-                  toast.error(result.error || "Failed", { id: loader });
+                  toast.error(result.error || "Settlement failed", { id: loader });
                 }
               } catch (err) {
-                toast.error("Error", { id: loader });
+                toast.error("An error occurred during settlement", { id: loader });
               }
             }}
           >
-            Paid All ({currency}{Math.abs(totalBalance).toLocaleString()})
+            Settle All Debt ({currency}{Math.abs(totalBalance).toLocaleString()})
           </Button>
         )}
       </div>

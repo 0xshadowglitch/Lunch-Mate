@@ -296,11 +296,44 @@ export async function getUserBalances(): Promise<UserBalance[]> {
   const users = await getUsers()
   if (!users) return []
 
-  // Fetch all entries detail to calculate settled balances
-  const { entries } = await getDailyLunchData()
+  // Fetch all raw data directly to avoid circular dependency with getDailyLunchData
+  const [entriesRes, sharesRes, paymentsRes] = await Promise.all([
+    supabase.from("lunch_entries").select("*").eq("org_id", orgId).order("date", { ascending: true }),
+    supabase.from("lunch_shares").select("*").eq("org_id", orgId),
+    supabase.from("lunch_payments").select("*").eq("org_id", orgId)
+  ])
+
+  const entries = entriesRes.data || []
+  const shares = sharesRes.data || []
+  const payments = paymentsRes.data || []
+
+  // Process entries to calculate settlement-aware balances
+  const processedEntries = entries.map((entry) => {
+    const entryShares = shares.filter((s) => s.entry_id === entry.id)
+    const entryPayments = payments.filter((p) => p.entry_id === entry.id)
+
+    const userDetails = users.map((user) => {
+      const share = entryShares.find((s) => s.user_id === user.id)
+      const payment = entryPayments.find((p) => p.user_id === user.id)
+      const shareAmount = share ? Number(share.share_amount) : 0
+      const paidAmount = payment ? Number(payment.paid_amount) : 0
+
+      return {
+        userId: user.id,
+        userName: user.name,
+        linked_user_id: user.linked_user_id,
+        isPresent: shareAmount > 0,
+        share: shareAmount,
+        paid: paidAmount,
+      }
+    })
+
+    const settledDetails = calculateSettlementAwareBalances(Number(entry.total_expense), userDetails)
+    return { id: entry.id, userDetails: settledDetails }
+  })
 
   return users.map((user) => {
-    const userEntries = entries.map((e) => e.userDetails.find((ud) => ud.userId === user.id))
+    const userEntries = processedEntries.map((e) => e.userDetails.find((ud) => ud.userId === user.id))
     const totalPaid = userEntries.reduce((sum: number, ud) => sum + (ud?.paid || 0), 0)
     const totalShares = userEntries.reduce((sum: number, ud) => sum + (ud?.share || 0), 0)
     const totalBalance = userEntries.reduce((sum: number, ud) => sum + (ud?.balance || 0), 0)
@@ -844,4 +877,58 @@ function calculateSettlementAwareBalances(
       balance: finalBalance
     }
   })
+}
+
+// Settle all historical debt for a user by applying payments to past entries where they owe money
+export async function settleUserDebt(userId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const auth = await getAuthorizedOrgId()
+    if (!auth) return { success: false, error: "No organization found" }
+    const { orgId, role } = auth
+    if (role !== 'admin') return { success: false, error: "Only admins can settle debt" }
+
+    // Use getDailyLunchData to find all entries where user has a negative balance
+    const { entries } = await getDailyLunchData()
+    
+    // Filter for entries where this user has debt (balance < 0)
+    const debtEntries = entries.filter(e => {
+      const detail = e.userDetails.find(ud => ud.userId === userId)
+      return detail && detail.balance < 0
+    })
+
+    if (debtEntries.length === 0) return { success: true }
+
+    const supabase = await createClient()
+    
+    // Process each debt entry - adding a payment record for the debtor
+    // to cover their specific share deficit on that day.
+    const results = await Promise.all(debtEntries.map(async (entry) => {
+      const detail = entry.userDetails.find(ud => ud.userId === userId)
+      if (!detail) return { success: true }
+
+      const debtAmount = Math.abs(detail.balance)
+
+      // Insert a payment record for this user to settle their debt for this specific entry
+      const { error } = await supabase
+        .from("lunch_payments")
+        .insert({
+          entry_id: entry.id,
+          user_id: userId,
+          paid_amount: debtAmount,
+          org_id: orgId
+        })
+      
+      return { success: !error, error: error?.message }
+    }))
+
+    const firstError = results.find(r => !r.success)?.error
+    if (firstError) return { success: false, error: firstError }
+
+    revalidatePath("/admin")
+    revalidatePath("/admin/lunch")
+    revalidatePath("/user")
+    return { success: true }
+  } catch (e: any) {
+    return { success: false, error: e.message }
+  }
 }
